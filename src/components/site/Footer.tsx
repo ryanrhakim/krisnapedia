@@ -1,17 +1,13 @@
-import { BookOpen, Twitter, Github, Linkedin } from "lucide-react";
+import { BookOpen, Instagram, Youtube, Send } from "lucide-react";
 
 const cols = [
   {
     title: "Product",
-    links: ["Search", "Integrations", "Pricing"],
+    links: ["Pustaka Regulasi", "Insight Hub", "Manual Hub"],
   },
   {
-    title: "Company",
-    links: ["About", "Careers", "Blog", "Press", "Contact"],
-  },
-  {
-    title: "Resources",
-    links: ["Docs", "API", "Status", "Changelog", "Security"],
+    title: "Support",
+    links: ["FAQ", "About", "User Guide", "Contact Us"],
   },
 ];
 
@@ -19,7 +15,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-background">
       <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-12 md:grid-cols-[1.5fr_repeat(3,1fr)]">
+        <div className="grid gap-12 md:grid-cols-[1.5fr_repeat(2,1fr)]">
           <div>
             <div className="flex items-center gap-2.5">
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -34,7 +30,7 @@ export function Footer() {
               as a product.
             </p>
             <div className="mt-6 flex items-center gap-3">
-              {[Twitter, Github, Linkedin].map((Icon, i) => (
+              {[Instagram, Youtube, Send].map((Icon, i) => (
                 <a
                   key={i}
                   href="#"
