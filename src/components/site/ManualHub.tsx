@@ -1,12 +1,9 @@
-import { FileText, Settings, Shield, Wrench, Server, Workflow } from "lucide-react";
+import { FileText, Settings, Shield, ArrowUpRight } from "lucide-react";
 
 const manuals = [
   { icon: FileText, title: "Getting Started Guide", count: 24, color: "Onboarding" },
   { icon: Settings, title: "Platform Configuration", count: 38, color: "Setup" },
   { icon: Shield, title: "Security & Compliance", count: 17, color: "Policy" },
-  { icon: Wrench, title: "Maintenance & Operations", count: 29, color: "Ops" },
-  { icon: Server, title: "API & Integrations", count: 52, color: "Developer" },
-  { icon: Workflow, title: "Workflow Templates", count: 31, color: "Process" },
 ];
 
 export function ManualHub() {
@@ -46,7 +43,7 @@ export function ManualHub() {
           </a>
         </div>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {manuals.map((m, i) => {
             const Icon = m.icon;
             return (
@@ -86,6 +83,26 @@ export function ManualHub() {
               </a>
             );
           })}
+
+          {/* View all card-button */}
+          <a
+            href="#"
+            className="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/50 bg-primary/[0.06] p-6 text-center transition-all hover:border-primary hover:bg-primary/[0.12]"
+          >
+            <div className="pointer-events-none absolute inset-0 bg-primary/0 blur-2xl transition-all group-hover:bg-primary/20" />
+            <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-glow)] transition-transform group-hover:scale-110">
+              <ArrowUpRight className="h-6 w-6" />
+            </span>
+            <h3 className="relative mt-5 font-display text-lg font-semibold">
+              View all manuals
+            </h3>
+            <p className="relative mt-2 text-sm text-secondary-foreground/60">
+              Open the complete documentation library.
+            </p>
+            <span className="relative mt-5 inline-flex items-center text-sm font-semibold text-primary">
+              Explore library →
+            </span>
+          </a>
         </div>
       </div>
     </section>

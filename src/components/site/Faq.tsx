@@ -55,22 +55,34 @@ export function Faq() {
           </a>
         </div>
 
-        <Accordion type="single" collapsible className="w-full">
-          {faqs.map((f, i) => (
-            <AccordionItem
-              key={i}
-              value={`item-${i}`}
-              className="border-b border-border"
+        <div>
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((f, i) => (
+              <AccordionItem
+                key={i}
+                value={`item-${i}`}
+                className="border-b border-border"
+              >
+                <AccordionTrigger className="py-5 text-left font-display text-lg font-semibold text-foreground hover:text-primary hover:no-underline">
+                  {f.q}
+                </AccordionTrigger>
+                <AccordionContent className="pb-5 text-base leading-relaxed text-muted-foreground">
+                  {f.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+
+          <div className="mt-8 flex justify-center">
+            <a
+              href="#"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-[var(--primary-soft)] px-6 py-3 text-sm font-semibold text-primary transition-all hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-[var(--shadow-soft)]"
             >
-              <AccordionTrigger className="py-5 text-left font-display text-lg font-semibold text-foreground hover:text-primary hover:no-underline">
-                {f.q}
-              </AccordionTrigger>
-              <AccordionContent className="pb-5 text-base leading-relaxed text-muted-foreground">
-                {f.a}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+              More FAQ
+              <span aria-hidden>→</span>
+            </a>
+          </div>
+        </div>
       </div>
     </section>
   );
