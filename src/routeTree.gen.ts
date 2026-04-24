@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ManualHubRouteImport } from './routes/manual-hub'
 import { Route as InsightHubRouteImport } from './routes/insight-hub'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ManualHubRoute = ManualHubRouteImport.update({
+  id: '/manual-hub',
+  path: '/manual-hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InsightHubRoute = InsightHubRouteImport.update({
   id: '/insight-hub',
   path: '/insight-hub',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/insight-hub': typeof InsightHubRoute
+  '/manual-hub': typeof ManualHubRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/insight-hub': typeof InsightHubRoute
+  '/manual-hub': typeof ManualHubRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/insight-hub': typeof InsightHubRoute
+  '/manual-hub': typeof ManualHubRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/insight-hub'
+  fullPaths: '/' | '/insight-hub' | '/manual-hub'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/insight-hub'
-  id: '__root__' | '/' | '/insight-hub'
+  to: '/' | '/insight-hub' | '/manual-hub'
+  id: '__root__' | '/' | '/insight-hub' | '/manual-hub'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   InsightHubRoute: typeof InsightHubRoute
+  ManualHubRoute: typeof ManualHubRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/manual-hub': {
+      id: '/manual-hub'
+      path: '/manual-hub'
+      fullPath: '/manual-hub'
+      preLoaderRoute: typeof ManualHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/insight-hub': {
       id: '/insight-hub'
       path: '/insight-hub'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InsightHubRoute: InsightHubRoute,
+  ManualHubRoute: ManualHubRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

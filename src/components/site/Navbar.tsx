@@ -41,7 +41,7 @@ type NavLink = { label: string; href?: string; to?: string };
 const links: NavLink[] = [
   { label: "Pustaka Regulasi", href: "/#pustaka" },
   { label: "Insight Hub", to: "/insight-hub" },
-  { label: "Manual Hub", href: "/#manuals" },
+  { label: "Manual Hub", to: "/manual-hub" },
 ];
 
 export function Navbar() {

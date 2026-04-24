@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, FileText } from "lucide-react";
 import onboardingCover from "@/assets/manual-onboarding.jpg";
 import setupCover from "@/assets/manual-setup.jpg";
@@ -59,12 +60,12 @@ export function ManualHub() {
               manuals — all in one place.
             </p>
           </div>
-          <a
-            href="#"
+          <Link
+            to="/manual-hub"
             className="text-sm font-semibold text-primary hover:text-[var(--primary-soft)]"
           >
             Open library →
-          </a>
+          </Link>
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -109,8 +110,8 @@ export function ManualHub() {
           ))}
 
           {/* View all card-button */}
-          <a
-            href="#"
+          <Link
+            to="/manual-hub"
             className="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/50 bg-primary/[0.06] p-6 text-center transition-all hover:-translate-y-1 hover:border-primary hover:bg-primary/[0.12]"
           >
             <div className="pointer-events-none absolute inset-0 bg-primary/0 blur-2xl transition-all group-hover:bg-primary/20" />
@@ -118,7 +119,7 @@ export function ManualHub() {
               <ArrowUpRight className="h-6 w-6" />
             </span>
             <h3 className="relative mt-5 font-display text-lg font-semibold">
-              View all manuals
+              View All Manual
             </h3>
             <p className="relative mt-2 text-sm text-secondary-foreground/60">
               Open the complete documentation library.
@@ -126,7 +127,7 @@ export function ManualHub() {
             <span className="relative mt-5 inline-flex items-center text-sm font-semibold text-primary">
               Explore library →
             </span>
-          </a>
+          </Link>
         </div>
       </div>
     </section>
