@@ -39,7 +39,7 @@ function useTheme() {
 type NavLink = { label: string; href?: string; to?: string };
 
 const links: NavLink[] = [
-  { label: "Pustaka Regulasi", href: "/#pustaka" },
+  { label: "Pustaka Regulasi", to: "/pustaka-regulasi" },
   { label: "Insight Hub", to: "/insight-hub" },
   { label: "Manual Hub", to: "/manual-hub" },
 ];
