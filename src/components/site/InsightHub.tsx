@@ -1,4 +1,4 @@
-import { TrendingUp, Lightbulb, BarChart3, Globe2, Users, Zap } from "lucide-react";
+import { TrendingUp, Lightbulb, BarChart3, ArrowUpRight } from "lucide-react";
 
 const insights = [
   {
@@ -21,27 +21,6 @@ const insights = [
     title: "Measuring documentation ROI",
     desc: "Frameworks and metrics that prove knowledge value.",
     time: "6 min read",
-  },
-  {
-    icon: Globe2,
-    tag: "Global",
-    title: "Multilingual knowledge ops",
-    desc: "Scaling content across regions without losing context.",
-    time: "10 min read",
-  },
-  {
-    icon: Users,
-    tag: "Culture",
-    title: "From silos to shared knowledge",
-    desc: "Cultural shifts that make documentation actually stick.",
-    time: "7 min read",
-  },
-  {
-    icon: Zap,
-    tag: "AI",
-    title: "Augmenting search with AI",
-    desc: "Practical patterns for retrieval-augmented enterprise search.",
-    time: "9 min read",
   },
 ];
 
@@ -70,7 +49,7 @@ export function InsightHub() {
           </a>
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {insights.map((item, i) => {
             const Icon = item.icon;
             return (
@@ -101,6 +80,25 @@ export function InsightHub() {
               </article>
             );
           })}
+
+          {/* Explore all card-button */}
+          <a
+            href="#"
+            className="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/40 bg-[var(--primary-soft)]/40 p-6 text-center transition-all hover:-translate-y-1 hover:border-primary hover:bg-[var(--primary-soft)] hover:shadow-[var(--shadow-soft)]"
+          >
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground transition-transform group-hover:scale-110">
+              <ArrowUpRight className="h-6 w-6" />
+            </span>
+            <h3 className="mt-5 font-display text-xl font-semibold text-foreground">
+              Explore all insights
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Browse the full library of articles, research, and analysis.
+            </p>
+            <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">
+              View all →
+            </span>
+          </a>
         </div>
       </div>
     </section>
