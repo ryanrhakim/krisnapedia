@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PustakaRegulasiRouteImport } from './routes/pustaka-regulasi'
 import { Route as ManualHubRouteImport } from './routes/manual-hub'
 import { Route as InsightHubRouteImport } from './routes/insight-hub'
 import { Route as IndexRouteImport } from './routes/index'
 
+const PustakaRegulasiRoute = PustakaRegulasiRouteImport.update({
+  id: '/pustaka-regulasi',
+  path: '/pustaka-regulasi',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ManualHubRoute = ManualHubRouteImport.update({
   id: '/manual-hub',
   path: '/manual-hub',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
+  '/pustaka-regulasi': typeof PustakaRegulasiRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
+  '/pustaka-regulasi': typeof PustakaRegulasiRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
+  '/pustaka-regulasi': typeof PustakaRegulasiRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/insight-hub' | '/manual-hub'
+  fullPaths: '/' | '/insight-hub' | '/manual-hub' | '/pustaka-regulasi'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/insight-hub' | '/manual-hub'
-  id: '__root__' | '/' | '/insight-hub' | '/manual-hub'
+  to: '/' | '/insight-hub' | '/manual-hub' | '/pustaka-regulasi'
+  id: '__root__' | '/' | '/insight-hub' | '/manual-hub' | '/pustaka-regulasi'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   InsightHubRoute: typeof InsightHubRoute
   ManualHubRoute: typeof ManualHubRoute
+  PustakaRegulasiRoute: typeof PustakaRegulasiRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/pustaka-regulasi': {
+      id: '/pustaka-regulasi'
+      path: '/pustaka-regulasi'
+      fullPath: '/pustaka-regulasi'
+      preLoaderRoute: typeof PustakaRegulasiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/manual-hub': {
       id: '/manual-hub'
       path: '/manual-hub'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InsightHubRoute: InsightHubRoute,
   ManualHubRoute: ManualHubRoute,
+  PustakaRegulasiRoute: PustakaRegulasiRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
