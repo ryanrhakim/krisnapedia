@@ -44,6 +44,8 @@ const links = [
 ];
 
 export function Navbar() {
+  const { theme, toggle } = useTheme();
+  const [lang, setLang] = useState("en");
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
@@ -68,13 +70,51 @@ export function Navbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="hidden md:inline-flex">
             <Search className="h-4 w-4" />
           </Button>
-          <Button className="hidden bg-primary text-primary-foreground hover:bg-[var(--primary-deep)] md:inline-flex">
-            Sign in
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggle}
+            aria-label="Toggle theme"
+            className="hidden md:inline-flex"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
           </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden items-center gap-1.5 md:inline-flex"
+                aria-label="Switch language"
+              >
+                <Globe className="h-4 w-4" />
+                <span className="text-xs font-semibold uppercase">{lang}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              {languages.map((l) => (
+                <DropdownMenuItem
+                  key={l.code}
+                  onClick={() => setLang(l.code)}
+                  className="flex items-center justify-between"
+                >
+                  <span>{l.label}</span>
+                  {lang === l.code && <Check className="h-4 w-4 text-primary" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-5 w-5" />
           </Button>
