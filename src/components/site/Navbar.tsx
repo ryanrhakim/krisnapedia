@@ -37,10 +37,9 @@ function useTheme() {
 }
 
 const links = [
+  { label: "Pustaka Regulasi", href: "#pustaka" },
   { label: "Insight Hub", href: "#insights" },
   { label: "Manual Hub", href: "#manuals" },
-  { label: "FAQ", href: "#faq" },
-  { label: "About", href: "#about" },
 ];
 
 export function Navbar() {
