@@ -36,10 +36,12 @@ function useTheme() {
   return { theme, toggle };
 }
 
-const links = [
-  { label: "Pustaka Regulasi", href: "#pustaka" },
-  { label: "Insight Hub", href: "#insights" },
-  { label: "Manual Hub", href: "#manuals" },
+type NavLink = { label: string; href?: string; to?: string };
+
+const links: NavLink[] = [
+  { label: "Pustaka Regulasi", href: "/#pustaka" },
+  { label: "Insight Hub", to: "/insight-hub" },
+  { label: "Manual Hub", href: "/#manuals" },
 ];
 
 export function Navbar() {
@@ -58,15 +60,26 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) =>
+            l.to ? (
+              <Link
+                key={l.label}
+                to={l.to}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                activeProps={{ className: "text-primary font-semibold" }}
+              >
+                {l.label}
+              </Link>
+            ) : (
+              <a
+                key={l.label}
+                href={l.href}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {l.label}
+              </a>
+            ),
+          )}
         </nav>
 
         <div className="flex items-center gap-1">
