@@ -1,4 +1,4 @@
-import { TrendingUp, Lightbulb, BarChart3, Globe2, Users, Zap } from "lucide-react";
+import { TrendingUp, Lightbulb, BarChart3, ArrowUpRight } from "lucide-react";
 
 const insights = [
   {
@@ -21,27 +21,6 @@ const insights = [
     title: "Measuring documentation ROI",
     desc: "Frameworks and metrics that prove knowledge value.",
     time: "6 min read",
-  },
-  {
-    icon: Globe2,
-    tag: "Global",
-    title: "Multilingual knowledge ops",
-    desc: "Scaling content across regions without losing context.",
-    time: "10 min read",
-  },
-  {
-    icon: Users,
-    tag: "Culture",
-    title: "From silos to shared knowledge",
-    desc: "Cultural shifts that make documentation actually stick.",
-    time: "7 min read",
-  },
-  {
-    icon: Zap,
-    tag: "AI",
-    title: "Augmenting search with AI",
-    desc: "Practical patterns for retrieval-augmented enterprise search.",
-    time: "9 min read",
   },
 ];
 
