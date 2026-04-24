@@ -3,7 +3,7 @@ import { BookOpen, Twitter, Github, Linkedin } from "lucide-react";
 const cols = [
   {
     title: "Product",
-    links: ["Insight Hub", "Manual Hub", "Search", "Integrations", "Pricing"],
+    links: ["Search", "Integrations", "Pricing"],
   },
   {
     title: "Company",
