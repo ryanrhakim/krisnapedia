@@ -1,9 +1,33 @@
-import { FileText, Settings, Shield, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, FileText } from "lucide-react";
+import onboardingCover from "@/assets/manual-onboarding.jpg";
+import setupCover from "@/assets/manual-setup.jpg";
+import securityCover from "@/assets/manual-security.jpg";
 
 const manuals = [
-  { icon: FileText, title: "Getting Started Guide", count: 24, color: "Onboarding" },
-  { icon: Settings, title: "Platform Configuration", count: 38, color: "Setup" },
-  { icon: Shield, title: "Security & Compliance", count: 17, color: "Policy" },
+  {
+    cover: onboardingCover,
+    category: "Onboarding",
+    title: "Getting Started Guide",
+    desc: "Step-by-step walkthrough for new team members joining the platform.",
+    type: "Manual · PDF",
+    date: "Apr 20, 2026",
+  },
+  {
+    cover: setupCover,
+    category: "Setup",
+    title: "Platform Configuration",
+    desc: "Admin reference for environments, integrations, and access policies.",
+    type: "SOP · DOCX",
+    date: "Apr 14, 2026",
+  },
+  {
+    cover: securityCover,
+    category: "Policy",
+    title: "Security & Compliance",
+    desc: "Guidelines covering data handling, audits, and incident response.",
+    type: "Policy · PDF",
+    date: "Apr 09, 2026",
+  },
 ];
 
 export function ManualHub() {
@@ -43,51 +67,51 @@ export function ManualHub() {
           </a>
         </div>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {manuals.map((m, i) => {
-            const Icon = m.icon;
-            return (
-              <a
-                href="#"
-                key={i}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-all hover:border-primary/60 hover:bg-white/[0.08]"
-              >
-                {/* corner glow */}
-                <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/0 blur-2xl transition-all group-hover:bg-primary/30" />
+        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {manuals.map((m, i) => (
+            <article
+              key={i}
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition-all hover:-translate-y-1 hover:border-primary/60 hover:bg-white/[0.08]"
+            >
+              {/* Cover */}
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/40">
+                <img
+                  src={m.cover}
+                  alt={m.title}
+                  loading="lazy"
+                  width={800}
+                  height={512}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <span className="absolute left-3 top-3 rounded-full bg-secondary/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
+                  {m.category}
+                </span>
+              </div>
 
-                <div className="relative flex items-start gap-4">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-[var(--shadow-glow)]">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <div className="flex-1">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-                      {m.color}
-                    </span>
-                    <h3 className="mt-1 font-display text-lg font-semibold">
-                      {m.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-secondary-foreground/60">
-                      {m.count} documents
-                    </p>
-                  </div>
-                </div>
+              {/* Body */}
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="font-display text-lg font-semibold leading-snug">
+                  {m.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-secondary-foreground/65">
+                  {m.desc}
+                </p>
 
-                <div className="relative mt-6 flex items-center justify-between border-t border-white/10 pt-4">
-                  <span className="text-xs text-secondary-foreground/50">
-                    Updated weekly
+                <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-secondary-foreground/55">
+                  <span className="inline-flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5" />
+                    {m.type}
                   </span>
-                  <span className="text-sm font-medium text-primary transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
+                  <time>{m.date}</time>
                 </div>
-              </a>
-            );
-          })}
+              </div>
+            </article>
+          ))}
 
           {/* View all card-button */}
           <a
             href="#"
-            className="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/50 bg-primary/[0.06] p-6 text-center transition-all hover:border-primary hover:bg-primary/[0.12]"
+            className="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/50 bg-primary/[0.06] p-6 text-center transition-all hover:-translate-y-1 hover:border-primary hover:bg-primary/[0.12]"
           >
             <div className="pointer-events-none absolute inset-0 bg-primary/0 blur-2xl transition-all group-hover:bg-primary/20" />
             <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-glow)] transition-transform group-hover:scale-110">
