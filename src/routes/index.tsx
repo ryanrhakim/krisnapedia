@@ -1,26 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Navbar } from "@/components/site/Navbar";
+import { Hero } from "@/components/site/Hero";
+import { InsightHub } from "@/components/site/InsightHub";
+import { ManualHub } from "@/components/site/ManualHub";
+import { Faq } from "@/components/site/Faq";
+import { Footer } from "@/components/site/Footer";
 
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { title: "KRISNApedia — Integrated Knowledge Management" },
+      {
+        name: "description",
+        content:
+          "KRISNApedia centralizes documents, manuals, and insights into one searchable knowledge repository for modern teams.",
+      },
+      { property: "og:title", content: "KRISNApedia — Integrated Knowledge Management" },
+      {
+        property: "og:description",
+        content:
+          "One repository for every answer. Centralize manuals, insights, and SOPs in a single platform.",
+      },
+    ],
+  }),
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
-
 function Index() {
-  return <PlaceholderIndex />;
+  return (
+    <main className="min-h-screen bg-background">
+      <Navbar />
+      <Hero />
+      <InsightHub />
+      <ManualHub />
+      <Faq />
+      <Footer />
+    </main>
+  );
 }
