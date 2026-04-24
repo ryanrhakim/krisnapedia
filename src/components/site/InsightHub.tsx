@@ -1,26 +1,32 @@
-import { TrendingUp, Lightbulb, BarChart3, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, FileText } from "lucide-react";
+import marketCover from "@/assets/insight-market.jpg";
+import strategyCover from "@/assets/insight-strategy.jpg";
+import analyticsCover from "@/assets/insight-analytics.jpg";
 
 const insights = [
   {
-    icon: TrendingUp,
-    tag: "Market",
+    cover: marketCover,
+    category: "Market",
     title: "Q1 2026 industry outlook",
     desc: "Key trends shaping enterprise knowledge platforms this quarter.",
-    time: "8 min read",
+    type: "Whitepaper · PDF",
+    date: "Apr 18, 2026",
   },
   {
-    icon: Lightbulb,
-    tag: "Strategy",
+    cover: strategyCover,
+    category: "Strategy",
     title: "Building a single source of truth",
     desc: "How leading teams consolidate scattered documentation.",
-    time: "12 min read",
+    type: "Article · Web",
+    date: "Apr 11, 2026",
   },
   {
-    icon: BarChart3,
-    tag: "Analytics",
+    cover: analyticsCover,
+    category: "Analytics",
     title: "Measuring documentation ROI",
     desc: "Frameworks and metrics that prove knowledge value.",
-    time: "6 min read",
+    type: "Report · PDF",
+    date: "Apr 03, 2026",
   },
 ];
 
@@ -50,36 +56,45 @@ export function InsightHub() {
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {insights.map((item, i) => {
-            const Icon = item.icon;
-            return (
-              <article
-                key={i}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
-              >
-                <div className="mb-5 flex items-center justify-between">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <span className="rounded-full border border-border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    {item.tag}
-                  </span>
-                </div>
-                <h3 className="font-display text-xl font-semibold text-foreground">
+          {insights.map((item, i) => (
+            <article
+              key={i}
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
+            >
+              {/* Cover */}
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                <img
+                  src={item.cover}
+                  alt={item.title}
+                  loading="lazy"
+                  width={800}
+                  height={512}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
+                  {item.category}
+                </span>
+              </div>
+
+              {/* Body */}
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="font-display text-lg font-semibold leading-snug text-foreground">
                   {item.title}
                 </h3>
                 <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
                   {item.desc}
                 </p>
-                <div className="mt-6 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
-                  <span>{item.time}</span>
-                  <span className="font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                    Read article →
+
+                <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5" />
+                    {item.type}
                   </span>
+                  <time>{item.date}</time>
                 </div>
-              </article>
-            );
-          })}
+              </div>
+            </article>
+          ))}
 
           {/* Explore all card-button */}
           <a
