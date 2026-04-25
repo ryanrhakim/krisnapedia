@@ -1,6 +1,14 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, FileText, ChevronDown, SlidersHorizontal, ScrollText } from "lucide-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import {
+  Search,
+  FileText,
+  ChevronDown,
+  SlidersHorizontal,
+  ScrollText,
+  Loader2,
+} from "lucide-react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { Input } from "@/components/ui/input";
@@ -12,9 +20,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { regulations } from "@/data/regulasi";
+import { regulationsQueryOptions } from "@/lib/sanity-queries";
+import { imageUrl } from "@/lib/sanity";
+import { formatDate } from "@/lib/format";
+import regulasiFallback from "@/assets/regulasi-uu.jpg";
 
 export const Route = createFileRoute("/pustaka-regulasi")({
+  loader: ({ context: { queryClient } }) => {
+    queryClient.ensureQueryData(regulationsQueryOptions());
+  },
+  pendingComponent: () => (
+    <main className="flex min-h-screen items-center justify-center bg-background">
+      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+    </main>
+  ),
   component: PustakaRegulasiPage,
   head: () => ({
     meta: [
@@ -34,19 +53,23 @@ export const Route = createFileRoute("/pustaka-regulasi")({
   }),
 });
 
-const categories = [
-  "All",
-  "Undang-Undang",
-  "Peraturan Presiden",
-  "Peraturan Menteri",
-  "SOP Internal",
-];
-const fileTypes = ["All", "PDF", "DOCX", "Web"];
-
 function PustakaRegulasiPage() {
+  const { data: regulations } = useSuspenseQuery(regulationsQueryOptions());
   const [query, setQuery] = useState("");
   const [fileType, setFileType] = useState("All");
   const [category, setCategory] = useState("All");
+
+  const categories = useMemo(
+    () => ["All", ...Array.from(new Set(regulations.map((r) => r.category).filter(Boolean)))],
+    [regulations],
+  );
+  const fileTypes = useMemo(
+    () => [
+      "All",
+      ...Array.from(new Set(regulations.map((r) => r.fileType).filter(Boolean) as string[])),
+    ],
+    [regulations],
+  );
 
   const filtered = useMemo(() => {
     return regulations.filter((it) => {
@@ -57,7 +80,7 @@ function PustakaRegulasiPage() {
       const matchC = category === "All" ? true : it.category === category;
       return matchQ && matchT && matchC;
     });
-  }, [query, fileType, category]);
+  }, [regulations, query, fileType, category]);
 
   const reset = () => {
     setQuery("");
@@ -69,7 +92,6 @@ function PustakaRegulasiPage() {
     <main className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Headline */}
       <section className="relative overflow-hidden border-b border-border bg-[var(--gradient-hero)]">
         <div className="mx-auto max-w-7xl px-6 py-20 md:py-28">
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-primary">
@@ -87,7 +109,6 @@ function PustakaRegulasiPage() {
         </div>
       </section>
 
-      {/* Search & Filter */}
       <section className="border-b border-border bg-background">
         <div className="mx-auto max-w-7xl px-6 py-8">
           <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)]">
@@ -96,7 +117,6 @@ function PustakaRegulasiPage() {
               Filter regulasi
             </div>
             <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr_auto]">
-              {/* Judul */}
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -107,7 +127,6 @@ function PustakaRegulasiPage() {
                 />
               </div>
 
-              {/* Tipe File */}
               <Select value={fileType} onValueChange={setFileType}>
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="Tipe File" />
@@ -121,7 +140,6 @@ function PustakaRegulasiPage() {
                 </SelectContent>
               </Select>
 
-              {/* Kategori */}
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="Kategori" />
@@ -159,7 +177,6 @@ function PustakaRegulasiPage() {
         </div>
       </section>
 
-      {/* Content Card Grid */}
       <section className="bg-background py-14">
         <div className="mx-auto max-w-7xl px-6">
           {filtered.length === 0 ? (
@@ -176,45 +193,51 @@ function PustakaRegulasiPage() {
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((item) => (
-                <Link
-                  key={item.slug}
-                  to="/pustaka-regulasi/$slug"
-                  params={{ slug: item.slug }}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
-                >
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                    <img
-                      src={item.cover}
-                      alt={item.title}
-                      loading="lazy"
-                      width={800}
-                      height={600}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
-                      {item.category}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-1 flex-col p-5">
-                    <h3 className="font-display text-lg font-semibold leading-snug text-foreground">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
-                      {item.desc}
-                    </p>
-
-                    <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1.5">
-                        <FileText className="h-3.5 w-3.5" />
-                        {item.type}
+              {filtered.map((item) => {
+                const cover = imageUrl(item.coverImage, 800) || regulasiFallback;
+                const typeLabel = item.fileType
+                  ? `${item.category} · ${item.fileType}`
+                  : item.category;
+                return (
+                  <Link
+                    key={item._id}
+                    to="/pustaka-regulasi/$slug"
+                    params={{ slug: item.slug }}
+                    className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
+                  >
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                      <img
+                        src={cover}
+                        alt={item.title}
+                        loading="lazy"
+                        width={800}
+                        height={600}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
+                        {item.category}
                       </span>
-                      <time>{item.date}</time>
                     </div>
-                  </div>
-                </Link>
-              ))}
+
+                    <div className="flex flex-1 flex-col p-5">
+                      <h3 className="font-display text-lg font-semibold leading-snug text-foreground">
+                        {item.title}
+                      </h3>
+                      <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                        {item.description}
+                      </p>
+
+                      <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1.5">
+                          <FileText className="h-3.5 w-3.5" />
+                          {typeLabel}
+                        </span>
+                        <time>{formatDate(item.date)}</time>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>

@@ -1,10 +1,15 @@
 import { ArrowUpRight, FileText } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { insights as allInsights } from "@/data/insights";
-
-const insights = allInsights.slice(0, 3);
+import { useQuery } from "@tanstack/react-query";
+import { insightsQueryOptions } from "@/lib/sanity-queries";
+import { imageUrl } from "@/lib/sanity";
+import { formatDate } from "@/lib/format";
+import insightFallback from "@/assets/insight-strategy.jpg";
 
 export function InsightHub() {
+  const { data: all = [] } = useQuery(insightsQueryOptions());
+  const insights = all.slice(0, 3);
+
   return (
     <section id="insights" className="border-t border-border bg-background py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -17,62 +22,49 @@ export function InsightHub() {
               Ideas worth sharing.
             </h2>
             <p className="mt-3 max-w-lg text-muted-foreground">
-              Curated thinking, research, and analysis from across the
-              KRISNApedia network.
+              Curated thinking, research, and analysis from across the KRISNApedia network.
             </p>
           </div>
-          <Link
-            to="/insight-hub"
-            className="text-sm font-semibold text-primary hover:text-[var(--primary-deep)]"
-          >
+          <Link to="/insight-hub" className="text-sm font-semibold text-primary hover:text-[var(--primary-deep)]">
             Browse all insights →
           </Link>
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {insights.map((item) => (
-            <Link
-              key={item.slug}
-              to="/insight-hub/$slug"
-              params={{ slug: item.slug }}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
-            >
-              {/* Cover */}
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                <img
-                  src={item.cover}
-                  alt={item.title}
-                  loading="lazy"
-                  width={800}
-                  height={512}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
-                  {item.category}
-                </span>
-              </div>
-
-              {/* Body */}
-              <div className="flex flex-1 flex-col p-5">
-                <h3 className="font-display text-lg font-semibold leading-snug text-foreground">
-                  {item.title}
-                </h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
-                  {item.desc}
-                </p>
-
-                <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1.5">
-                    <FileText className="h-3.5 w-3.5" />
-                    {item.type}
+          {insights.map((item) => {
+            const cover = imageUrl(item.coverImage, 800) || insightFallback;
+            return (
+              <Link
+                key={item._id}
+                to="/insight-hub/$slug"
+                params={{ slug: item.slug }}
+                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
+              >
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                  <img src={cover} alt={item.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
+                    {item.category}
                   </span>
-                  <time>{item.date}</time>
                 </div>
-              </div>
-            </Link>
-          ))}
+                <div className="flex flex-1 flex-col p-5">
+                  <h3 className="font-display text-lg font-semibold leading-snug text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                    {item.description}
+                  </p>
+                  <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                      <FileText className="h-3.5 w-3.5" />
+                      {item.fileType ?? item.viewer.toUpperCase()}
+                    </span>
+                    <time>{formatDate(item.date)}</time>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
 
-          {/* Explore all card-button */}
           <Link
             to="/insight-hub"
             className="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/40 bg-[var(--primary-soft)]/40 p-6 text-center transition-all hover:-translate-y-1 hover:border-primary hover:bg-[var(--primary-soft)] hover:shadow-[var(--shadow-soft)]"
@@ -80,15 +72,9 @@ export function InsightHub() {
             <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground transition-transform group-hover:scale-110">
               <ArrowUpRight className="h-6 w-6" />
             </span>
-            <h3 className="mt-5 font-display text-xl font-semibold text-foreground">
-              Explore All Insight
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Browse the full library of articles, research, and analysis.
-            </p>
-            <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">
-              View all →
-            </span>
+            <h3 className="mt-5 font-display text-xl font-semibold text-foreground">Explore All Insight</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Browse the full library.</p>
+            <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">View all →</span>
           </Link>
         </div>
       </div>
