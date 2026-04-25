@@ -1,13 +1,25 @@
+import { Link } from "@tanstack/react-router";
 import { BookOpen, Instagram, Youtube, Send } from "lucide-react";
 
-const cols = [
+type FooterLink = { label: string; to?: string; href?: string };
+
+const cols: { title: string; links: FooterLink[] }[] = [
   {
     title: "Product",
-    links: ["Pustaka Regulasi", "Insight Hub", "Manual Hub"],
+    links: [
+      { label: "Pustaka Regulasi", to: "/pustaka-regulasi" },
+      { label: "Insight Hub", to: "/insight-hub" },
+      { label: "Manual Hub", to: "/manual-hub" },
+    ],
   },
   {
     title: "Support",
-    links: ["FAQ", "About", "User Guide", "Contact Us"],
+    links: [
+      { label: "FAQ", to: "/faq" },
+      { label: "About", href: "#" },
+      { label: "User Guide", href: "#" },
+      { label: "Contact Us", href: "#" },
+    ],
   },
 ];
 
@@ -49,13 +61,22 @@ export function Footer() {
               </h4>
               <ul className="mt-4 space-y-2.5">
                 {c.links.map((l) => (
-                  <li key={l}>
-                    <a
-                      href="#"
-                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                    >
-                      {l}
-                    </a>
+                  <li key={l.label}>
+                    {l.to ? (
+                      <Link
+                        to={l.to}
+                        className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                      >
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={l.href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                      >
+                        {l.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
