@@ -35,13 +35,16 @@ export function ManualHub() {
   return (
     <section
       id="manuals"
-      className="relative overflow-hidden bg-secondary py-24 text-secondary-foreground"
+      className="relative overflow-hidden border-t border-border py-24 text-foreground"
+      style={{
+        backgroundColor: "oklch(0.97 0.025 75)",
+      }}
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.04]"
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 1px 1px, var(--primary-foreground) 1px, transparent 0)",
+            "radial-gradient(circle at 1px 1px, var(--primary-deep) 1px, transparent 0)",
           backgroundSize: "32px 32px",
         }}
       />
@@ -55,14 +58,14 @@ export function ManualHub() {
             <h2 className="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
               Documentation, organized.
             </h2>
-            <p className="mt-3 max-w-lg text-secondary-foreground/70">
+            <p className="mt-3 max-w-lg text-foreground/70">
               Standard operating procedures, technical guides, and reference
               manuals — all in one place.
             </p>
           </div>
           <Link
             to="/manual-hub"
-            className="text-sm font-semibold text-primary hover:text-[var(--primary-soft)]"
+            className="text-sm font-semibold text-primary hover:text-[var(--primary-deep)]"
           >
             Open library →
           </Link>
@@ -72,10 +75,10 @@ export function ManualHub() {
           {manuals.map((m, i) => (
             <article
               key={i}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition-all hover:-translate-y-1 hover:border-primary/60 hover:bg-white/[0.08]"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-[var(--shadow-soft)]"
             >
               {/* Cover */}
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/40">
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
                 <img
                   src={m.cover}
                   alt={m.title}
@@ -84,7 +87,7 @@ export function ManualHub() {
                   height={512}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <span className="absolute left-3 top-3 rounded-full bg-secondary/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
+                <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
                   {m.category}
                 </span>
               </div>
@@ -94,11 +97,11 @@ export function ManualHub() {
                 <h3 className="font-display text-lg font-semibold leading-snug">
                   {m.title}
                 </h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-secondary-foreground/65">
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
                   {m.desc}
                 </p>
 
-                <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-xs text-secondary-foreground/55">
+                <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1.5">
                     <FileText className="h-3.5 w-3.5" />
                     {m.type}
@@ -112,7 +115,7 @@ export function ManualHub() {
           {/* View all card-button */}
           <Link
             to="/manual-hub"
-            className="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/50 bg-primary/[0.06] p-6 text-center transition-all hover:-translate-y-1 hover:border-primary hover:bg-primary/[0.12]"
+            className="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/50 bg-primary/[0.06] p-6 text-center transition-all hover:-translate-y-1 hover:border-primary hover:bg-primary/[0.12] hover:shadow-[var(--shadow-soft)]"
           >
             <div className="pointer-events-none absolute inset-0 bg-primary/0 blur-2xl transition-all group-hover:bg-primary/20" />
             <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-glow)] transition-transform group-hover:scale-110">
@@ -121,7 +124,7 @@ export function ManualHub() {
             <h3 className="relative mt-5 font-display text-lg font-semibold">
               View All Manual
             </h3>
-            <p className="relative mt-2 text-sm text-secondary-foreground/60">
+            <p className="relative mt-2 text-sm text-muted-foreground">
               Open the complete documentation library.
             </p>
             <span className="relative mt-5 inline-flex items-center text-sm font-semibold text-primary">
