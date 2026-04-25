@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, FileText, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
@@ -12,9 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import marketCover from "@/assets/insight-market.jpg";
-import strategyCover from "@/assets/insight-strategy.jpg";
-import analyticsCover from "@/assets/insight-analytics.jpg";
+import { insights } from "@/data/insights";
 
 export const Route = createFileRoute("/insight-hub")({
   component: InsightHubPage,
@@ -35,100 +33,6 @@ export const Route = createFileRoute("/insight-hub")({
     ],
   }),
 });
-
-type Insight = {
-  cover: string;
-  category: string;
-  title: string;
-  desc: string;
-  type: string;
-  fileType: "PDF" | "Web" | "Slides";
-  date: string;
-};
-
-const insights: Insight[] = [
-  {
-    cover: marketCover,
-    category: "Market",
-    title: "Q1 2026 industry outlook",
-    desc: "Key trends shaping enterprise knowledge platforms this quarter.",
-    type: "Whitepaper · PDF",
-    fileType: "PDF",
-    date: "Apr 18, 2026",
-  },
-  {
-    cover: strategyCover,
-    category: "Strategy",
-    title: "Building a single source of truth",
-    desc: "How leading teams consolidate scattered documentation.",
-    type: "Article · Web",
-    fileType: "Web",
-    date: "Apr 11, 2026",
-  },
-  {
-    cover: analyticsCover,
-    category: "Analytics",
-    title: "Measuring documentation ROI",
-    desc: "Frameworks and metrics that prove knowledge value.",
-    type: "Report · PDF",
-    fileType: "PDF",
-    date: "Apr 03, 2026",
-  },
-  {
-    cover: strategyCover,
-    category: "Strategy",
-    title: "Knowledge workflows that scale",
-    desc: "Operating models for distributed and asynchronous teams.",
-    type: "Playbook · Slides",
-    fileType: "Slides",
-    date: "Mar 27, 2026",
-  },
-  {
-    cover: marketCover,
-    category: "Market",
-    title: "The state of regulated industries",
-    desc: "Compliance-driven knowledge needs across finance and health.",
-    type: "Report · PDF",
-    fileType: "PDF",
-    date: "Mar 20, 2026",
-  },
-  {
-    cover: analyticsCover,
-    category: "Analytics",
-    title: "Search relevance benchmarks",
-    desc: "How the top platforms rank for retrieval quality in 2026.",
-    type: "Article · Web",
-    fileType: "Web",
-    date: "Mar 14, 2026",
-  },
-  {
-    cover: marketCover,
-    category: "Market",
-    title: "AI assistants in the workplace",
-    desc: "Adoption patterns and ROI signals from 200+ enterprises.",
-    type: "Whitepaper · PDF",
-    fileType: "PDF",
-    date: "Mar 06, 2026",
-  },
-  {
-    cover: strategyCover,
-    category: "Strategy",
-    title: "Designing your knowledge taxonomy",
-    desc: "A practical guide to categories, tags, and metadata.",
-    type: "Article · Web",
-    fileType: "Web",
-    date: "Feb 28, 2026",
-  },
-  {
-    cover: analyticsCover,
-    category: "Analytics",
-    title: "Reducing time-to-answer",
-    desc: "Field-tested techniques to cut search friction in half.",
-    type: "Playbook · Slides",
-    fileType: "Slides",
-    date: "Feb 19, 2026",
-  },
-];
 
 const categories = ["All", "Market", "Strategy", "Analytics"];
 const fileTypes = ["All", "PDF", "Web", "Slides"];
@@ -265,9 +169,11 @@ function InsightHubPage() {
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((item, i) => (
-                <article
-                  key={i}
+              {filtered.map((item) => (
+                <Link
+                  key={item.slug}
+                  to="/insight-hub/$slug"
+                  params={{ slug: item.slug }}
                   className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
                 >
                   <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
@@ -300,7 +206,7 @@ function InsightHubPage() {
                       <time>{item.date}</time>
                     </div>
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           )}

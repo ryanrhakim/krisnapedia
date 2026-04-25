@@ -1,35 +1,8 @@
 import { ArrowUpRight, FileText } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import marketCover from "@/assets/insight-market.jpg";
-import strategyCover from "@/assets/insight-strategy.jpg";
-import analyticsCover from "@/assets/insight-analytics.jpg";
+import { insights as allInsights } from "@/data/insights";
 
-const insights = [
-  {
-    cover: marketCover,
-    category: "Market",
-    title: "Q1 2026 industry outlook",
-    desc: "Key trends shaping enterprise knowledge platforms this quarter.",
-    type: "Whitepaper · PDF",
-    date: "Apr 18, 2026",
-  },
-  {
-    cover: strategyCover,
-    category: "Strategy",
-    title: "Building a single source of truth",
-    desc: "How leading teams consolidate scattered documentation.",
-    type: "Article · Web",
-    date: "Apr 11, 2026",
-  },
-  {
-    cover: analyticsCover,
-    category: "Analytics",
-    title: "Measuring documentation ROI",
-    desc: "Frameworks and metrics that prove knowledge value.",
-    type: "Report · PDF",
-    date: "Apr 03, 2026",
-  },
-];
+const insights = allInsights.slice(0, 3);
 
 export function InsightHub() {
   return (
@@ -57,9 +30,11 @@ export function InsightHub() {
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {insights.map((item, i) => (
-            <article
-              key={i}
+          {insights.map((item) => (
+            <Link
+              key={item.slug}
+              to="/insight-hub/$slug"
+              params={{ slug: item.slug }}
               className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
             >
               {/* Cover */}
@@ -94,7 +69,7 @@ export function InsightHub() {
                   <time>{item.date}</time>
                 </div>
               </div>
-            </article>
+            </Link>
           ))}
 
           {/* Explore all card-button */}
