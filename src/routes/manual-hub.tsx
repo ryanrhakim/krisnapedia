@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, FileText, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
@@ -12,9 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import onboardingCover from "@/assets/manual-onboarding.jpg";
-import setupCover from "@/assets/manual-setup.jpg";
-import securityCover from "@/assets/manual-security.jpg";
+import { manuals } from "@/data/manuals";
 
 export const Route = createFileRoute("/manual-hub")({
   component: ManualHubPage,
@@ -35,100 +33,6 @@ export const Route = createFileRoute("/manual-hub")({
     ],
   }),
 });
-
-type Manual = {
-  cover: string;
-  category: string;
-  title: string;
-  desc: string;
-  type: string;
-  fileType: "PDF" | "DOCX" | "Slides";
-  date: string;
-};
-
-const manuals: Manual[] = [
-  {
-    cover: onboardingCover,
-    category: "Onboarding",
-    title: "Getting Started Guide",
-    desc: "Step-by-step walkthrough for new team members joining the platform.",
-    type: "Manual · PDF",
-    fileType: "PDF",
-    date: "Apr 20, 2026",
-  },
-  {
-    cover: setupCover,
-    category: "Setup",
-    title: "Platform Configuration",
-    desc: "Admin reference for environments, integrations, and access policies.",
-    type: "SOP · DOCX",
-    fileType: "DOCX",
-    date: "Apr 14, 2026",
-  },
-  {
-    cover: securityCover,
-    category: "Policy",
-    title: "Security & Compliance",
-    desc: "Guidelines covering data handling, audits, and incident response.",
-    type: "Policy · PDF",
-    fileType: "PDF",
-    date: "Apr 09, 2026",
-  },
-  {
-    cover: onboardingCover,
-    category: "Onboarding",
-    title: "Team roles & permissions",
-    desc: "Best practices for assigning roles, approvals, and review chains.",
-    type: "Manual · DOCX",
-    fileType: "DOCX",
-    date: "Apr 02, 2026",
-  },
-  {
-    cover: setupCover,
-    category: "Setup",
-    title: "Integration setup playbook",
-    desc: "Connect KRISNApedia to your stack — SSO, storage, and search.",
-    type: "Playbook · Slides",
-    fileType: "Slides",
-    date: "Mar 25, 2026",
-  },
-  {
-    cover: securityCover,
-    category: "Policy",
-    title: "Data retention guidelines",
-    desc: "How long to keep records, where to archive, and when to purge.",
-    type: "Policy · PDF",
-    fileType: "PDF",
-    date: "Mar 18, 2026",
-  },
-  {
-    cover: onboardingCover,
-    category: "Onboarding",
-    title: "Editor & contributor handbook",
-    desc: "Style, tone, and workflow guidance for content contributors.",
-    type: "Manual · PDF",
-    fileType: "PDF",
-    date: "Mar 11, 2026",
-  },
-  {
-    cover: setupCover,
-    category: "Setup",
-    title: "Workspace customization",
-    desc: "Theming, navigation, and layout settings for your workspace.",
-    type: "SOP · DOCX",
-    fileType: "DOCX",
-    date: "Mar 04, 2026",
-  },
-  {
-    cover: securityCover,
-    category: "Policy",
-    title: "Incident response runbook",
-    desc: "Step-by-step actions for security and availability incidents.",
-    type: "Runbook · Slides",
-    fileType: "Slides",
-    date: "Feb 24, 2026",
-  },
-];
 
 const categories = ["All", "Onboarding", "Setup", "Policy"];
 const fileTypes = ["All", "PDF", "DOCX", "Slides"];
@@ -265,9 +169,11 @@ function ManualHubPage() {
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((item, i) => (
-                <article
-                  key={i}
+              {filtered.map((item) => (
+                <Link
+                  key={item.slug}
+                  to="/manual-hub/$slug"
+                  params={{ slug: item.slug }}
                   className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
                 >
                   <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
@@ -300,7 +206,7 @@ function ManualHubPage() {
                       <time>{item.date}</time>
                     </div>
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           )}

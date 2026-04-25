@@ -1,35 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, FileText } from "lucide-react";
-import onboardingCover from "@/assets/manual-onboarding.jpg";
-import setupCover from "@/assets/manual-setup.jpg";
-import securityCover from "@/assets/manual-security.jpg";
+import { manuals as allManuals } from "@/data/manuals";
 
-const manuals = [
-  {
-    cover: onboardingCover,
-    category: "Onboarding",
-    title: "Getting Started Guide",
-    desc: "Step-by-step walkthrough for new team members joining the platform.",
-    type: "Manual · PDF",
-    date: "Apr 20, 2026",
-  },
-  {
-    cover: setupCover,
-    category: "Setup",
-    title: "Platform Configuration",
-    desc: "Admin reference for environments, integrations, and access policies.",
-    type: "SOP · DOCX",
-    date: "Apr 14, 2026",
-  },
-  {
-    cover: securityCover,
-    category: "Policy",
-    title: "Security & Compliance",
-    desc: "Guidelines covering data handling, audits, and incident response.",
-    type: "Policy · PDF",
-    date: "Apr 09, 2026",
-  },
-];
+const manuals = allManuals.slice(0, 3);
 
 export function ManualHub() {
   return (
@@ -72,9 +45,11 @@ export function ManualHub() {
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {manuals.map((m, i) => (
-            <article
-              key={i}
+          {manuals.map((m) => (
+            <Link
+              key={m.slug}
+              to="/manual-hub/$slug"
+              params={{ slug: m.slug }}
               className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-[var(--shadow-soft)]"
             >
               {/* Cover */}
@@ -109,7 +84,7 @@ export function ManualHub() {
                   <time>{m.date}</time>
                 </div>
               </div>
-            </article>
+            </Link>
           ))}
 
           {/* View all card-button */}
