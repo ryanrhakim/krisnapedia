@@ -14,7 +14,7 @@ import { Route as ManualHubRouteImport } from './routes/manual-hub'
 import { Route as InsightHubRouteImport } from './routes/insight-hub'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as InsightHubSlugRouteImport } from './routes/insight-hub.$slug'
+import { Route as InsightHubSlugRouteImport } from './routes/insight-hub_.$slug'
 
 const PustakaRegulasiRoute = PustakaRegulasiRouteImport.update({
   id: '/pustaka-regulasi',
@@ -42,15 +42,15 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const InsightHubSlugRoute = InsightHubSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => InsightHubRoute,
+  id: '/insight-hub_/$slug',
+  path: '/insight-hub/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/faq': typeof FaqRoute
-  '/insight-hub': typeof InsightHubRouteWithChildren
+  '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
   '/insight-hub/$slug': typeof InsightHubSlugRoute
@@ -58,7 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/faq': typeof FaqRoute
-  '/insight-hub': typeof InsightHubRouteWithChildren
+  '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
   '/insight-hub/$slug': typeof InsightHubSlugRoute
@@ -67,10 +67,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/faq': typeof FaqRoute
-  '/insight-hub': typeof InsightHubRouteWithChildren
+  '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
-  '/insight-hub/$slug': typeof InsightHubSlugRoute
+  '/insight-hub_/$slug': typeof InsightHubSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -96,15 +96,16 @@ export interface FileRouteTypes {
     | '/insight-hub'
     | '/manual-hub'
     | '/pustaka-regulasi'
-    | '/insight-hub/$slug'
+    | '/insight-hub_/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FaqRoute: typeof FaqRoute
-  InsightHubRoute: typeof InsightHubRouteWithChildren
+  InsightHubRoute: typeof InsightHubRoute
   ManualHubRoute: typeof ManualHubRoute
   PustakaRegulasiRoute: typeof PustakaRegulasiRoute
+  InsightHubSlugRoute: typeof InsightHubSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -144,34 +145,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/insight-hub/$slug': {
-      id: '/insight-hub/$slug'
-      path: '/$slug'
+    '/insight-hub_/$slug': {
+      id: '/insight-hub_/$slug'
+      path: '/insight-hub/$slug'
       fullPath: '/insight-hub/$slug'
       preLoaderRoute: typeof InsightHubSlugRouteImport
-      parentRoute: typeof InsightHubRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface InsightHubRouteChildren {
-  InsightHubSlugRoute: typeof InsightHubSlugRoute
-}
-
-const InsightHubRouteChildren: InsightHubRouteChildren = {
-  InsightHubSlugRoute: InsightHubSlugRoute,
-}
-
-const InsightHubRouteWithChildren = InsightHubRoute._addFileChildren(
-  InsightHubRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FaqRoute: FaqRoute,
-  InsightHubRoute: InsightHubRouteWithChildren,
+  InsightHubRoute: InsightHubRoute,
   ManualHubRoute: ManualHubRoute,
   PustakaRegulasiRoute: PustakaRegulasiRoute,
+  InsightHubSlugRoute: InsightHubSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -21,7 +21,7 @@ import { Footer } from "@/components/site/Footer";
 import { Button } from "@/components/ui/button";
 import { getInsightBySlug, insights } from "@/data/insights";
 
-export const Route = createFileRoute("/insight-hub/$slug")({
+export const Route = createFileRoute("/insight-hub_/$slug")({
   loader: ({ params }) => {
     const insight = getInsightBySlug(params.slug);
     if (!insight) throw notFound();
