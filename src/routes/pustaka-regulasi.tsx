@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, FileText, ChevronDown, SlidersHorizontal, ScrollText } from "lucide-react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
@@ -12,9 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import uuCover from "@/assets/regulasi-uu.jpg";
-import perpresCover from "@/assets/regulasi-perpres.jpg";
-import sopCover from "@/assets/regulasi-sop.jpg";
+import { regulations } from "@/data/regulasi";
 
 export const Route = createFileRoute("/pustaka-regulasi")({
   component: PustakaRegulasiPage,
@@ -35,100 +33,6 @@ export const Route = createFileRoute("/pustaka-regulasi")({
     ],
   }),
 });
-
-type Regulasi = {
-  cover: string;
-  category: string;
-  title: string;
-  desc: string;
-  type: string;
-  fileType: "PDF" | "DOCX" | "Web";
-  date: string;
-};
-
-const regulations: Regulasi[] = [
-  {
-    cover: uuCover,
-    category: "Undang-Undang",
-    title: "UU No. 11 Tahun 2020 tentang Cipta Kerja",
-    desc: "Dasar hukum penyederhanaan regulasi untuk peningkatan investasi dan ketenagakerjaan.",
-    type: "Undang-Undang · PDF",
-    fileType: "PDF",
-    date: "02 Nov 2020",
-  },
-  {
-    cover: perpresCover,
-    category: "Peraturan Presiden",
-    title: "Perpres No. 39 Tahun 2019 tentang Satu Data Indonesia",
-    desc: "Tata kelola data pemerintah agar akurat, mutakhir, terpadu, dan dapat dipertanggungjawabkan.",
-    type: "Peraturan Presiden · PDF",
-    fileType: "PDF",
-    date: "17 Jun 2019",
-  },
-  {
-    cover: sopCover,
-    category: "SOP Internal",
-    title: "SOP Pengelolaan Dokumen Regulasi",
-    desc: "Prosedur baku pencatatan, peninjauan, dan distribusi dokumen regulasi internal.",
-    type: "Standar Prosedur · DOCX",
-    fileType: "DOCX",
-    date: "12 Mar 2026",
-  },
-  {
-    cover: uuCover,
-    category: "Undang-Undang",
-    title: "UU No. 14 Tahun 2008 tentang Keterbukaan Informasi Publik",
-    desc: "Jaminan hak warga negara untuk memperoleh informasi publik secara cepat dan tepat waktu.",
-    type: "Undang-Undang · PDF",
-    fileType: "PDF",
-    date: "30 Apr 2008",
-  },
-  {
-    cover: perpresCover,
-    category: "Peraturan Menteri",
-    title: "Permenkeu No. 62/PMK.01/2023 Tata Kelola Anggaran",
-    desc: "Pedoman tata kelola perencanaan dan pelaksanaan anggaran kementerian/lembaga.",
-    type: "Peraturan Menteri · PDF",
-    fileType: "PDF",
-    date: "21 Jun 2023",
-  },
-  {
-    cover: sopCover,
-    category: "SOP Internal",
-    title: "SOP Pengarsipan Digital KRISNApedia",
-    desc: "Alur pengarsipan dokumen digital lintas unit dengan standar keamanan dan retensi.",
-    type: "Standar Prosedur · DOCX",
-    fileType: "DOCX",
-    date: "08 Feb 2026",
-  },
-  {
-    cover: perpresCover,
-    category: "Peraturan Presiden",
-    title: "Perpres No. 95 Tahun 2018 Sistem Pemerintahan Berbasis Elektronik",
-    desc: "Kerangka kerja SPBE nasional untuk mewujudkan birokrasi yang efektif dan transparan.",
-    type: "Peraturan Presiden · PDF",
-    fileType: "PDF",
-    date: "05 Okt 2018",
-  },
-  {
-    cover: uuCover,
-    category: "Peraturan Menteri",
-    title: "Permendagri No. 70 Tahun 2019 Sistem Informasi Pemerintahan Daerah",
-    desc: "Pedoman penyelenggaraan SIPD untuk mendukung tata kelola pemerintahan daerah.",
-    type: "Peraturan Menteri · Web",
-    fileType: "Web",
-    date: "30 Sep 2019",
-  },
-  {
-    cover: sopCover,
-    category: "SOP Internal",
-    title: "SOP Tinjauan Berkala Regulasi Internal",
-    desc: "Mekanisme review tahunan untuk memastikan regulasi internal tetap relevan.",
-    type: "Standar Prosedur · Web",
-    fileType: "Web",
-    date: "15 Jan 2026",
-  },
-];
 
 const categories = [
   "All",
@@ -272,9 +176,11 @@ function PustakaRegulasiPage() {
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((item, i) => (
-                <article
-                  key={i}
+              {filtered.map((item) => (
+                <Link
+                  key={item.slug}
+                  to="/pustaka-regulasi/$slug"
+                  params={{ slug: item.slug }}
                   className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
                 >
                   <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
@@ -307,7 +213,7 @@ function PustakaRegulasiPage() {
                       <time>{item.date}</time>
                     </div>
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           )}
