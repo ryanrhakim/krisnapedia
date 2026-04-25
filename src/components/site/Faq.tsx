@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import {
   Accordion,
   AccordionContent,
@@ -74,13 +75,13 @@ export function Faq() {
           </Accordion>
 
           <div className="mt-8 flex justify-center">
-            <a
-              href="#"
+            <Link
+              to="/faq"
               className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-[var(--primary-soft)] px-6 py-3 text-sm font-semibold text-primary transition-all hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-[var(--shadow-soft)]"
             >
               More FAQ
               <span aria-hidden>→</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
