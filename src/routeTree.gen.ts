@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PustakaRegulasiRouteImport } from './routes/pustaka-regulasi'
 import { Route as ManualHubRouteImport } from './routes/manual-hub'
 import { Route as InsightHubRouteImport } from './routes/insight-hub'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as IndexRouteImport } from './routes/index'
 
 const PustakaRegulasiRoute = PustakaRegulasiRouteImport.update({
@@ -29,6 +30,11 @@ const InsightHubRoute = InsightHubRouteImport.update({
   path: '/insight-hub',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/faq': typeof FaqRoute
   '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/faq': typeof FaqRoute
   '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
@@ -50,20 +58,28 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/faq': typeof FaqRoute
   '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/insight-hub' | '/manual-hub' | '/pustaka-regulasi'
+  fullPaths: '/' | '/faq' | '/insight-hub' | '/manual-hub' | '/pustaka-regulasi'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/insight-hub' | '/manual-hub' | '/pustaka-regulasi'
-  id: '__root__' | '/' | '/insight-hub' | '/manual-hub' | '/pustaka-regulasi'
+  to: '/' | '/faq' | '/insight-hub' | '/manual-hub' | '/pustaka-regulasi'
+  id:
+    | '__root__'
+    | '/'
+    | '/faq'
+    | '/insight-hub'
+    | '/manual-hub'
+    | '/pustaka-regulasi'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FaqRoute: typeof FaqRoute
   InsightHubRoute: typeof InsightHubRoute
   ManualHubRoute: typeof ManualHubRoute
   PustakaRegulasiRoute: typeof PustakaRegulasiRoute
@@ -92,6 +108,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InsightHubRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +127,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FaqRoute: FaqRoute,
   InsightHubRoute: InsightHubRoute,
   ManualHubRoute: ManualHubRoute,
   PustakaRegulasiRoute: PustakaRegulasiRoute,
