@@ -273,6 +273,12 @@ function InsightHubPage() {
                 );
               })}
             </div>
+            <PaginationBar
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+            />
+            </>
           )}
         </div>
       </section>
