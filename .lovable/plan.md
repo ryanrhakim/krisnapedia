@@ -1,112 +1,63 @@
 ## Tujuan
+Saat `viewer === "slides"`, Content Viewer harus menampilkan **file PPTX/PDF asli** dari Sanity, bukan mockup berbasis cover image.
 
-Mengatasi error "sanity.studio domains must be created as 'internal'" dengan **menghosting Sanity Studio langsung di dalam aplikasi Lovable** pada route `/studio`. Tim admin Anda akan login di `krisnapedia.com/studio` (atau URL preview Lovable) — tidak perlu Sanity CLI, tidak perlu deploy terpisah.
+## Strategi
+- **PPTX/PPT** → embed via `https://view.officeapps.live.com/op/embed.aspx?src=<encoded-file-url>` (Office Online — gratis, tanpa setup, render PPTX asli di iframe).
+- **PDF** (kalau admin upload PDF tapi set viewer ke "slides") → pakai PDF iframe yang sudah jalan.
+- **Tidak ada file** → tetap fallback ke `DocumentPreview` mockup lama (supaya konten lama tidak rusak).
 
-## Yang akan saya lakukan
+## Perubahan kode
 
-### 1. Install dependencies Sanity Studio
-```
-bun add sanity @sanity/vision styled-components
-```
-- `sanity` — engine Studio v3
-- `@sanity/vision` — plugin GROQ playground (untuk debugging query)
-- `styled-components` — peer dependency Sanity Studio
+### 1. `src/lib/sanity.ts`
+Tambah helper `fileExtension(file)` yang mengekstrak ekstensi (`pdf`, `pptx`, `ppt`, dll) dari `asset._ref` atau `asset.url`. Dipakai untuk auto-detect.
 
-### 2. Buat schema files lokal di `src/sanity/schemas/`
-Mirror schema yang sudah di-deploy via MCP, sehingga Studio embed tahu struktur dokumen yang sama:
-- `src/sanity/schemas/insight.ts`
-- `src/sanity/schemas/manual.ts`
-- `src/sanity/schemas/regulation.ts`
-- `src/sanity/schemas/faq.ts`
-- `src/sanity/schemas/index.ts` — kumpulan ekspor semua schema
-
-Field-fieldnya identik dengan yang sudah di Sanity Cloud (title, slug, category, file, coverImage, longDescription portable text, dll), supaya 33 dokumen yang sudah di-seed langsung muncul dan bisa diedit.
-
-### 3. Buat konfigurasi Studio di `src/sanity/config.ts`
-```ts
-import { defineConfig } from "sanity";
-import { structureTool } from "sanity/structure";
-import { visionTool } from "@sanity/vision";
-import { schemaTypes } from "./schemas";
-
-export const studioConfig = defineConfig({
-  projectId: "l6d1o9wo",
-  dataset: "production",
-  basePath: "/studio",        // <- penting: cocok dengan route
-  name: "krisnapedia",
-  title: "KRISNApedia Admin",
-  plugins: [structureTool(), visionTool()],
-  schema: { types: schemaTypes },
-});
-```
-
-### 4. Buat route baru `src/routes/studio.$.tsx`
-Route catch-all (`$`) supaya Sanity Studio bisa handle internal routing-nya sendiri (mis. `/studio/desk/insight;abc123`).
+### 2. `src/components/site/ContentViewer.tsx`
+Refactor branch `viewer === "slides"` (sekarang baris 99–100) jadi:
 
 ```tsx
-import { createFileRoute } from "@tanstack/react-router";
-import { Studio } from "sanity";
-import { studioConfig } from "@/sanity/config";
+if (item.viewer === "slides") {
+  const slidesUrl = fileUrl(item.file);
+  const ext = fileExtension(item.file).toLowerCase();
 
-export const Route = createFileRoute("/studio/$")({
-  component: StudioPage,
-  ssr: false,    // Studio butuh window, jadi client-only
-});
+  if (slidesUrl && ext === "pdf") {
+    // Reuse PDF iframe block (extract jadi helper <PdfFrame /> agar tidak duplikat)
+    return <PdfFrame url={slidesUrl} title={item.title} label="SLIDES" />;
+  }
 
-function StudioPage() {
-  return <Studio config={studioConfig} />;
+  if (slidesUrl && (ext === "pptx" || ext === "ppt")) {
+    const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(slidesUrl)}`;
+    return (
+      <div className="overflow-hidden rounded-2xl border border-border bg-foreground shadow-[var(--shadow-soft)]">
+        <div className="flex items-center gap-2 border-b border-background/10 bg-foreground px-4 py-3 text-xs text-background/80">
+          <span className="rounded-md bg-primary px-2 py-1 font-semibold text-primary-foreground">SLIDES</span>
+          <span className="truncate">{item.title}</span>
+        </div>
+        <iframe
+          src={officeUrl}
+          title={item.title}
+          allowFullScreen
+          className="h-[720px] w-full bg-card"
+        />
+      </div>
+    );
+  }
+
+  // No file uploaded yet → keep existing mockup
+  return <DocumentPreview item={item} cover={cover} />;
 }
 ```
-Plus route index `src/routes/studio.tsx` yang juga render Studio supaya `/studio` (tanpa trailing) jalan.
 
-### 5. Tambahkan CORS origin di Sanity
-Pakai MCP tool `add_cors_origin` untuk allowlist:
-- `https://*.lovable.app` (preview & published)
-- `https://*.lovableproject.com` (preview lama)
-- Custom domain Anda nanti, kalau sudah dipasang
+Sekaligus extract block PDF (baris 78–97) jadi komponen `PdfFrame` supaya bisa direuse oleh branch `pdf` & `slides`.
 
-Dengan `allowCredentials: true` supaya login bisa jalan.
+### 3. Sanity CORS — sudah aman
+Office Online Viewer fetch file dari URL publik Sanity CDN (`cdn.sanity.io/files/...`) — tidak butuh CORS tambahan. File Sanity default sudah public-readable, jadi tidak perlu konfigurasi tambahan.
 
-### 6. Tambahkan link "Admin" tersembunyi di Footer (opsional)
-Footer dapat tombol kecil "Admin" → ke `/studio`. Atau tidak — tim cukup bookmark URL-nya. Saya bias ke **tidak menambah link publik** supaya admin URL tidak terekspos ke pengunjung biasa.
+## Catatan untuk admin (akan saya tulis di pesan setelah implementasi)
+- Office Online butuh file **bisa diakses publik via HTTPS** → file Sanity default sudah memenuhi.
+- File besar (>10 MB) load agak lambat — normal.
+- Kalau Office Online down (jarang, tapi pernah), iframe akan kosong; admin bisa fallback ke download tombol yang sudah ada.
 
-### 7. Verifikasi bundle tidak membengkak halaman publik
-Karena Studio besar (~2MB), saya pastikan dia hanya di-load saat user buka `/studio` (lazy via route splitting yang sudah default di TanStack Start). Halaman publik tidak terpengaruh.
-
-## Cara tim Anda pakai setelah selesai
-
-1. Buka `https://<preview-url>.lovable.app/studio` (atau nanti `krisnapedia.com/studio`)
-2. Klik **Sign in** → pilih provider (Google / email yang dipakai di Sanity)
-3. Sanity akan verifikasi email Anda terdaftar di project members → masuk
-4. Sidebar kiri muncul: **Insight, Manual, Regulation, FAQ** — semua 33 dokumen yang sudah di-seed kelihatan
-5. Klik dokumen → drag PDF ke field **File** → klik **Publish** (kanan bawah)
-6. Website auto-update dalam ~60 detik (cache TanStack Query)
-
-**Undang anggota tim:** tetap via https://www.sanity.io/manage/project/l6d1o9wo → tab **Members** → invite by email. Mereka login di `/studio` dengan email yang diundang.
-
-## File yang akan dibuat / diubah
-
-**Baru:**
-- `src/sanity/config.ts`
-- `src/sanity/schemas/index.ts`
-- `src/sanity/schemas/insight.ts`
-- `src/sanity/schemas/manual.ts`
-- `src/sanity/schemas/regulation.ts`
-- `src/sanity/schemas/faq.ts`
-- `src/routes/studio.tsx` (landing redirect ke `/studio/`)
-- `src/routes/studio.$.tsx` (catch-all yang render `<Studio>`)
-
-**Tidak diubah:**
-- Semua route publik, komponen, query Sanity di `src/lib/sanity-queries.ts` — tetap berfungsi seperti sekarang
-- 33 dokumen yang sudah live — tidak terganggu
-
-## Risiko & catatan jujur
-
-- **Bundle size**: Studio menambah ~2MB JS, tapi hanya untuk pengunjung `/studio`. Halaman publik tidak terpengaruh.
-- **SSR**: Studio dipaksa `ssr: false` karena butuh `window`. Ini normal untuk semua Studio embed.
-- **Login**: Pertama kali login Sanity akan redirect ke domain mereka untuk OAuth lalu balik. Pastikan CORS sudah di-allowlist (langkah 5) supaya tidak gagal.
-- **Update schema**: Kalau ke depan kita mau tambah field baru, saya tinggal edit file di `src/sanity/schemas/` — perubahan langsung aktif begitu Lovable deploy ulang. Tidak perlu CLI.
-
----
-
-Setuju lanjut dengan rencana ini? Kalau Anda lebih pilih **Opsi B** (Studio terpisah via CLI di komputer Anda), bilang saja, saya susun plan baru.
+## QA setelah implementasi
+1. Buka 1 insight tipe slides yang sudah Anda upload PPTX-nya → cek slide ter-render di iframe.
+2. Buka 1 insight tipe slides yang belum ada file → cek mockup lama tetap muncul (tidak crash).
+3. Buka insight tipe pdf → pastikan tidak regresi.
