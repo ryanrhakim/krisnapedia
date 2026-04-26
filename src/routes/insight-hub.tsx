@@ -1,6 +1,14 @@
-import { useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
+import { PaginationBar } from "@/components/site/PaginationBar";
+
+const PER_PAGE = 9;
+const searchSchema = z.object({
+  page: fallback(z.number().int().min(1), 1).default(1),
+});
 import {
   Search,
   FileText,
@@ -25,6 +33,7 @@ import { formatDate } from "@/lib/format";
 import insightFallback from "@/assets/insight-strategy.jpg";
 
 export const Route = createFileRoute("/insight-hub")({
+  validateSearch: zodValidator(searchSchema),
   loader: ({ context: { queryClient } }) => {
     queryClient.ensureQueryData(insightsQueryOptions());
   },
@@ -54,9 +63,18 @@ export const Route = createFileRoute("/insight-hub")({
 
 function InsightHubPage() {
   const { data: insights } = useSuspenseQuery(insightsQueryOptions());
+  const { page } = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");
   const [fileType, setFileType] = useState("All");
   const [category, setCategory] = useState("All");
+
+  const goToPage = (next: number) => {
+    navigate({ search: { page: next } });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(insights.map((i) => i.category).filter(Boolean)))],
@@ -85,7 +103,19 @@ function InsightHubPage() {
     setQuery("");
     setFileType("All");
     setCategory("All");
+    if (page !== 1) navigate({ search: { page: 1 } });
   };
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+  const rangeStart = filtered.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1;
+  const rangeEnd = (safePage - 1) * PER_PAGE + paginated.length;
+
+  useEffect(() => {
+    if (page !== 1) navigate({ search: { page: 1 } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, fileType, category]);
 
   return (
     <main className="min-h-screen bg-background">
@@ -163,8 +193,13 @@ function InsightHubPage() {
             <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
               <span>
                 Menampilkan{" "}
-                <strong className="text-foreground">{filtered.length}</strong>{" "}
-                dari {insights.length} insight
+                <strong className="text-foreground">
+                  {rangeStart}–{rangeEnd}
+                </strong>{" "}
+                dari {filtered.length} insight
+                {filtered.length !== insights.length && (
+                  <> (difilter dari {insights.length})</>
+                )}
               </span>
               <span className="hidden md:inline">
                 Urutkan: <strong className="text-foreground">Terbaru</strong>{" "}
@@ -190,8 +225,9 @@ function InsightHubPage() {
               </Button>
             </div>
           ) : (
+            <>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((item) => {
+              {paginated.map((item) => {
                 const cover = imageUrl(item.coverImage, 800) || insightFallback;
                 const typeLabel = item.fileType
                   ? `${item.viewer === "web" ? "Article" : "Document"} · ${item.fileType}`
@@ -237,6 +273,12 @@ function InsightHubPage() {
                 );
               })}
             </div>
+            <PaginationBar
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+            />
+            </>
           )}
         </div>
       </section>
