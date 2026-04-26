@@ -193,8 +193,13 @@ function InsightHubPage() {
             <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
               <span>
                 Menampilkan{" "}
-                <strong className="text-foreground">{filtered.length}</strong>{" "}
-                dari {insights.length} insight
+                <strong className="text-foreground">
+                  {rangeStart}–{rangeEnd}
+                </strong>{" "}
+                dari {filtered.length} insight
+                {filtered.length !== insights.length && (
+                  <> (difilter dari {insights.length})</>
+                )}
               </span>
               <span className="hidden md:inline">
                 Urutkan: <strong className="text-foreground">Terbaru</strong>{" "}
@@ -220,8 +225,9 @@ function InsightHubPage() {
               </Button>
             </div>
           ) : (
+            <>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((item) => {
+              {paginated.map((item) => {
                 const cover = imageUrl(item.coverImage, 800) || insightFallback;
                 const typeLabel = item.fileType
                   ? `${item.viewer === "web" ? "Article" : "Document"} · ${item.fileType}`
