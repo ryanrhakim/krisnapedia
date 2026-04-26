@@ -43,6 +43,29 @@ export function fileUrl(file: { asset?: { _ref?: string; url?: string } } | unde
   return `https://cdn.sanity.io/files/${SANITY_PROJECT_ID}/${SANITY_DATASET}/${id}.${ext}`;
 }
 
+/**
+ * Extract the lowercase file extension (without dot) from a Sanity file
+ * reference. Falls back to parsing the URL if asset._ref is missing.
+ * Returns empty string when nothing can be inferred.
+ */
+export function fileExtension(
+  file: { asset?: { _ref?: string; url?: string } } | undefined | null,
+): string {
+  if (!file?.asset) return "";
+  const ref = file.asset._ref;
+  if (ref) {
+    const parts = ref.split("-");
+    const ext = parts[parts.length - 1];
+    if (ext) return ext.toLowerCase();
+  }
+  const url = file.asset.url;
+  if (url) {
+    const match = url.match(/\.([a-z0-9]+)(?:\?|$)/i);
+    if (match) return match[1].toLowerCase();
+  }
+  return "";
+}
+
 /** Convert a YouTube URL to an embeddable iframe URL. */
 export function youtubeEmbedUrl(url: string | undefined | null): string {
   if (!url) return "";
