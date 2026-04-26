@@ -1,6 +1,14 @@
-import { useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
+import { PaginationBar } from "@/components/site/PaginationBar";
+
+const PER_PAGE = 9;
+const searchSchema = z.object({
+  page: fallback(z.number().int().min(1), 1).default(1),
+});
 import {
   Search,
   FileText,
@@ -25,6 +33,7 @@ import { formatDate } from "@/lib/format";
 import insightFallback from "@/assets/insight-strategy.jpg";
 
 export const Route = createFileRoute("/insight-hub")({
+  validateSearch: zodValidator(searchSchema),
   loader: ({ context: { queryClient } }) => {
     queryClient.ensureQueryData(insightsQueryOptions());
   },
