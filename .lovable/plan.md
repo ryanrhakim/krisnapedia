@@ -1,63 +1,120 @@
 ## Tujuan
-Saat `viewer === "slides"`, Content Viewer harus menampilkan **file PPTX/PDF asli** dari Sanity, bukan mockup berbasis cover image.
 
-## Strategi
-- **PPTX/PPT** → embed via `https://view.officeapps.live.com/op/embed.aspx?src=<encoded-file-url>` (Office Online — gratis, tanpa setup, render PPTX asli di iframe).
-- **PDF** (kalau admin upload PDF tapi set viewer ke "slides") → pakai PDF iframe yang sudah jalan.
-- **Tidak ada file** → tetap fallback ke `DocumentPreview` mockup lama (supaya konten lama tidak rusak).
+Menambahkan pagination ke 3 halaman listing (`/pustaka-regulasi`, `/insight-hub`, `/manual-hub`) dengan **9 card per halaman** (3×3 grid di desktop). Ini akan:
 
-## Perubahan kode
+- Mengurangi scroll panjang
+- Mempercepat render saat koleksi konten bertambah
+- Memberi struktur visual yang konsisten antar 3 halaman
 
-### 1. `src/lib/sanity.ts`
-Tambah helper `fileExtension(file)` yang mengekstrak ekstensi (`pdf`, `pptx`, `ppt`, dll) dari `asset._ref` atau `asset.url`. Dipakai untuk auto-detect.
+## Pendekatan: Client-side pagination via URL search params
 
-### 2. `src/components/site/ContentViewer.tsx`
-Refactor branch `viewer === "slides"` (sekarang baris 99–100) jadi:
+Saya akan pakai **TanStack Router search params** (`?page=2`) ketimbang `useState` lokal, karena:
 
-```tsx
-if (item.viewer === "slides") {
-  const slidesUrl = fileUrl(item.file);
-  const ext = fileExtension(item.file).toLowerCase();
+1. **Shareable URL** — user bisa bookmark/share `/insight-hub?page=3`
+2. **Browser back/forward** bekerja natural
+3. **SEO-friendly** — tiap halaman pagination punya URL unik
+4. **Konsisten dengan TanStack pattern** (data sudah di-cache via `useSuspenseQuery`, tidak perlu refetch)
 
-  if (slidesUrl && ext === "pdf") {
-    // Reuse PDF iframe block (extract jadi helper <PdfFrame /> agar tidak duplikat)
-    return <PdfFrame url={slidesUrl} title={item.title} label="SLIDES" />;
-  }
+Filter (query, fileType, category) saat ini masih `useState` lokal — saya **tidak akan migrasi** semua filter ke search params di plan ini supaya scope tetap fokus. Hanya `page` yang masuk ke URL. Tapi: saat user mengubah filter, page otomatis di-reset ke 1.
 
-  if (slidesUrl && (ext === "pptx" || ext === "ppt")) {
-    const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(slidesUrl)}`;
-    return (
-      <div className="overflow-hidden rounded-2xl border border-border bg-foreground shadow-[var(--shadow-soft)]">
-        <div className="flex items-center gap-2 border-b border-background/10 bg-foreground px-4 py-3 text-xs text-background/80">
-          <span className="rounded-md bg-primary px-2 py-1 font-semibold text-primary-foreground">SLIDES</span>
-          <span className="truncate">{item.title}</span>
-        </div>
-        <iframe
-          src={officeUrl}
-          title={item.title}
-          allowFullScreen
-          className="h-[720px] w-full bg-card"
-        />
-      </div>
-    );
-  }
+## Perubahan File
 
-  // No file uploaded yet → keep existing mockup
-  return <DocumentPreview item={item} cover={cover} />;
-}
+### 1. Komponen pagination baru (DRY)
+**Buat**: `src/components/site/PaginationBar.tsx`
+
+Wrapper tipis di atas `src/components/ui/pagination.tsx` yang:
+- Menerima `currentPage`, `totalPages`, `onPageChange`
+- Render Previous / nomor halaman (dengan ellipsis jika >7 halaman) / Next
+- Disabled state untuk Prev di page 1, Next di last page
+- Smart ellipsis: tampilkan max 7 tombol nomor (mis: `1 … 4 5 6 … 10`)
+
+Alasan di-extract: 3 halaman pakai logic identik, hindari duplikasi.
+
+### 2. Update 3 halaman listing
+
+Untuk masing-masing dari `src/routes/pustaka-regulasi.tsx`, `src/routes/insight-hub.tsx`, `src/routes/manual-hub.tsx`:
+
+**a. Tambah `validateSearch`** di route definition:
+```ts
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
+
+const searchSchema = z.object({
+  page: fallback(z.number().int().min(1), 1).default(1),
+});
+
+export const Route = createFileRoute("/pustaka-regulasi")({
+  validateSearch: zodValidator(searchSchema),
+  // ... loader, component, head tetap sama
+});
 ```
 
-Sekaligus extract block PDF (baris 78–97) jadi komponen `PdfFrame` supaya bisa direuse oleh branch `pdf` & `slides`.
+**b. Di komponen:**
+- Ganti `const { page } = Route.useSearch()` untuk baca current page
+- `const navigate = useNavigate({ from: Route.fullPath })` untuk update page
+- Setelah `filtered`, slice 9 item:
+  ```ts
+  const PER_PAGE = 9;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+  ```
+- Render `paginated` di grid (bukan `filtered`)
+- Tambah `<PaginationBar>` di bawah grid
 
-### 3. Sanity CORS — sudah aman
-Office Online Viewer fetch file dari URL publik Sanity CDN (`cdn.sanity.io/files/...`) — tidak butuh CORS tambahan. File Sanity default sudah public-readable, jadi tidak perlu konfigurasi tambahan.
+**c. Auto-reset page ke 1 saat filter berubah** via `useEffect`:
+```ts
+useEffect(() => {
+  if (page !== 1) {
+    navigate({ search: { page: 1 } });
+  }
+}, [query, fileType, category]);
+```
+(Hanya jalankan jika halaman saat ini bukan 1, untuk menghindari loop)
 
-## Catatan untuk admin (akan saya tulis di pesan setelah implementasi)
-- Office Online butuh file **bisa diakses publik via HTTPS** → file Sanity default sudah memenuhi.
-- File besar (>10 MB) load agak lambat — normal.
-- Kalau Office Online down (jarang, tapi pernah), iframe akan kosong; admin bisa fallback ke download tombol yang sudah ada.
+**d. Update label counter**:
+- Ganti "Menampilkan **X** dari Y" jadi "Menampilkan **X-Y** dari Z" (rentang halaman aktif)
 
-## QA setelah implementasi
-1. Buka 1 insight tipe slides yang sudah Anda upload PPTX-nya → cek slide ter-render di iframe.
-2. Buka 1 insight tipe slides yang belum ada file → cek mockup lama tetap muncul (tidak crash).
-3. Buka insight tipe pdf → pastikan tidak regresi.
+**e. Reset filter (`reset()` function)** juga reset `page` ke 1.
+
+**f. Auto-scroll ke top filter section** saat ganti page (smooth scroll), supaya UX lebih baik daripada user harus scroll manual.
+
+### 3. Bonus: empty state tetap berfungsi
+
+Jika `filtered.length === 0`, tampilkan empty state (sudah ada). Pagination disembunyikan dalam kondisi ini.
+
+## Edge Cases yang Ditangani
+
+| Kasus | Behavior |
+|---|---|
+| User akses `?page=99` tapi cuma 3 halaman | Auto-clamp ke page terakhir (`safePage`) |
+| User akses `?page=0` atau negatif | Zod `.min(1)` + `fallback(1)` → fallback ke 1 |
+| User akses `?page=abc` | Zod fallback → page 1 |
+| Filter aktif sehingga `filtered` < 9 | Tidak render pagination bar |
+| Total ≤ 9 item | Pagination disembunyikan (cuma 1 halaman) |
+| Ganti filter saat di page 5 | Auto-reset ke page 1 |
+
+## Yang TIDAK Berubah
+
+- Loader, query, schema Sanity (data tetap fetch sekali, pagination murni di client)
+- Filter behavior (search, file type, category)
+- Card design & layout
+- Detail page route (`/pustaka-regulasi/$slug` dll)
+
+## Verifikasi
+
+Setelah implementasi, saya akan:
+1. Jalankan `tsc --noEmit` untuk pastikan type-safe
+2. Cek 3 halaman: `/pustaka-regulasi`, `/insight-hub`, `/manual-hub` di preview
+3. Test: navigate ke `?page=2`, ganti filter, reset filter
+
+## Dependencies
+
+`@tanstack/zod-adapter` dan `zod` — perlu cek apakah sudah terinstall. Kalau belum, saya `bun add` keduanya sebelum edit route files.
+
+---
+
+**Pertimbangan alternatif (untuk transparansi):**
+- *"Load more" button* — tidak dipilih karena URL tidak shareable & sulit deep-link
+- *Infinite scroll* — overkill untuk konten yang relatif sedikit, dan jelek untuk SEO
+- *Server-side pagination via Sanity GROQ* — tidak perlu sekarang karena dataset kecil (puluhan item), client-side jauh lebih responsif
