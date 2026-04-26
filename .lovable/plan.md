@@ -1,117 +1,112 @@
-# Sanity CMS Integration Plan for KRISNApedia
+## Tujuan
 
-Replace the static `src/data/*.ts` files with content fetched live from **Sanity**, so you and your fellow admins can manage all four content types from the Sanity Studio dashboard — no code changes needed for new content.
+Mengatasi error "sanity.studio domains must be created as 'internal'" dengan **menghosting Sanity Studio langsung di dalam aplikasi Lovable** pada route `/studio`. Tim admin Anda akan login di `krisnapedia.com/studio` (atau URL preview Lovable) — tidak perlu Sanity CLI, tidak perlu deploy terpisah.
 
----
+## Yang akan saya lakukan
 
-## 1. Connect Sanity (one-time setup)
+### 1. Install dependencies Sanity Studio
+```
+bun add sanity @sanity/vision styled-components
+```
+- `sanity` — engine Studio v3
+- `@sanity/vision` — plugin GROQ playground (untuk debugging query)
+- `styled-components` — peer dependency Sanity Studio
 
-- Connect the **Sanity MCP connector** so I can:
-  - Fetch your project ID and dataset automatically (no manual copy-paste).
-  - Create the schema for all four content types directly in your Sanity project.
-  - Add your Lovable preview/published URLs to the CORS allowlist automatically.
-- You'll be prompted to sign in to Sanity (free account if you don't have one) and pick or create a project.
+### 2. Buat schema files lokal di `src/sanity/schemas/`
+Mirror schema yang sudah di-deploy via MCP, sehingga Studio embed tahu struktur dokumen yang sama:
+- `src/sanity/schemas/insight.ts`
+- `src/sanity/schemas/manual.ts`
+- `src/sanity/schemas/regulation.ts`
+- `src/sanity/schemas/faq.ts`
+- `src/sanity/schemas/index.ts` — kumpulan ekspor semua schema
 
-## 2. Sanity Schema (4 content types + supporting types)
+Field-fieldnya identik dengan yang sudah di Sanity Cloud (title, slug, category, file, coverImage, longDescription portable text, dll), supaya 33 dokumen yang sudah di-seed langsung muncul dan bisa diedit.
 
-I'll define these document types in your Sanity project, mirroring the current data shapes:
+### 3. Buat konfigurasi Studio di `src/sanity/config.ts`
+```ts
+import { defineConfig } from "sanity";
+import { structureTool } from "sanity/structure";
+import { visionTool } from "@sanity/vision";
+import { schemaTypes } from "./schemas";
 
-| Document type | Fields |
-|---|---|
-| `insight` | title, slug, category, subCategory, description, longDescription (rich text), coverImage, file (PDF/PPTX/DOCX upload), youtubeUrl, author, date, pages, fileSize, language, tags[], viewer (pdf/slides/image/video/web), status |
-| `manual` | same as insight + `version` |
-| `regulation` | same as insight + `jurisdiction`, `effectiveDate`, `regulasiStatus` |
-| `faq` | question, answer (rich text), category, orderIndex, published |
-| `category` (lookup) | name, slug, parentType (insight/manual/regulation), subcategories[] |
+export const studioConfig = defineConfig({
+  projectId: "l6d1o9wo",
+  dataset: "production",
+  basePath: "/studio",        // <- penting: cocok dengan route
+  name: "krisnapedia",
+  title: "KRISNApedia Admin",
+  plugins: [structureTool(), visionTool()],
+  schema: { types: schemaTypes },
+});
+```
 
-**File handling:**
-- PDFs, PPTX, DOCX, images → uploaded directly into Sanity's asset library (drag-and-drop in Studio). Sanity handles storage, CDN, and file size detection.
-- Videos → `youtubeUrl` text field. The viewer auto-embeds `https://www.youtube.com/embed/{id}`.
-- Cover images → uploaded image field with built-in cropping.
+### 4. Buat route baru `src/routes/studio.$.tsx`
+Route catch-all (`$`) supaya Sanity Studio bisa handle internal routing-nya sendiri (mis. `/studio/desk/insight;abc123`).
 
-**Multi-admin:** You invite other admins from your Sanity project dashboard (Sanity → Members). Free tier supports **3 users**; paid tiers add more. Each admin gets the full Studio editor.
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+import { Studio } from "sanity";
+import { studioConfig } from "@/sanity/config";
 
-## 3. Sanity Studio (the admin dashboard)
+export const Route = createFileRoute("/studio/$")({
+  component: StudioPage,
+  ssr: false,    // Studio butuh window, jadi client-only
+});
 
-Sanity Studio is the editing UI — a polished, hosted web app where you and other admins manage content. Two options for hosting:
+function StudioPage() {
+  return <Studio config={studioConfig} />;
+}
+```
+Plus route index `src/routes/studio.tsx` yang juga render Studio supaya `/studio` (tanpa trailing) jalan.
 
-- **Recommended: Hosted on sanity.io** — zero setup, just visit `your-project.sanity.studio`. Free.
-- Alternative: Embed Studio at `/studio` inside KRISNApedia. More work, no real benefit unless you want single-domain branding.
+### 5. Tambahkan CORS origin di Sanity
+Pakai MCP tool `add_cors_origin` untuk allowlist:
+- `https://*.lovable.app` (preview & published)
+- `https://*.lovableproject.com` (preview lama)
+- Custom domain Anda nanti, kalau sudah dipasang
 
-I'll go with the hosted option (faster, simpler, less code in your repo).
+Dengan `allowCredentials: true` supaya login bisa jalan.
 
-## 4. Frontend Refactor
+### 6. Tambahkan link "Admin" tersembunyi di Footer (opsional)
+Footer dapat tombol kecil "Admin" → ke `/studio`. Atau tidak — tim cukup bookmark URL-nya. Saya bias ke **tidak menambah link publik** supaya admin URL tidak terekspos ke pengunjung biasa.
 
-Replace static data with TanStack Query hooks fetching from Sanity:
+### 7. Verifikasi bundle tidak membengkak halaman publik
+Karena Studio besar (~2MB), saya pastikan dia hanya di-load saat user buka `/studio` (lazy via route splitting yang sudah default di TanStack Start). Halaman publik tidak terpengaruh.
 
-**New files:**
-- `src/lib/sanity.ts` — Sanity client config (project ID from MCP).
-- `src/lib/sanity-queries.ts` — GROQ queries for each content type.
-- `src/hooks/use-content.ts` — `useInsights()`, `useInsight(slug)`, `useManuals()`, `useManual(slug)`, `useRegulations()`, `useRegulasi(slug)`, `useFaqs()`.
+## Cara tim Anda pakai setelah selesai
 
-**Refactored files (same UI, new data source):**
-- `src/routes/insight-hub.tsx`, `insight-hub_.$slug.tsx`
-- `src/routes/manual-hub.tsx`, `manual-hub_.$slug.tsx`
-- `src/routes/pustaka-regulasi.tsx`, `pustaka-regulasi_.$slug.tsx`
-- `src/routes/faq.tsx`
-- `src/components/site/InsightHub.tsx`, `ManualHub.tsx`, `Faq.tsx` (homepage sections)
+1. Buka `https://<preview-url>.lovable.app/studio` (atau nanti `krisnapedia.com/studio`)
+2. Klik **Sign in** → pilih provider (Google / email yang dipakai di Sanity)
+3. Sanity akan verifikasi email Anda terdaftar di project members → masuk
+4. Sidebar kiri muncul: **Insight, Manual, Regulation, FAQ** — semua 33 dokumen yang sudah di-seed kelihatan
+5. Klik dokumen → drag PDF ke field **File** → klik **Publish** (kanan bawah)
+6. Website auto-update dalam ~60 detik (cache TanStack Query)
 
-**Loaders use `queryClient.ensureQueryData()`** for SSR-friendly hydration so pages render fast and are SEO-indexable.
+**Undang anggota tim:** tetap via https://www.sanity.io/manage/project/l6d1o9wo → tab **Members** → invite by email. Mereka login di `/studio` dengan email yang diundang.
 
-**Content Viewer enhancement:** Adds a YouTube iframe branch alongside the existing PDF/Slides/Image/Video paths, driven by the `youtubeUrl` field.
+## File yang akan dibuat / diubah
 
-## 5. Initial Content Seeding
+**Baru:**
+- `src/sanity/config.ts`
+- `src/sanity/schemas/index.ts`
+- `src/sanity/schemas/insight.ts`
+- `src/sanity/schemas/manual.ts`
+- `src/sanity/schemas/regulation.ts`
+- `src/sanity/schemas/faq.ts`
+- `src/routes/studio.tsx` (landing redirect ke `/studio/`)
+- `src/routes/studio.$.tsx` (catch-all yang render `<Studio>`)
 
-Once the schema is live, I'll seed Sanity with the **40 documents** from your reference PDF — metadata only (titles, categories, sub-categories, status). This gives you pre-structured rows so you only need to drag-and-drop the actual PDF/PPTX files into each row when ready.
+**Tidak diubah:**
+- Semua route publik, komponen, query Sanity di `src/lib/sanity-queries.ts` — tetap berfungsi seperti sekarang
+- 33 dokumen yang sudah live — tidak terganggu
 
-Taxonomy will match your folder structure exactly:
-- **Pustaka Regulasi:** Undang-Undang, Peraturan Pemerintah, Peraturan Menteri, Keputusan Menteri, Surat Edaran Bersama (8 docs)
-- **Insight Hub:** Materi Pembelajaran, Laporan, Dokumentasi Kegiatan (15 docs)
-- **Manual Hub:** Manual Teknis Pusat, Manual Teknis Daerah (17 docs)
+## Risiko & catatan jujur
 
-## 6. What stays the same
-
-- All your existing UI (cards, viewers, filters, navbar, footer) — untouched.
-- All routes and URLs — unchanged. Detail pages still live at `/insight-hub/{slug}`, etc.
-- Design, colors, layout — identical to today.
-
-## 7. What you'll do after build
-
-1. Visit your Sanity Studio URL (I'll give it to you).
-2. Sign in with the same account you used to connect.
-3. Invite other admins from Sanity → Members.
-4. Open any seeded document → drag in the PDF/PPTX file → save → it appears live on KRISNApedia within seconds.
-
-## 8. Cost & limits
-
-- **Sanity Free tier:** 3 users, 10k documents, 5GB asset storage, 100GB bandwidth/month. More than enough for KRISNApedia's scale.
-- **No Lovable Cloud needed** for this approach — saves your $25/mo Cloud balance for other features.
-
-## 9. Out of scope (for this phase)
-
-- Document version history (Sanity has built-in revision history per document — you get this free).
-- Workflow approvals (draft/publish is built into Sanity — you get this free too).
-- Per-document granular permissions (Sanity has roles on paid tiers).
-- Analytics dashboard (views/downloads).
-
----
-
-## Files to be created / changed
-
-**New:**
-- `src/lib/sanity.ts`
-- `src/lib/sanity-queries.ts`
-- `src/hooks/use-content.ts`
-- Sanity schema files (in your Sanity project, not in this repo)
-
-**Refactored:**
-- 7 route files (listed above)
-- 3 homepage section components
-- `src/router.tsx` — ensure QueryClient is set up correctly
-
-**Removed:**
-- `src/data/insights.ts`, `manuals.ts`, `regulasi.ts` (content moves to Sanity)
+- **Bundle size**: Studio menambah ~2MB JS, tapi hanya untuk pengunjung `/studio`. Halaman publik tidak terpengaruh.
+- **SSR**: Studio dipaksa `ssr: false` karena butuh `window`. Ini normal untuk semua Studio embed.
+- **Login**: Pertama kali login Sanity akan redirect ke domain mereka untuk OAuth lalu balik. Pastikan CORS sudah di-allowlist (langkah 5) supaya tidak gagal.
+- **Update schema**: Kalau ke depan kita mau tambah field baru, saya tinggal edit file di `src/sanity/schemas/` — perubahan langsung aktif begitu Lovable deploy ulang. Tidak perlu CLI.
 
 ---
 
-Approve this plan and I'll: (1) connect Sanity, (2) create the schema, (3) seed the 40 documents, (4) refactor the frontend, (5) hand you the Studio URL.
+Setuju lanjut dengan rencana ini? Kalau Anda lebih pilih **Opsi B** (Studio terpisah via CLI di komputer Anda), bilang saja, saya susun plan baru.
