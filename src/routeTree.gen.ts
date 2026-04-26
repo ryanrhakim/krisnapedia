@@ -14,6 +14,8 @@ import { Route as ManualHubRouteImport } from './routes/manual-hub'
 import { Route as InsightHubRouteImport } from './routes/insight-hub'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StudioIndexRouteImport } from './routes/studio.index'
+import { Route as StudioSplatRouteImport } from './routes/studio.$'
 import { Route as PustakaRegulasiSlugRouteImport } from './routes/pustaka-regulasi_.$slug'
 import { Route as ManualHubSlugRouteImport } from './routes/manual-hub_.$slug'
 import { Route as InsightHubSlugRouteImport } from './routes/insight-hub_.$slug'
@@ -43,6 +45,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudioIndexRoute = StudioIndexRouteImport.update({
+  id: '/studio/',
+  path: '/studio/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioSplatRoute = StudioSplatRouteImport.update({
+  id: '/studio/$',
+  path: '/studio/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PustakaRegulasiSlugRoute = PustakaRegulasiSlugRouteImport.update({
   id: '/pustaka-regulasi_/$slug',
   path: '/pustaka-regulasi/$slug',
@@ -68,6 +80,8 @@ export interface FileRoutesByFullPath {
   '/insight-hub/$slug': typeof InsightHubSlugRoute
   '/manual-hub/$slug': typeof ManualHubSlugRoute
   '/pustaka-regulasi/$slug': typeof PustakaRegulasiSlugRoute
+  '/studio/$': typeof StudioSplatRoute
+  '/studio/': typeof StudioIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +92,8 @@ export interface FileRoutesByTo {
   '/insight-hub/$slug': typeof InsightHubSlugRoute
   '/manual-hub/$slug': typeof ManualHubSlugRoute
   '/pustaka-regulasi/$slug': typeof PustakaRegulasiSlugRoute
+  '/studio/$': typeof StudioSplatRoute
+  '/studio': typeof StudioIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +105,8 @@ export interface FileRoutesById {
   '/insight-hub_/$slug': typeof InsightHubSlugRoute
   '/manual-hub_/$slug': typeof ManualHubSlugRoute
   '/pustaka-regulasi_/$slug': typeof PustakaRegulasiSlugRoute
+  '/studio/$': typeof StudioSplatRoute
+  '/studio/': typeof StudioIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +119,8 @@ export interface FileRouteTypes {
     | '/insight-hub/$slug'
     | '/manual-hub/$slug'
     | '/pustaka-regulasi/$slug'
+    | '/studio/$'
+    | '/studio/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +131,8 @@ export interface FileRouteTypes {
     | '/insight-hub/$slug'
     | '/manual-hub/$slug'
     | '/pustaka-regulasi/$slug'
+    | '/studio/$'
+    | '/studio'
   id:
     | '__root__'
     | '/'
@@ -121,6 +143,8 @@ export interface FileRouteTypes {
     | '/insight-hub_/$slug'
     | '/manual-hub_/$slug'
     | '/pustaka-regulasi_/$slug'
+    | '/studio/$'
+    | '/studio/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +156,8 @@ export interface RootRouteChildren {
   InsightHubSlugRoute: typeof InsightHubSlugRoute
   ManualHubSlugRoute: typeof ManualHubSlugRoute
   PustakaRegulasiSlugRoute: typeof PustakaRegulasiSlugRoute
+  StudioSplatRoute: typeof StudioSplatRoute
+  StudioIndexRoute: typeof StudioIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -171,6 +197,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/studio/': {
+      id: '/studio/'
+      path: '/studio'
+      fullPath: '/studio/'
+      preLoaderRoute: typeof StudioIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/studio/$': {
+      id: '/studio/$'
+      path: '/studio/$'
+      fullPath: '/studio/$'
+      preLoaderRoute: typeof StudioSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pustaka-regulasi_/$slug': {
       id: '/pustaka-regulasi_/$slug'
       path: '/pustaka-regulasi/$slug'
@@ -204,6 +244,8 @@ const rootRouteChildren: RootRouteChildren = {
   InsightHubSlugRoute: InsightHubSlugRoute,
   ManualHubSlugRoute: ManualHubSlugRoute,
   PustakaRegulasiSlugRoute: PustakaRegulasiSlugRoute,
+  StudioSplatRoute: StudioSplatRoute,
+  StudioIndexRoute: StudioIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
