@@ -1,5 +1,6 @@
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import type { Studio as SanityStudioType } from "sanity";
 
 /**
  * Client-only Sanity Studio mount.
@@ -8,6 +9,8 @@ import { Loader2 } from "lucide-react";
  *  1. They never enter the SSR module graph (would OOM the Worker SSR build).
  *  2. The ~5 MB Studio bundle only loads when a user actually opens /studio.
  */
+type StudioComponent = typeof SanityStudioType;
+
 export function StudioMount() {
   const [Studio, setStudio] = useState<{
     Component: ComponentType<{ config: unknown }>;
