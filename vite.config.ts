@@ -6,4 +6,13 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-export default defineConfig();
+export default defineConfig({
+  vite: {
+    // Sanity Studio is mounted client-only at /studio via lazy import.
+    // We exclude it from SSR pre-bundling so the SSR build never tries to
+    // crawl ~5 MB of Studio internals (would OOM the Worker build).
+    optimizeDeps: {
+      exclude: ["sanity", "@sanity/vision", "styled-components"],
+    },
+  },
+});
