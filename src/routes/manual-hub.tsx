@@ -193,8 +193,13 @@ function ManualHubPage() {
             <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
               <span>
                 Menampilkan{" "}
-                <strong className="text-foreground">{filtered.length}</strong>{" "}
-                dari {manuals.length} manual
+                <strong className="text-foreground">
+                  {rangeStart}–{rangeEnd}
+                </strong>{" "}
+                dari {filtered.length} manual
+                {filtered.length !== manuals.length && (
+                  <> (difilter dari {manuals.length})</>
+                )}
               </span>
               <span className="hidden md:inline">
                 Urutkan: <strong className="text-foreground">Terbaru</strong>{" "}
@@ -220,8 +225,9 @@ function ManualHubPage() {
               </Button>
             </div>
           ) : (
+            <>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((item) => {
+              {paginated.map((item) => {
                 const cover = imageUrl(item.coverImage, 800) || manualFallback;
                 const typeLabel = item.fileType
                   ? `Manual · ${item.fileType}`
@@ -267,6 +273,12 @@ function ManualHubPage() {
                 );
               })}
             </div>
+            <PaginationBar
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+            />
+            </>
           )}
         </div>
       </section>
