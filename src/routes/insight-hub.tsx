@@ -63,9 +63,18 @@ export const Route = createFileRoute("/insight-hub")({
 
 function InsightHubPage() {
   const { data: insights } = useSuspenseQuery(insightsQueryOptions());
+  const { page } = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");
   const [fileType, setFileType] = useState("All");
   const [category, setCategory] = useState("All");
+
+  const goToPage = (next: number) => {
+    navigate({ search: { page: next } });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(insights.map((i) => i.category).filter(Boolean)))],
@@ -94,7 +103,19 @@ function InsightHubPage() {
     setQuery("");
     setFileType("All");
     setCategory("All");
+    if (page !== 1) navigate({ search: { page: 1 } });
   };
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+  const rangeStart = filtered.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1;
+  const rangeEnd = (safePage - 1) * PER_PAGE + paginated.length;
+
+  useEffect(() => {
+    if (page !== 1) navigate({ search: { page: 1 } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, fileType, category]);
 
   return (
     <main className="min-h-screen bg-background">
