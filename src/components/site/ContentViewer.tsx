@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { FileText, Globe, Pause, Play, Youtube } from "lucide-react";
+import { FileText, Globe, Pause, Play, Presentation, Youtube } from "lucide-react";
 import type { ContentBase } from "@/lib/sanity-types";
-import { fileUrl, imageUrl, youtubeEmbedUrl } from "@/lib/sanity";
+import { fileExtension, fileUrl, imageUrl, youtubeEmbedUrl } from "@/lib/sanity";
 import { PortableText } from "@/components/site/PortableText";
 import { blocksToPlainText } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
@@ -76,28 +76,71 @@ export function ContentViewer({
     );
   }
 
-  // PDF — embed actual file when available, otherwise fall back to cover preview
-  const pdfUrl = fileUrl(item.file);
-  if (item.viewer === "pdf" && pdfUrl) {
-    return (
-      <div className="overflow-hidden rounded-2xl border border-border bg-foreground shadow-[var(--shadow-soft)]">
-        <div className="flex items-center gap-2 border-b border-background/10 bg-foreground px-4 py-3 text-xs text-background/80">
-          <span className="rounded-md bg-primary px-2 py-1 font-semibold text-primary-foreground">
-            PDF
-          </span>
-          <span className="truncate">{item.title}</span>
-        </div>
-        <iframe
-          src={`${pdfUrl}#view=FitH`}
-          title={item.title}
-          className="h-[720px] w-full bg-card"
-        />
-      </div>
-    );
+  // PDF — embed actual file when available
+  const fileUrlStr = fileUrl(item.file);
+  const ext = fileExtension(item.file);
+
+  if (item.viewer === "pdf" && fileUrlStr) {
+    return <PdfFrame url={fileUrlStr} title={item.title} label="PDF" />;
   }
 
-  // Slides / fallback — use cover-based preview frame
+  // Slides — Office Online for PPTX/PPT, PDF iframe for PDF, mockup as fallback
+  if (item.viewer === "slides" && fileUrlStr) {
+    if (ext === "pdf") {
+      return <PdfFrame url={fileUrlStr} title={item.title} label="SLIDES" />;
+    }
+    if (ext === "pptx" || ext === "ppt") {
+      const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(
+        fileUrlStr,
+      )}`;
+      return (
+        <div className="overflow-hidden rounded-2xl border border-border bg-foreground shadow-[var(--shadow-soft)]">
+          <div className="flex items-center gap-2 border-b border-background/10 bg-foreground px-4 py-3 text-xs text-background/80">
+            <Presentation className="h-4 w-4 text-primary" />
+            <span className="rounded-md bg-primary px-2 py-1 font-semibold text-primary-foreground">
+              SLIDES
+            </span>
+            <span className="truncate">{item.title}</span>
+          </div>
+          <iframe
+            src={officeUrl}
+            title={item.title}
+            allowFullScreen
+            className="h-[720px] w-full bg-card"
+          />
+        </div>
+      );
+    }
+  }
+
+  // No file uploaded yet → cover-based mockup so the page never looks empty
   return <DocumentPreview item={item} cover={cover} />;
+}
+
+function PdfFrame({
+  url,
+  title,
+  label,
+}: {
+  url: string;
+  title: string;
+  label: string;
+}) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-foreground shadow-[var(--shadow-soft)]">
+      <div className="flex items-center gap-2 border-b border-background/10 bg-foreground px-4 py-3 text-xs text-background/80">
+        <span className="rounded-md bg-primary px-2 py-1 font-semibold text-primary-foreground">
+          {label}
+        </span>
+        <span className="truncate">{title}</span>
+      </div>
+      <iframe
+        src={`${url}#view=FitH`}
+        title={title}
+        className="h-[720px] w-full bg-card"
+      />
+    </div>
+  );
 }
 
 function DocumentPreview({
