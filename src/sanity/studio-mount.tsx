@@ -13,8 +13,8 @@ type StudioComponent = typeof SanityStudioType;
 
 export function StudioMount() {
   const [Studio, setStudio] = useState<{
-    Component: ComponentType<{ config: unknown }>;
-    config: unknown;
+    Component: StudioComponent;
+    config: Parameters<StudioComponent>[0]["config"];
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
