@@ -160,6 +160,28 @@ function ManualHubPage() {
       </section>
 
       <section className="border-b border-border bg-background">
+        <div className="mx-auto max-w-7xl space-y-3 px-6 py-6">
+          <CategoryTabs
+            items={categories}
+            active={cat}
+            onChange={setCat}
+            ariaLabel="Filter berdasarkan kategori utama"
+          />
+          {subCategories.length > 0 && (
+            <div className="flex items-start gap-3 border-l-2 border-primary/30 pl-3">
+              <CategoryTabs
+                items={subCategories}
+                active={sub}
+                onChange={setSub}
+                ariaLabel="Filter berdasarkan sub-kategori"
+                variant="secondary"
+              />
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-background">
         <div className="mx-auto max-w-7xl px-6 py-8">
           <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)]">
             <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
