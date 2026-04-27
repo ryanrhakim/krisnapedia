@@ -83,7 +83,25 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="hidden md:inline-flex">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => openSearch()}
+            aria-label="Search (⌘K)"
+            className="hidden items-center gap-2 md:inline-flex"
+          >
+            <Search className="h-4 w-4" />
+            <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+              ⌘K
+            </kbd>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => openSearch()}
+            aria-label="Search"
+            className="md:hidden"
+          >
             <Search className="h-4 w-4" />
           </Button>
 
