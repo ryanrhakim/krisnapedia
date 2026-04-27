@@ -32,6 +32,7 @@ import {
 import { manualsQueryOptions } from "@/lib/sanity-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
+import { CategoryTabs } from "@/components/site/CategoryTabs";
 import manualFallback from "@/assets/manual-onboarding.jpg";
 
 export const Route = createFileRoute("/manual-hub")({
