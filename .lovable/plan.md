@@ -1,120 +1,100 @@
-## Tujuan
+# Filter Tab Dua Tingkat untuk Manual Hub
 
-Menambahkan pagination ke 3 halaman listing (`/pustaka-regulasi`, `/insight-hub`, `/manual-hub`) dengan **9 card per halaman** (3×3 grid di desktop). Ini akan:
+Tujuan: mempercepat navigasi dengan tab kategori utama + sub-kategori, mirror struktur di Sanity Studio. Tab dan dropdown tetap saling sinkron, dan otomatis update kalau ada sub-category baru di CMS.
 
-- Mengurangi scroll panjang
-- Mempercepat render saat koleksi konten bertambah
-- Memberi struktur visual yang konsisten antar 3 halaman
+## Struktur tab (sesuai data aktual)
 
-## Pendekatan: Client-side pagination via URL search params
+**Baris 1 — Category utama:**
+`Semua` · `Manual Teknis Pusat` · `Manual Teknis Daerah`
 
-Saya akan pakai **TanStack Router search params** (`?page=2`) ketimbang `useState` lokal, karena:
+**Baris 2 — Sub-category** (muncul saat category utama dipilih, kosong saat "Semua"):
+- Manual Teknis Pusat → `Semua` · `RPJMN` · `Renstra K/L` · `RKP` · `Renja K/L` · `Pagu JM` · `Tagging`
+- Manual Teknis Daerah → `Semua` · `DAK Fisik` · `DAK Nonfisik`
 
-1. **Shareable URL** — user bisa bookmark/share `/insight-hub?page=3`
-2. **Browser back/forward** bekerja natural
-3. **SEO-friendly** — tiap halaman pagination punya URL unik
-4. **Konsisten dengan TanStack pattern** (data sudah di-cache via `useSuspenseQuery`, tidak perlu refetch)
+Daftar sub-category dihitung otomatis dari hasil `useSuspenseQuery(manualsQueryOptions())` — kalau Anda tambah/hapus sub-category di Sanity, tab langsung mengikuti tanpa deploy ulang.
 
-Filter (query, fileType, category) saat ini masih `useState` lokal — saya **tidak akan migrasi** semua filter ke search params di plan ini supaya scope tetap fokus. Hanya `page` yang masuk ke URL. Tapi: saat user mengubah filter, page otomatis di-reset ke 1.
+## Perubahan file
 
-## Perubahan File
+### 1. `src/routes/manual-hub.tsx` (utama)
 
-### 1. Komponen pagination baru (DRY)
-**Buat**: `src/components/site/PaginationBar.tsx`
-
-Wrapper tipis di atas `src/components/ui/pagination.tsx` yang:
-- Menerima `currentPage`, `totalPages`, `onPageChange`
-- Render Previous / nomor halaman (dengan ellipsis jika >7 halaman) / Next
-- Disabled state untuk Prev di page 1, Next di last page
-- Smart ellipsis: tampilkan max 7 tombol nomor (mis: `1 … 4 5 6 … 10`)
-
-Alasan di-extract: 3 halaman pakai logic identik, hindari duplikasi.
-
-### 2. Update 3 halaman listing
-
-Untuk masing-masing dari `src/routes/pustaka-regulasi.tsx`, `src/routes/insight-hub.tsx`, `src/routes/manual-hub.tsx`:
-
-**a. Tambah `validateSearch`** di route definition:
+**Schema search params** — tambahkan dua param baru sehingga URL bisa dibagikan dan back/forward browser bekerja:
 ```ts
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
-import { z } from "zod";
-
 const searchSchema = z.object({
   page: fallback(z.number().int().min(1), 1).default(1),
-});
-
-export const Route = createFileRoute("/pustaka-regulasi")({
-  validateSearch: zodValidator(searchSchema),
-  // ... loader, component, head tetap sama
+  cat: fallback(z.string(), "All").default("All"),     // category utama
+  sub: fallback(z.string(), "All").default("All"),     // sub-category
 });
 ```
 
-**b. Di komponen:**
-- Ganti `const { page } = Route.useSearch()` untuk baca current page
-- `const navigate = useNavigate({ from: Route.fullPath })` untuk update page
-- Setelah `filtered`, slice 9 item:
-  ```ts
-  const PER_PAGE = 9;
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const safePage = Math.min(page, totalPages);
-  const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
-  ```
-- Render `paginated` di grid (bukan `filtered`)
-- Tambah `<PaginationBar>` di bawah grid
+**State & sinkronisasi:**
+- Hapus `useState` untuk `category`. Baca dari `Route.useSearch()` → `cat` & `sub`.
+- Dropdown "Kategori" yang sudah ada **tetap dipertahankan** dan terhubung ke `cat` yang sama → tab dan dropdown saling sinkron otomatis.
+- Search query (`query`) & file type (`fileType`) tetap pakai `useState` lokal seperti sekarang (tidak perlu di URL).
 
-**c. Auto-reset page ke 1 saat filter berubah** via `useEffect`:
-```ts
-useEffect(() => {
-  if (page !== 1) {
-    navigate({ search: { page: 1 } });
-  }
-}, [query, fileType, category]);
+**Logika derivasi:**
+- `categories` = `["All", ...unique(manuals.map(m => m.category))]`
+- `subCategories` = `cat === "All" ? [] : ["All", ...unique(manuals.filter(m => m.category === cat).map(m => m.subCategory).filter(Boolean))]`
+- Filter list: tambah `matchSub = sub === "All" ? true : it.subCategory === sub`
+
+**Reset behavior:**
+- Saat user ganti `cat` → otomatis set `sub = "All"` dan `page = 1`.
+- Saat user ganti `sub` → set `page = 1`.
+- Tombol "Reset" yang ada → reset `cat`, `sub`, `query`, `fileType`, `page` ke default.
+- Update `useEffect` reset-page agar memperhatikan `cat` & `sub` juga (atau dipindah ke handler navigate, lebih bersih).
+
+### 2. `src/components/site/CategoryTabs.tsx` (baru)
+
+Komponen presentational kecil yang dipakai 2x (untuk baris category & sub-category):
+```tsx
+type Props = {
+  items: string[];                    // ["All", "Manual Teknis Pusat", ...]
+  active: string;
+  onChange: (next: string) => void;
+  ariaLabel: string;
+};
 ```
-(Hanya jalankan jika halaman saat ini bukan 1, untuk menghindari loop)
+- Render sebagai pill buttons horizontal scrollable (`overflow-x-auto`, `snap-x`) supaya rapi di viewport sempit (mobile).
+- Active state pakai token brand (`bg-primary text-primary-foreground`), inactive `bg-muted text-muted-foreground hover:bg-muted/70`.
+- Label "All" ditampilkan sebagai "Semua" (Indonesia, konsisten dengan UI yang sudah ada).
+- Aksesibilitas: `role="tablist"`, tiap tab `role="tab"` + `aria-selected`.
 
-**d. Update label counter**:
-- Ganti "Menampilkan **X** dari Y" jadi "Menampilkan **X-Y** dari Z" (rentang halaman aktif)
+### 3. UI placement di `manual-hub.tsx`
 
-**e. Reset filter (`reset()` function)** juga reset `page` ke 1.
+Letakkan **di antara hero section dan filter bar putih** — terpisah secara visual sebagai navigasi utama, sebelum filter sekunder (search/dropdown). Section baru dengan latar `bg-background` dan padding seperti section filter sekarang.
 
-**f. Auto-scroll ke top filter section** saat ganti page (smooth scroll), supaya UX lebih baik daripada user harus scroll manual.
+```
+[Hero]
+[Tab Category]                       ← baru, baris 1
+  [Tab Sub-category]                 ← baru, baris 2 (conditional)
+[Filter bar: Search + Tipe + Kategori dropdown + Reset]   ← existing
+[Grid 9 cards + Pagination]          ← existing
+```
 
-### 3. Bonus: empty state tetap berfungsi
+Sub-category tab hanya muncul kalau `cat !== "All"` DAN ada minimal 1 sub-category di category itu.
 
-Jika `filtered.length === 0`, tampilkan empty state (sudah ada). Pagination disembunyikan dalam kondisi ini.
+### 4. Counter & range text
 
-## Edge Cases yang Ditangani
+Update label "Menampilkan X–Y dari Z manual" supaya tetap akurat berdasarkan filter gabungan (cat + sub + query + fileType). Logika sudah memakai `filtered.length`, jadi otomatis benar — tinggal pastikan teks di "(difilter dari N)" tetap menampilkan total `manuals.length`.
 
-| Kasus | Behavior |
-|---|---|
-| User akses `?page=99` tapi cuma 3 halaman | Auto-clamp ke page terakhir (`safePage`) |
-| User akses `?page=0` atau negatif | Zod `.min(1)` + `fallback(1)` → fallback ke 1 |
-| User akses `?page=abc` | Zod fallback → page 1 |
-| Filter aktif sehingga `filtered` < 9 | Tidak render pagination bar |
-| Total ≤ 9 item | Pagination disembunyikan (cuma 1 halaman) |
-| Ganti filter saat di page 5 | Auto-reset ke page 1 |
+## Yang TIDAK berubah
 
-## Yang TIDAK Berubah
+- Skema Sanity (`subCategory` field sudah ada).
+- Query GROQ (`subCategory` sudah ikut di-fetch di `BASE_PROJECTION`).
+- Halaman Insight Hub & Pustaka Regulasi (sesuai permintaan, hanya Manual Hub).
+- Komponen `PaginationBar` (paginasi tetap bekerja di atas hasil yang sudah difilter).
+- Card layout & styling existing.
 
-- Loader, query, schema Sanity (data tetap fetch sekali, pagination murni di client)
-- Filter behavior (search, file type, category)
-- Card design & layout
-- Detail page route (`/pustaka-regulasi/$slug` dll)
+## Edge cases yang ditangani
 
-## Verifikasi
+1. **Sub-category kosong** — kalau ada manual dengan `subCategory` undefined/null, di-filter pakai `.filter(Boolean)` → tidak muncul tab kosong.
+2. **Sub-category baru di CMS** — otomatis terdeteksi karena daftar dihitung runtime dari data.
+3. **URL share** — `?cat=Manual%20Teknis%20Pusat&sub=RKP&page=2` valid, di-validate via zod, fallback aman ke "All" kalau value tidak cocok.
+4. **Mobile (viewport 998×736 ke bawah)** — tab horizontal scrollable, tidak wrap awkward.
 
-Setelah implementasi, saya akan:
-1. Jalankan `tsc --noEmit` untuk pastikan type-safe
-2. Cek 3 halaman: `/pustaka-regulasi`, `/insight-hub`, `/manual-hub` di preview
-3. Test: navigate ke `?page=2`, ganti filter, reset filter
+## Verifikasi setelah implementasi
 
-## Dependencies
-
-`@tanstack/zod-adapter` dan `zod` — perlu cek apakah sudah terinstall. Kalau belum, saya `bun add` keduanya sebelum edit route files.
-
----
-
-**Pertimbangan alternatif (untuk transparansi):**
-- *"Load more" button* — tidak dipilih karena URL tidak shareable & sulit deep-link
-- *Infinite scroll* — overkill untuk konten yang relatif sedikit, dan jelek untuk SEO
-- *Server-side pagination via Sanity GROQ* — tidak perlu sekarang karena dataset kecil (puluhan item), client-side jauh lebih responsif
+- `tsc --noEmit` lulus.
+- Klik tab category → grid update + URL berubah + dropdown ikut update.
+- Klik tab sub-category → grid filter lebih sempit, page reset ke 1.
+- Reset button → semua filter (termasuk tab) kembali ke "Semua".
+- Buka langsung URL `/manual-hub?cat=Manual%20Teknis%20Pusat&sub=RKP` → tab & filter sudah aktif sesuai param.
