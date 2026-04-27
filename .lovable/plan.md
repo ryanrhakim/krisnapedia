@@ -1,112 +1,91 @@
+## 🎯 Tujuan
+Memperbaiki theme switcher yang saat ini **tidak benar-benar berfungsi** (token `.dark` belum didefinisikan) dan mengupgrade-nya menjadi sistem tema modern setara Vercel/Linear: **Light · Dark · System**, tanpa flash, tersedia di semua viewport, dan terkelola lewat satu provider terpusat.
 
-# Hilangkan ⌘K hint + ganti Trending dengan Statistik Live
+---
 
-## Bagian 1 — Hapus hint `⌘K`
+## 📋 Perubahan File
 
-Shortcut keyboard tetap berfungsi (handler di `SearchProvider` tidak diubah), hanya badge visualnya yang dihapus supaya tampilan lebih bersih.
+### 1. ✨ Baru: `src/components/site/ThemeProvider.tsx`
+Context provider sebagai single source of truth untuk tema.
 
-**`src/components/site/Hero.tsx`**
-- Hapus elemen `<kbd>⌘K</kbd>` di dalam form search bar.
+- **State**: `theme: "light" | "dark" | "system"` + `resolvedTheme: "light" | "dark"` (hasil aktualnya).
+- **Persistence**: Simpan pilihan user di `localStorage` dengan key `krisnapedia-theme`.
+- **System listener**: `window.matchMedia("(prefers-color-scheme: dark)")` dengan event `change` listener — tema otomatis ikut OS saat mode "system" aktif.
+- **Hook**: `useTheme()` mengembalikan `{ theme, setTheme, resolvedTheme }`.
+- **DOM sync**: `useEffect` yang `document.documentElement.classList.toggle("dark", resolvedTheme === "dark")`.
 
-**`src/components/site/Navbar.tsx`**
-- Hapus `<kbd>⌘K</kbd>` di tombol search desktop.
-- Sederhanakan: cukup satu tombol `Button variant="ghost" size="icon"` dengan `<Search />` icon untuk semua viewport (hapus duplikasi desktop/mobile yang sekarang ada). `aria-label="Search"` tetap dipertahankan untuk accessibility.
+### 2. ✨ Baru: `src/components/site/ThemeToggle.tsx`
+Komponen UI dropdown reusable untuk Navbar.
 
-## Bagian 2 — Rekomendasi statistik untuk menggantikan Trending chips
+- **Trigger**: Tombol ikon `Sun` (light) / `Moon` (dark) / `Monitor` (system) — ikon adapt ke `resolvedTheme` dengan animasi rotate halus via Tailwind.
+- **DropdownMenu** (shadcn) berisi 3 item: Light, Dark, System — tiap item ada ikon kiri & checkmark `Check` di kanan untuk mode aktif.
+- Pakai `aria-label="Toggle theme"` untuk a11y.
 
-Berdasarkan struktur konten KRISNApedia (Insight + Manual + Regulasi + FAQ, dengan field `category`, `subCategory`, `date`, `tags`, `fileType`), berikut **3 metrik paling relevan** yang saya rekomendasikan untuk ditampilkan di posisi trending chips:
+### 3. 🔧 Edit: `src/routes/__root.tsx`
+- **Inject inline script anti-FOUC** di `<head>` shellComponent — script ini baca `localStorage.krisnapedia-theme` (atau fallback ke `prefers-color-scheme`) dan langsung set `document.documentElement.classList.add("dark")` SEBELUM React hydrate. Ditulis sebagai `<script>` dengan string `dangerouslySetInnerHTML` agar tidak di-mangle bundler.
+- Wrap `RootComponent` dengan `<ThemeProvider>` di luar `<SearchProvider>` agar tema diterapkan ke command palette juga.
 
-| Metrik | Formula | Mengapa berguna |
-|---|---|---|
-| **Total Dokumen** | `insights.length + manuals.length + regulations.length` | Menunjukkan kekayaan repository — sinyal "ada banyak yang bisa dieksplor". Angka tunggal yang mudah dibaca. |
-| **Kategori Aktif** | jumlah unique `category` lintas 3 dataset | Menunjukkan luasnya cakupan topik (Manual Teknis Pusat, Manual Teknis Daerah, dll). Membantu user memahami breadth. |
-| **Update Terbaru** | "Diperbarui {X hari lalu}" dari dokumen dengan `date` paling baru | Menunjukkan repository hidup & aktif dirawat. Sinyal kepercayaan tinggi. |
+### 4. 🔧 Edit: `src/components/site/Navbar.tsx`
+- **Hapus** local `useTheme` hook (lines 18–37) — sudah dipindahkan ke `ThemeProvider`.
+- **Hapus** kondisi `hidden md:inline-flex` dari tombol theme — sekarang **selalu tampil** termasuk di mobile.
+- **Ganti** tombol toggle manual lama dengan `<ThemeToggle />` import dari komponen baru.
+- Hapus import `Sun`, `Moon` yang tidak dipakai lagi di Navbar.
 
-**Alternatif yang saya pertimbangkan tapi TIDAK saya rekomendasikan:**
-- ❌ "Total views/downloads" — belum ada tracking analytics di skema, butuh infrastruktur baru.
-- ❌ "User aktif" — tidak ada sistem auth user-facing.
-- ❌ "FAQ terjawab" — angka FAQ kecil (~puluhan), tidak impresif.
-- ❌ "Tags terpopuler" — mirip trending lama, tidak benar-benar "statistik".
+### 5. 🔧 Edit: `src/styles.css`
+**Ini critical fix** — saat ini `.dark` belum didefinisikan sama sekali. Tambah blok `.dark { ... }` dengan palette gelap selaras brand KRISNA orange:
 
-### Layout
+```css
+.dark {
+  --background: oklch(0.16 0.012 50);
+  --foreground: oklch(0.96 0.008 80);
 
-Ganti baris trending chips dengan **3 stat pills** sejajar di posisi yang sama (di bawah search bar):
+  --card: oklch(0.21 0.015 50);
+  --card-foreground: oklch(0.96 0.008 80);
 
-```
-                ┌──────────┐  ┌──────────┐  ┌──────────────────┐
-                │   142    │  │    12    │  │  Updated 2d ago  │
-                │ Dokumen  │  │ Kategori │  │   Last refresh   │
-                └──────────┘  └──────────┘  └──────────────────┘
-```
+  --popover: oklch(0.21 0.015 50);
+  --popover-foreground: oklch(0.96 0.008 80);
 
-- Setiap pill: angka besar (font-display, primary color) + label kecil (muted-foreground).
-- Border + bg `card`, rounded-full atau rounded-lg, padding sedang.
-- **Bukan clickable** (statistik = informasi, bukan navigasi). Cursor default, tidak ada hover state.
-- Saat data loading: skeleton 3 pills dengan placeholder dimensi sama.
-- Saat error/data kosong: tampilkan fallback "—" tapi container tetap render (jangan layout shift).
+  --primary: oklch(0.72 0.18 50);              /* sedikit lebih terang utk kontras */
+  --primary-foreground: oklch(0.16 0.012 50);
+  --primary-soft: oklch(0.28 0.06 55);
+  --primary-deep: oklch(0.62 0.19 42);
 
-## Bagian 3 — Implementasi statistik
+  --secondary: oklch(0.28 0.018 50);
+  --secondary-foreground: oklch(0.96 0.008 80);
 
-**File baru: `src/components/site/HeroStats.tsx`**
+  --muted: oklch(0.24 0.014 50);
+  --muted-foreground: oklch(0.7 0.018 60);
 
-```tsx
-// Pseudocode struktur
-function HeroStats() {
-  const insights = useQuery(insightsQueryOptions());
-  const manuals = useQuery(manualsQueryOptions());
-  const regulations = useQuery(regulationsQueryOptions());
+  --accent: oklch(0.28 0.06 55);
+  --accent-foreground: oklch(0.85 0.12 60);
 
-  const isLoading = insights.isLoading || manuals.isLoading || regulations.isLoading;
+  --destructive: oklch(0.62 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
 
-  const totalDocs = (insights.data?.length ?? 0) + (manuals.data?.length ?? 0) + (regulations.data?.length ?? 0);
+  --border: oklch(0.3 0.014 50);
+  --input: oklch(0.3 0.014 50);
+  --ring: oklch(0.72 0.18 50);
 
-  const allCategories = new Set([
-    ...(insights.data ?? []).map(i => i.category),
-    ...(manuals.data ?? []).map(m => m.category),
-    ...(regulations.data ?? []).map(r => r.category),
-  ].filter(Boolean));
-  const totalCategories = allCategories.size;
-
-  const latestDate = [
-    ...(insights.data ?? []),
-    ...(manuals.data ?? []),
-    ...(regulations.data ?? []),
-  ]
-    .map(d => d.date)
-    .filter(Boolean)
-    .sort((a, b) => b.localeCompare(a))[0];
-
-  const updatedLabel = latestDate ? formatRelative(latestDate) : "—";
-
-  return (
-    <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-      <StatPill value={totalDocs} label="Dokumen" loading={isLoading} />
-      <StatPill value={totalCategories} label="Kategori" loading={isLoading} />
-      <StatPill value={updatedLabel} label="Terakhir diperbarui" loading={isLoading} />
-    </div>
-  );
+  /* charts, sidebar, gradients, shadows juga di-override dengan nilai dark */
 }
 ```
 
-- `formatRelative(iso)` — helper kecil di `src/lib/format.ts` (file sudah ada, tinggal tambah fungsi). Output: "hari ini", "kemarin", "3 hari lalu", "2 minggu lalu", dst (Bahasa Indonesia, sesuai bahasa UI lainnya).
-- `StatPill` — komponen lokal di file yang sama, render angka + label, dengan variant skeleton saat `loading`.
+Termasuk override untuk `--gradient-hero`, `--gradient-warm`, `--shadow-soft`, `--shadow-glow`, `--sidebar-*`, dan `--chart-*` agar visual konsisten.
 
-**`src/components/site/Hero.tsx`**
-- Hapus konstanta `TRENDING` dan blok `<div>` trending chips.
-- Render `<HeroStats />` di posisi yang sama.
-- Hapus import `useSearchPalette` jika sudah tidak dipakai untuk trigger trending (cek: masih dipakai untuk `onClick`/`onFocus`/`submit` search bar — tetap dibutuhkan).
+---
 
-## Verifikasi
+## 🔄 Alur Eksekusi
+1. **User refresh halaman** → script inline di `<head>` cek localStorage → set class `.dark` instant → CSS render warna gelap → React hydrate (no flash).
+2. **User klik ThemeToggle → Dark** → `setTheme("dark")` → `localStorage` updated → `useEffect` toggle class `.dark` → semua warna transisi via CSS.
+3. **User pilih System** → script listener `matchMedia` aktif → kalau OS user ganti dark/light, web ikut otomatis tanpa reload.
 
-1. `tsc --noEmit` lulus.
-2. Hero menampilkan 3 stat pills, bukan trending chips.
-3. Angka stat sesuai jumlah dokumen di Sanity (cek manual via studio).
-4. Search bar Hero & Navbar tidak lagi menampilkan badge `⌘K`, tapi keyboard shortcut tetap bekerja (tekan ⌘K → palette terbuka).
-5. Saat hard reload tanpa cache → skeleton muncul sebentar, lalu angka muncul (no layout shift).
-6. Mobile (375px) → 3 pills wrap rapi, tidak overflow.
+## ✅ Verifikasi
+- `bunx tsc --noEmit` untuk type-check.
+- Manual: refresh, ganti mode, ganti preferensi OS sambil mode "system" aktif.
 
-## Yang TIDAK dikerjakan
-
-- ❌ Real-time view/download tracking (butuh analytics backend baru).
-- ❌ Stat pills clickable ke filter (tidak ada use case yang jelas — user bisa eksplor lewat hub pages atau search palette).
-- ❌ Animasi count-up (nice-to-have, bisa ditambahkan nanti).
+## 🎁 Hasil
+- ✅ Theme switcher **benar-benar mengubah tampilan** (sebelumnya silent no-op).
+- ✅ Tidak ada flash/FOUC saat refresh.
+- ✅ Tersedia di mobile.
+- ✅ Mendukung preferensi OS via mode System.
+- ✅ Logic terpusat di `ThemeProvider`, mudah diakses komponen lain via `useTheme()`.
