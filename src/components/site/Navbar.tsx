@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Search, Menu, Sun, Moon, Globe, Check } from "lucide-react";
+import { BookOpen, Search, Menu, Globe, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSearchPalette } from "./SearchProvider";
+import { ThemeToggle } from "./ThemeToggle";
 
 const languages = [
   { code: "en", label: "English" },
@@ -16,26 +17,6 @@ const languages = [
   { code: "ja", label: "日本語" },
   { code: "es", label: "Español" },
 ];
-
-function useTheme() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  useEffect(() => {
-    const stored = (typeof window !== "undefined" && localStorage.getItem("theme")) as
-      | "light"
-      | "dark"
-      | null;
-    const initial = stored ?? "light";
-    setTheme(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
-  }, []);
-  const toggle = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    document.documentElement.classList.toggle("dark", next === "dark");
-    if (typeof window !== "undefined") localStorage.setItem("theme", next);
-  };
-  return { theme, toggle };
-}
 
 type NavLink = { label: string; href?: string; to?: string };
 
@@ -46,7 +27,6 @@ const links: NavLink[] = [
 ];
 
 export function Navbar() {
-  const { theme, toggle } = useTheme();
   const [lang, setLang] = useState("en");
   const { openWith: openSearch } = useSearchPalette();
   return (
@@ -94,19 +74,7 @@ export function Navbar() {
             <Search className="h-4 w-4" />
           </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggle}
-            aria-label="Toggle theme"
-            className="hidden md:inline-flex"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </Button>
+          <ThemeToggle />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
