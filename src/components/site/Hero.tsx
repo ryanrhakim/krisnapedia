@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Search, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSearchPalette } from "./SearchProvider";
-
-const TRENDING = ["Onboarding", "API Reference", "Security Policy", "Q3 Insights"];
+import { HeroStats } from "./HeroStats";
 
 export function Hero() {
   const { openWith } = useSearchPalette();
@@ -66,28 +65,13 @@ export function Hero() {
               className="flex-1 bg-transparent px-2 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               aria-label="Search KRISNApedia"
             />
-            <kbd className="hidden rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline">
-              ⌘K
-            </kbd>
             <Button type="submit" className="bg-primary text-primary-foreground hover:bg-[var(--primary-deep)]">
               Search
               <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </form>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-            <span>Trending:</span>
-            {TRENDING.map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => openWith(t)}
-                className="rounded-full border border-border bg-card px-3 py-1 transition-colors hover:border-primary hover:text-foreground"
-              >
-                {t}
-              </button>
-            ))}
-          </div>
+          <HeroStats />
         </div>
       </div>
     </section>
