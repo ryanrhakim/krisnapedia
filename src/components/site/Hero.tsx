@@ -1,7 +1,19 @@
+import { useState } from "react";
 import { Search, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSearchPalette } from "./SearchProvider";
+
+const TRENDING = ["Onboarding", "API Reference", "Security Policy", "Q3 Insights"];
 
 export function Hero() {
+  const { openWith } = useSearchPalette();
+  const [heroQuery, setHeroQuery] = useState("");
+
+  const submit = () => {
+    openWith(heroQuery);
+    setHeroQuery("");
+  };
+
   return (
     <section
       className="relative overflow-hidden"
@@ -37,32 +49,44 @@ export function Hero() {
             team finds what they need in seconds, not hours.
           </p>
 
-          <div className="mx-auto mt-10 flex max-w-xl items-center gap-2 rounded-2xl border border-border bg-card p-2 shadow-[var(--shadow-soft)]">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit();
+            }}
+            className="mx-auto mt-10 flex max-w-xl items-center gap-2 rounded-2xl border border-border bg-card p-2 shadow-[var(--shadow-soft)]"
+          >
             <Search className="ml-3 h-5 w-5 shrink-0 text-muted-foreground" />
             <input
               type="text"
+              value={heroQuery}
+              onChange={(e) => setHeroQuery(e.target.value)}
+              onFocus={() => openWith(heroQuery)}
               placeholder="Search articles, manuals, SOPs..."
               className="flex-1 bg-transparent px-2 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              aria-label="Search KRISNApedia"
             />
-            <Button className="bg-primary text-primary-foreground hover:bg-[var(--primary-deep)]">
+            <kbd className="hidden rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline">
+              ⌘K
+            </kbd>
+            <Button type="submit" className="bg-primary text-primary-foreground hover:bg-[var(--primary-deep)]">
               Search
               <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
-          </div>
+          </form>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
             <span>Trending:</span>
-            {["Onboarding", "API Reference", "Security Policy", "Q3 Insights"].map(
-              (t) => (
-                <a
-                  key={t}
-                  href="#"
-                  className="rounded-full border border-border bg-card px-3 py-1 transition-colors hover:border-primary hover:text-foreground"
-                >
-                  {t}
-                </a>
-              )
-            )}
+            {TRENDING.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => openWith(t)}
+                className="rounded-full border border-border bg-card px-3 py-1 transition-colors hover:border-primary hover:text-foreground"
+              >
+                {t}
+              </button>
+            ))}
           </div>
         </div>
       </div>
