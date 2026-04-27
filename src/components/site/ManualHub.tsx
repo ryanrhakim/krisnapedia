@@ -13,11 +13,10 @@ export function ManualHub() {
   return (
     <section
       id="manuals"
-      className="relative overflow-hidden border-t border-border py-24 text-foreground"
-      style={{ backgroundColor: "oklch(0.97 0.025 75)" }}
+      className="relative overflow-hidden border-t border-border bg-surface-warm py-24 text-foreground"
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        className="pointer-events-none absolute inset-0 opacity-[0.06] dark:opacity-[0.08]"
         style={{
           backgroundImage: "radial-gradient(circle at 1px 1px, var(--primary-deep) 1px, transparent 0)",
           backgroundSize: "32px 32px",
