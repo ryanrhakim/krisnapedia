@@ -8,6 +8,8 @@ import { PaginationBar } from "@/components/site/PaginationBar";
 const PER_PAGE = 9;
 const searchSchema = z.object({
   page: fallback(z.number().int().min(1), 1).default(1),
+  cat: fallback(z.string(), "All").default("All"),
+  sub: fallback(z.string(), "All").default("All"),
 });
 import {
   Search,
