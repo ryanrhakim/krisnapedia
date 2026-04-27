@@ -27,7 +27,6 @@ const links: NavLink[] = [
 ];
 
 export function Navbar() {
-  const { theme, toggle } = useTheme();
   const [lang, setLang] = useState("en");
   const { openWith: openSearch } = useSearchPalette();
   return (
@@ -75,19 +74,7 @@ export function Navbar() {
             <Search className="h-4 w-4" />
           </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggle}
-            aria-label="Toggle theme"
-            className="hidden md:inline-flex"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </Button>
+          <ThemeToggle />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
