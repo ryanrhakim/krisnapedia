@@ -1,91 +1,70 @@
-## 🎯 Tujuan
-Memperbaiki theme switcher yang saat ini **tidak benar-benar berfungsi** (token `.dark` belum didefinisikan) dan mengupgrade-nya menjadi sistem tema modern setara Vercel/Linear: **Light · Dark · System**, tanpa flash, tersedia di semua viewport, dan terkelola lewat satu provider terpusat.
+## 🐛 Diagnosis
 
----
+Section **Manual Hub** di homepage memakai background **hardcoded** dengan inline style:
 
-## 📋 Perubahan File
+```tsx
+// src/components/site/ManualHub.tsx (line 17)
+style={{ backgroundColor: "oklch(0.97 0.025 75)" }}
+```
 
-### 1. ✨ Baru: `src/components/site/ThemeProvider.tsx`
-Context provider sebagai single source of truth untuk tema.
+Warna ini adalah krem terang fixed yang **tidak bereaksi terhadap class `.dark`**, sehingga di dark mode:
+- Background tetap krem terang.
+- `text-foreground` (otomatis menjadi putih di dark mode) → kontras hancur, teks tak terbaca.
+- Section lain (`InsightHub`, `Faq`, `Footer`) memakai token semantic `bg-background` sehingga adaptif — hanya ManualHub yang inkonsisten.
 
-- **State**: `theme: "light" | "dark" | "system"` + `resolvedTheme: "light" | "dark"` (hasil aktualnya).
-- **Persistence**: Simpan pilihan user di `localStorage` dengan key `krisnapedia-theme`.
-- **System listener**: `window.matchMedia("(prefers-color-scheme: dark)")` dengan event `change` listener — tema otomatis ikut OS saat mode "system" aktif.
-- **Hook**: `useTheme()` mengembalikan `{ theme, setTheme, resolvedTheme }`.
-- **DOM sync**: `useEffect` yang `document.documentElement.classList.toggle("dark", resolvedTheme === "dark")`.
+## 🛠️ Solusi
 
-### 2. ✨ Baru: `src/components/site/ThemeToggle.tsx`
-Komponen UI dropdown reusable untuk Navbar.
+Buat token semantic baru `--surface-warm` di `src/styles.css` agar Manual Hub tetap punya nuansa "warm tinted" yang membedakannya dari section lain (sesuai desain awal), tapi sekarang **adaptif terhadap tema**.
 
-- **Trigger**: Tombol ikon `Sun` (light) / `Moon` (dark) / `Monitor` (system) — ikon adapt ke `resolvedTheme` dengan animasi rotate halus via Tailwind.
-- **DropdownMenu** (shadcn) berisi 3 item: Light, Dark, System — tiap item ada ikon kiri & checkmark `Check` di kanan untuk mode aktif.
-- Pakai `aria-label="Toggle theme"` untuk a11y.
+### 1. Edit `src/styles.css`
 
-### 3. 🔧 Edit: `src/routes/__root.tsx`
-- **Inject inline script anti-FOUC** di `<head>` shellComponent — script ini baca `localStorage.krisnapedia-theme` (atau fallback ke `prefers-color-scheme`) dan langsung set `document.documentElement.classList.add("dark")` SEBELUM React hydrate. Ditulis sebagai `<script>` dengan string `dangerouslySetInnerHTML` agar tidak di-mangle bundler.
-- Wrap `RootComponent` dengan `<ThemeProvider>` di luar `<SearchProvider>` agar tema diterapkan ke command palette juga.
-
-### 4. 🔧 Edit: `src/components/site/Navbar.tsx`
-- **Hapus** local `useTheme` hook (lines 18–37) — sudah dipindahkan ke `ThemeProvider`.
-- **Hapus** kondisi `hidden md:inline-flex` dari tombol theme — sekarang **selalu tampil** termasuk di mobile.
-- **Ganti** tombol toggle manual lama dengan `<ThemeToggle />` import dari komponen baru.
-- Hapus import `Sun`, `Moon` yang tidak dipakai lagi di Navbar.
-
-### 5. 🔧 Edit: `src/styles.css`
-**Ini critical fix** — saat ini `.dark` belum didefinisikan sama sekali. Tambah blok `.dark { ... }` dengan palette gelap selaras brand KRISNA orange:
+Tambahkan token baru di `:root` dan `.dark`, lalu daftarkan di `@theme inline`:
 
 ```css
+@theme inline {
+  /* … existing tokens … */
+  --color-surface-warm: var(--surface-warm);
+}
+
+:root {
+  /* … existing … */
+  --surface-warm: oklch(0.97 0.025 75); /* nilai krem terang yang sekarang */
+}
+
 .dark {
-  --background: oklch(0.16 0.012 50);
-  --foreground: oklch(0.96 0.008 80);
-
-  --card: oklch(0.21 0.015 50);
-  --card-foreground: oklch(0.96 0.008 80);
-
-  --popover: oklch(0.21 0.015 50);
-  --popover-foreground: oklch(0.96 0.008 80);
-
-  --primary: oklch(0.72 0.18 50);              /* sedikit lebih terang utk kontras */
-  --primary-foreground: oklch(0.16 0.012 50);
-  --primary-soft: oklch(0.28 0.06 55);
-  --primary-deep: oklch(0.62 0.19 42);
-
-  --secondary: oklch(0.28 0.018 50);
-  --secondary-foreground: oklch(0.96 0.008 80);
-
-  --muted: oklch(0.24 0.014 50);
-  --muted-foreground: oklch(0.7 0.018 60);
-
-  --accent: oklch(0.28 0.06 55);
-  --accent-foreground: oklch(0.85 0.12 60);
-
-  --destructive: oklch(0.62 0.22 27);
-  --destructive-foreground: oklch(0.99 0 0);
-
-  --border: oklch(0.3 0.014 50);
-  --input: oklch(0.3 0.014 50);
-  --ring: oklch(0.72 0.18 50);
-
-  /* charts, sidebar, gradients, shadows juga di-override dengan nilai dark */
+  /* … existing … */
+  --surface-warm: oklch(0.2 0.02 55);   /* warm-tinted dark surface, sedikit lebih terang dari --background */
 }
 ```
 
-Termasuk override untuk `--gradient-hero`, `--gradient-warm`, `--shadow-soft`, `--shadow-glow`, `--sidebar-*`, dan `--chart-*` agar visual konsisten.
+Token ini memberi ManualHub "warm card surface" yang konsisten dengan brand orange di kedua tema.
 
----
+### 2. Edit `src/components/site/ManualHub.tsx`
 
-## 🔄 Alur Eksekusi
-1. **User refresh halaman** → script inline di `<head>` cek localStorage → set class `.dark` instant → CSS render warna gelap → React hydrate (no flash).
-2. **User klik ThemeToggle → Dark** → `setTheme("dark")` → `localStorage` updated → `useEffect` toggle class `.dark` → semua warna transisi via CSS.
-3. **User pilih System** → script listener `matchMedia` aktif → kalau OS user ganti dark/light, web ikut otomatis tanpa reload.
+- **Hapus** inline `style={{ backgroundColor: "oklch(0.97 0.025 75)" }}` di line 17.
+- **Ganti** dengan utility class `bg-surface-warm` (otomatis tersedia karena registrasi di `@theme inline`).
+- Pastikan dot-pattern overlay tetap memakai `var(--primary-deep)` — di dark mode token ini sudah berbentuk warm orange, jadi pattern tetap terlihat tapi halus.
+- Naikkan opacity overlay sedikit di dark mode bila perlu via class `opacity-[0.06] dark:opacity-[0.08]`.
+
+Hasil baris 14–17 menjadi:
+
+```tsx
+<section
+  id="manuals"
+  className="relative overflow-hidden border-t border-border bg-surface-warm py-24 text-foreground"
+>
+```
 
 ## ✅ Verifikasi
-- `bunx tsc --noEmit` untuk type-check.
-- Manual: refresh, ganti mode, ganti preferensi OS sambil mode "system" aktif.
+
+- `bunx tsc --noEmit`.
+- Manual: toggle Light → Dark via ThemeToggle, pastikan section ManualHub:
+  - Light mode: tetap krem hangat seperti semula (tidak ada regression).
+  - Dark mode: background gelap warm-tinted, judul/deskripsi/kartu jelas terbaca.
+- Pastikan kartu (`bg-card`), border, dan dot-pattern tetap kontras di kedua tema.
 
 ## 🎁 Hasil
-- ✅ Theme switcher **benar-benar mengubah tampilan** (sebelumnya silent no-op).
-- ✅ Tidak ada flash/FOUC saat refresh.
-- ✅ Tersedia di mobile.
-- ✅ Mendukung preferensi OS via mode System.
-- ✅ Logic terpusat di `ThemeProvider`, mudah diakses komponen lain via `useTheme()`.
+
+- ✅ ManualHub tidak lagi "stuck" di tema terang.
+- ✅ Tetap memiliki karakter warm-tinted yang membedakannya dari InsightHub & Faq.
+- ✅ Token `--surface-warm` reusable bila nanti ada section lain yang butuh nuansa hangat.
