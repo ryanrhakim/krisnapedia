@@ -190,7 +190,7 @@ function ManualHubPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={category} onValueChange={setCategory}>
+              <Select value={cat} onValueChange={setCat}>
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="Kategori" />
                 </SelectTrigger>
