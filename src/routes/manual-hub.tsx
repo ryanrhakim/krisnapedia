@@ -66,23 +66,42 @@ export const Route = createFileRoute("/manual-hub")({
 
 function ManualHubPage() {
   const { data: manuals } = useSuspenseQuery(manualsQueryOptions());
-  const { page } = Route.useSearch();
+  const { page, cat, sub } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");
   const [fileType, setFileType] = useState("All");
-  const [category, setCategory] = useState("All");
 
   const goToPage = (next: number) => {
-    navigate({ search: { page: next } });
+    navigate({ search: (prev) => ({ ...prev, page: next }) });
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  };
+
+  const setCat = (next: string) => {
+    navigate({ search: (prev) => ({ ...prev, cat: next, sub: "All", page: 1 }) });
+  };
+
+  const setSub = (next: string) => {
+    navigate({ search: (prev) => ({ ...prev, sub: next, page: 1 }) });
   };
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(manuals.map((m) => m.category).filter(Boolean)))],
     [manuals],
   );
+  const subCategories = useMemo(() => {
+    if (cat === "All") return [];
+    const subs = Array.from(
+      new Set(
+        manuals
+          .filter((m) => m.category === cat)
+          .map((m) => m.subCategory)
+          .filter((s): s is string => Boolean(s)),
+      ),
+    );
+    return subs.length > 0 ? ["All", ...subs] : [];
+  }, [manuals, cat]);
   const fileTypes = useMemo(
     () => [
       "All",
@@ -97,16 +116,16 @@ function ManualHubPage() {
         ? it.title.toLowerCase().includes(query.toLowerCase())
         : true;
       const matchT = fileType === "All" ? true : it.fileType === fileType;
-      const matchC = category === "All" ? true : it.category === category;
-      return matchQ && matchT && matchC;
+      const matchC = cat === "All" ? true : it.category === cat;
+      const matchS = sub === "All" ? true : it.subCategory === sub;
+      return matchQ && matchT && matchC && matchS;
     });
-  }, [manuals, query, fileType, category]);
+  }, [manuals, query, fileType, cat, sub]);
 
   const reset = () => {
     setQuery("");
     setFileType("All");
-    setCategory("All");
-    if (page !== 1) navigate({ search: { page: 1 } });
+    navigate({ search: { page: 1, cat: "All", sub: "All" } });
   };
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
@@ -116,9 +135,9 @@ function ManualHubPage() {
   const rangeEnd = (safePage - 1) * PER_PAGE + paginated.length;
 
   useEffect(() => {
-    if (page !== 1) navigate({ search: { page: 1 } });
+    if (page !== 1) navigate({ search: (prev) => ({ ...prev, page: 1 }) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, fileType, category]);
+  }, [query, fileType]);
 
   return (
     <main className="min-h-screen bg-background">
