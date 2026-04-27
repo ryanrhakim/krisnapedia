@@ -8,6 +8,8 @@ import {
 import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 
+import { SearchProvider } from "@/components/site/SearchProvider";
+import { SearchCommand } from "@/components/site/SearchCommand";
 import appCss from "../styles.css?url";
 
 interface RouterContext {
