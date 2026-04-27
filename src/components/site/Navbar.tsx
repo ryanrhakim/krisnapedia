@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSearchPalette } from "./SearchProvider";
 
 const languages = [
   { code: "en", label: "English" },
