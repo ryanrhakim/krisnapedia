@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSearchPalette } from "./SearchProvider";
 
 const languages = [
   { code: "en", label: "English" },
@@ -47,6 +48,7 @@ const links: NavLink[] = [
 export function Navbar() {
   const { theme, toggle } = useTheme();
   const [lang, setLang] = useState("en");
+  const { openWith: openSearch } = useSearchPalette();
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
@@ -83,7 +85,25 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="hidden md:inline-flex">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => openSearch()}
+            aria-label="Search (⌘K)"
+            className="hidden items-center gap-2 md:inline-flex"
+          >
+            <Search className="h-4 w-4" />
+            <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+              ⌘K
+            </kbd>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => openSearch()}
+            aria-label="Search"
+            className="md:hidden"
+          >
             <Search className="h-4 w-4" />
           </Button>
 

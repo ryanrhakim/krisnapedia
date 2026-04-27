@@ -1,100 +1,136 @@
-# Filter Tab Dua Tingkat untuk Manual Hub
+# Global Search — Command Palette (⌘K)
 
-Tujuan: mempercepat navigasi dengan tab kategori utama + sub-kategori, mirror struktur di Sanity Studio. Tab dan dropdown tetap saling sinkron, dan otomatis update kalau ada sub-category baru di CMS.
+Tujuan: ganti search dummy di Navbar & Hero dengan satu command palette global yang mencari lintas Insight + Manual + Regulasi + FAQ secara real-time, dengan hasil dikelompokkan per tipe konten dan langsung navigasi ke detail.
 
-## Struktur tab (sesuai data aktual)
+## Arsitektur
 
-**Baris 1 — Category utama:**
-`Semua` · `Manual Teknis Pusat` · `Manual Teknis Daerah`
+**Single source of truth** — satu komponen `<SearchCommand />` yang dipasang sekali di root layout. State buka/tutup + initial query dikelola via React Context (`SearchProvider`) sehingga Navbar button, Hero input, Hero trending chips, dan keyboard shortcut semua trigger ke palette yang sama tanpa duplikasi logika.
 
-**Baris 2 — Sub-category** (muncul saat category utama dipilih, kosong saat "Semua"):
-- Manual Teknis Pusat → `Semua` · `RPJMN` · `Renstra K/L` · `RKP` · `Renja K/L` · `Pagu JM` · `Tagging`
-- Manual Teknis Daerah → `Semua` · `DAK Fisik` · `DAK Nonfisik`
+**Data fetching** — palette menggunakan `useQuery` ke 4 query options yang sudah ada (`insightsQueryOptions`, `manualsQueryOptions`, `regulationsQueryOptions`, `faqsQueryOptions`). Karena query keys-nya cached oleh TanStack Query (staleTime 60s), kalau user sudah pernah buka halaman hub manapun, palette langsung pakai data dari cache → instan tanpa request ulang. Kalau belum, fetch on-open (palette load < 500ms typical).
 
-Daftar sub-category dihitung otomatis dari hasil `useSuspenseQuery(manualsQueryOptions())` — kalau Anda tambah/hapus sub-category di Sanity, tab langsung mengikuti tanpa deploy ulang.
+**Search engine** — pure JS scoring function di client, dijalankan via `useMemo` saat query atau dataset berubah. Tidak perlu Fuse.js (bundle hemat ~12KB). Algoritma:
 
-## Perubahan file
-
-### 1. `src/routes/manual-hub.tsx` (utama)
-
-**Schema search params** — tambahkan dua param baru sehingga URL bisa dibagikan dan back/forward browser bekerja:
-```ts
-const searchSchema = z.object({
-  page: fallback(z.number().int().min(1), 1).default(1),
-  cat: fallback(z.string(), "All").default("All"),     // category utama
-  sub: fallback(z.string(), "All").default("All"),     // sub-category
-});
 ```
+score(item, q):
+  q_lower = q.toLowerCase().trim()
+  if q_lower in title.toLowerCase()        → +10  (boost kalau prefix match: +5 lagi)
+  if q_lower in description.toLowerCase()  → +3
+  if q_lower in (tags joined)              → +4
+  if q_lower in category|subCategory       → +2
+  if q_lower in author                     → +1
+  return total (0 = exclude)
+```
+Sort descending by score, ambil top 8 per kategori (Insight/Manual/Regulasi/FAQ). Total max 32 hasil yang ditampilkan, lebih dari cukup untuk overlay.
 
-**State & sinkronisasi:**
-- Hapus `useState` untuk `category`. Baca dari `Route.useSearch()` → `cat` & `sub`.
-- Dropdown "Kategori" yang sudah ada **tetap dipertahankan** dan terhubung ke `cat` yang sama → tab dan dropdown saling sinkron otomatis.
-- Search query (`query`) & file type (`fileType`) tetap pakai `useState` lokal seperti sekarang (tidak perlu di URL).
+## File baru
 
-**Logika derivasi:**
-- `categories` = `["All", ...unique(manuals.map(m => m.category))]`
-- `subCategories` = `cat === "All" ? [] : ["All", ...unique(manuals.filter(m => m.category === cat).map(m => m.subCategory).filter(Boolean))]`
-- Filter list: tambah `matchSub = sub === "All" ? true : it.subCategory === sub`
+### 1. `src/components/site/SearchProvider.tsx` (Context)
 
-**Reset behavior:**
-- Saat user ganti `cat` → otomatis set `sub = "All"` dan `page = 1`.
-- Saat user ganti `sub` → set `page = 1`.
-- Tombol "Reset" yang ada → reset `cat`, `sub`, `query`, `fileType`, `page` ke default.
-- Update `useEffect` reset-page agar memperhatikan `cat` & `sub` juga (atau dipindah ke handler navigate, lebih bersih).
-
-### 2. `src/components/site/CategoryTabs.tsx` (baru)
-
-Komponen presentational kecil yang dipakai 2x (untuk baris category & sub-category):
 ```tsx
-type Props = {
-  items: string[];                    // ["All", "Manual Teknis Pusat", ...]
-  active: string;
-  onChange: (next: string) => void;
-  ariaLabel: string;
+type SearchContextValue = {
+  open: boolean;
+  setOpen: (v: boolean) => void;
+  initialQuery: string;
+  openWith: (q?: string) => void;  // buka palette + prefill query
 };
 ```
-- Render sebagai pill buttons horizontal scrollable (`overflow-x-auto`, `snap-x`) supaya rapi di viewport sempit (mobile).
-- Active state pakai token brand (`bg-primary text-primary-foreground`), inactive `bg-muted text-muted-foreground hover:bg-muted/70`.
-- Label "All" ditampilkan sebagai "Semua" (Indonesia, konsisten dengan UI yang sudah ada).
-- Aksesibilitas: `role="tablist"`, tiap tab `role="tab"` + `aria-selected`.
+- Pasang global keyboard listener (`⌘K` / `Ctrl+K`) di `useEffect` — toggle `open`.
+- Expose `openWith(q)` untuk Hero input & trending chips.
 
-### 3. UI placement di `manual-hub.tsx`
+### 2. `src/components/site/SearchCommand.tsx` (Palette UI)
 
-Letakkan **di antara hero section dan filter bar putih** — terpisah secara visual sebagai navigasi utama, sebelum filter sekunder (search/dropdown). Section baru dengan latar `bg-background` dan padding seperti section filter sekarang.
+Pakai komponen shadcn `Command` (`src/components/ui/command.tsx` sudah ada) di dalam `Dialog` (juga sudah ada). Struktur:
 
 ```
-[Hero]
-[Tab Category]                       ← baru, baris 1
-  [Tab Sub-category]                 ← baru, baris 2 (conditional)
-[Filter bar: Search + Tipe + Kategori dropdown + Reset]   ← existing
-[Grid 9 cards + Pagination]          ← existing
+<CommandDialog open={open} onOpenChange={setOpen}>
+  <CommandInput placeholder="Cari di KRISNApedia..." value={query} onValueChange={setQuery} />
+  <CommandList>
+    {query === "" && <RecentOrEmpty />}     // empty state singkat (tanpa recent search history)
+    <CommandEmpty>Tidak ada hasil untuk "{query}"</CommandEmpty>
+
+    {insightHits.length > 0 && (
+      <CommandGroup heading="Insight Hub">
+        {insightHits.map(hit => (
+          <CommandItem onSelect={() => navigate(`/insight-hub/${hit.slug}`)}>
+            <Lightbulb /> {hit.title}
+            <span className="badge">{hit.category}</span>
+          </CommandItem>
+        ))}
+      </CommandGroup>
+    )}
+    {/* Manual Hub, Pustaka Regulasi, FAQ groups — pola sama */}
+  </CommandList>
+</CommandDialog>
 ```
 
-Sub-category tab hanya muncul kalau `cat !== "All"` DAN ada minimal 1 sub-category di category itu.
+Detail UI:
+- Setiap group punya icon distinctive (Lightbulb / BookOpen / Scale / HelpCircle dari lucide).
+- Item kanan: badge kecil category + tipe file.
+- FAQ item klik → navigate `/faq` + scroll/highlight (untuk MVP cukup navigate ke `/faq`, scroll-to-anchor bisa iterasi berikut).
+- Loading state: skeleton 3 baris saat `isLoading` true.
+- Disable shadcn cmdk's built-in fuzzy filter (`shouldFilter={false}`) — kita pakai scoring sendiri.
 
-### 4. Counter & range text
+### 3. (opsional, kecil) `src/lib/search.ts`
 
-Update label "Menampilkan X–Y dari Z manual" supaya tetap akurat berdasarkan filter gabungan (cat + sub + query + fileType). Logika sudah memakai `filtered.length`, jadi otomatis benar — tinggal pastikan teks di "(difilter dari N)" tetap menampilkan total `manuals.length`.
+Helper `scoreItem(item, query)` + `searchAll(items, query, limit)` — testable pure function, dipanggil dari `SearchCommand.tsx` via `useMemo`.
 
-## Yang TIDAK berubah
+## File yang diubah
 
-- Skema Sanity (`subCategory` field sudah ada).
-- Query GROQ (`subCategory` sudah ikut di-fetch di `BASE_PROJECTION`).
-- Halaman Insight Hub & Pustaka Regulasi (sesuai permintaan, hanya Manual Hub).
-- Komponen `PaginationBar` (paginasi tetap bekerja di atas hasil yang sudah difilter).
-- Card layout & styling existing.
+### 4. `src/routes/__root.tsx`
+Wrap `<Outlet />` dengan `<SearchProvider>` di dalam `QueryClientProvider`, dan render `<SearchCommand />` sekali setelah Outlet sehingga tersedia di semua route.
 
-## Edge cases yang ditangani
+### 5. `src/components/site/Navbar.tsx`
+- Tombol Search (`<Search />` icon) → `onClick={() => openWith()}`.
+- Tambah hint shortcut: di desktop tampilkan `<kbd>⌘K</kbd>` kecil di samping icon (sembunyikan di mobile).
+- Tombol mobile menu dipertahankan; tombol search juga aktif di mobile (tanpa kbd hint).
 
-1. **Sub-category kosong** — kalau ada manual dengan `subCategory` undefined/null, di-filter pakai `.filter(Boolean)` → tidak muncul tab kosong.
-2. **Sub-category baru di CMS** — otomatis terdeteksi karena daftar dihitung runtime dari data.
-3. **URL share** — `?cat=Manual%20Teknis%20Pusat&sub=RKP&page=2` valid, di-validate via zod, fallback aman ke "All" kalau value tidak cocok.
-4. **Mobile (viewport 998×736 ke bawah)** — tab horizontal scrollable, tidak wrap awkward.
+### 6. `src/components/site/Hero.tsx`
+- Ubah `<input>` menjadi controlled, value state lokal `heroQuery`.
+- `onFocus` atau `onChange` (saat 1 char pertama) → `openWith(heroQuery)` lalu kosongkan input lokal. Alternatif lebih halus: input tetap berfungsi sebagai trigger button — saat user mulai mengetik, palette terbuka dengan query terisi, user lanjut mengetik di palette tanpa kehilangan fokus (cmdk auto-focus input-nya). 
+  - **Pendekatan dipilih**: `onClick`/`onFocus` → `openWith("")`; `onChange` di partial typing → `openWith(value)`. Lebih sederhana & tidak ada race condition fokus.
+- Tombol "Search" di kanan input → `onClick={() => openWith(heroQuery)}`.
+- Trending chips (`Onboarding`, `API Reference`, dll): ubah dari `<a href="#">` ke `<button onClick={() => openWith(label)}>`. Daftar trending tetap hardcoded di Hero (sesuai sekarang) — tidak perlu CMS-driven untuk MVP.
+
+### 7. `package.json`
+`cmdk` adalah dependency dari shadcn `command.tsx` — cek apakah sudah terinstall via `bun pm ls cmdk`. Kalau belum, `bun add cmdk`. (Kemungkinan besar sudah ada karena `command.tsx` ter-listed di components/ui.)
+
+## UX detail
+
+| Skenario | Hasil |
+|---|---|
+| User tekan ⌘K dari halaman manapun | Palette terbuka, focus ke input, query kosong |
+| User klik icon Search di Navbar | Sama seperti ⌘K |
+| User klik input Hero | Palette terbuka, input Hero sendiri tidak menerima ketikan lanjutan (focus pindah ke palette input) |
+| User mulai ketik di Hero | Palette terbuka, query Hero ter-pass sebagai initial value, user lanjut ketik di palette |
+| User klik trending chip "Onboarding" | Palette terbuka dengan query "Onboarding" → langsung tampil hasil |
+| Hasil 0 | "Tidak ada hasil untuk '{query}'. Coba kata kunci lain." |
+| User klik hasil | Navigate ke `/insight-hub/{slug}` (atau hub terkait), palette tertutup otomatis |
+| Esc | Tutup palette |
+| ↑/↓ + Enter | Navigasi & pilih (built-in cmdk) |
+
+## Edge cases
+
+1. **Query cache kosong saat palette dibuka pertama kali** — show 4 skeleton groups singkat sambil background fetch. `useQuery` per dataset, 4-paralel, total < 1 detik.
+2. **Konten draft/unpublished** — sudah di-filter di GROQ query (`published == true`), aman.
+3. **FAQ punya `question` bukan `title`** — adapter di scoring function (`item.title ?? item.question`).
+4. **Field opsional (tags, author, subCategory, description) bisa undefined** — guard via `?.` + default ke `""`.
+5. **Mobile (998px ke bawah)** — `CommandDialog` shadcn sudah responsive; di viewport sempit dialog jadi near-fullscreen, tetap nyaman.
+6. **Hero input value** — kosongkan lokal saat palette terbuka supaya tidak terlihat duplikasi visual antara teks di Hero & teks di palette.
+7. **SSR safety** — keyboard listener di `useEffect`, tidak ada `window` access di render tree.
+
+## Yang TIDAK dikerjakan (sesuai jawaban Anda)
+
+- ❌ Recent searches (localStorage) — dilewati, bisa ditambahkan nanti tanpa breaking change.
+- ❌ Halaman `/search?q=` dedicated — palette sudah cukup untuk semua use case.
+- ❌ Fuse.js / fuzzy typo tolerance — substring match dengan scoring weighted sudah cukup baik untuk dataset puluhan-ratusan item.
 
 ## Verifikasi setelah implementasi
 
-- `tsc --noEmit` lulus.
-- Klik tab category → grid update + URL berubah + dropdown ikut update.
-- Klik tab sub-category → grid filter lebih sempit, page reset ke 1.
-- Reset button → semua filter (termasuk tab) kembali ke "Semua".
-- Buka langsung URL `/manual-hub?cat=Manual%20Teknis%20Pusat&sub=RKP` → tab & filter sudah aktif sesuai param.
+1. `tsc --noEmit` lulus (no type error).
+2. Tekan ⌘K dari `/`, `/insight-hub`, `/manual-hub` → palette terbuka di mana pun.
+3. Ketik "manual" → muncul section "Manual Hub" dengan ≥1 hasil; klik → navigate ke detail manual.
+4. Ketik "RPJMN" → muncul di Manual Hub (matched via subCategory).
+5. Klik trending chip "Onboarding" di Hero → palette terbuka prefilled "Onboarding".
+6. Klik input Hero (tanpa ketik) → palette terbuka dengan query kosong.
+7. Esc → palette tutup, fokus kembali normal.
+8. Mobile (resize ke 375px) → palette tetap usable, tombol search di Navbar tetap berfungsi.
