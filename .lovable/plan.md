@@ -1,70 +1,61 @@
-## 🐛 Diagnosis
+## Tujuan
 
-Section **Manual Hub** di homepage memakai background **hardcoded** dengan inline style:
+Membuat cover image untuk **8 dokumen regulasi** di Pustaka Regulasi yang saat ini belum memiliki `coverImage`, sehingga tampilan kartu regulasi konsisten dan tidak lagi menggunakan fallback `regulasi-uu.jpg` yang sama untuk semua item.
 
-```tsx
-// src/components/site/ManualHub.tsx (line 17)
-style={{ backgroundColor: "oklch(0.97 0.025 75)" }}
-```
+## Daftar Regulasi yang Akan Diberi Cover
 
-Warna ini adalah krem terang fixed yang **tidak bereaksi terhadap class `.dark`**, sehingga di dark mode:
-- Background tetap krem terang.
-- `text-foreground` (otomatis menjadi putih di dark mode) → kontras hancur, teks tak terbaca.
-- Section lain (`InsightHub`, `Faq`, `Footer`) memakai token semantic `bg-background` sehingga adaptif — hanya ManualHub yang inkonsisten.
+| # | Kategori | Judul Singkat |
+|---|---|---|
+| 1 | Undang-Undang | UU 25/2004 — Sistem Perencanaan Pembangunan Nasional |
+| 2 | Undang-Undang | UU 59/2024 — RPJPN 2025–2045 |
+| 3 | Peraturan Pemerintah | PP 17/2017 — Sinkronisasi Perencanaan & Penganggaran |
+| 4 | Peraturan Menteri | Permen PPN 1/2021 — Tata Cara Renja K/L |
+| 5 | Peraturan Menteri | Permen PPN 10/2023 — Renstra K/L 2025–2029 |
+| 6 | Surat Edaran Bersama | SEB 4/2024 — KRO/RO Perencanaan & Penganggaran |
+| 7 | Keputusan Menteri | KepmenPANRB 356/2024 — Aplikasi Umum Perencanaan |
+| 8 | Surat Edaran Bersama | SEB 2/2025 — Daftar Program K/L |
 
-## 🛠️ Solusi
+## Arah Visual (Design Direction)
 
-Buat token semantic baru `--surface-warm` di `src/styles.css` agar Manual Hub tetap punya nuansa "warm tinted" yang membedakannya dari section lain (sesuai desain awal), tapi sekarang **adaptif terhadap tema**.
+Cover akan dibuat dengan **gaya editorial-minimalist** yang konsisten dengan desain situs KRISNApedia (warna primer hangat/amber, font display), bukan foto dokumen literal. Tiap kategori mendapat **palet & motif khas** agar mudah dibedakan secara visual:
 
-### 1. Edit `src/styles.css`
+- **Undang-Undang** — Komposisi arsitektural monumental (pilar/gedung negara), palet hangat amber-cream, simbol Garuda/keadilan tersamar.
+- **Peraturan Pemerintah** — Pola geometris simetris, tone biru navy lembut + amber accent, kesan formal-institusional.
+- **Peraturan Menteri** — Elemen grid & dokumen abstrak, tone hangat krem dengan aksen oranye, terasa modern-birokrasi.
+- **Keputusan Menteri** — Komposisi seal/stempel abstrak, tone gelap deep-blue + emas.
+- **Surat Edaran Bersama** — Dua pita/elemen kolaboratif yang berpotongan, tone soft-teal + amber.
 
-Tambahkan token baru di `:root` dan `.dark`, lalu daftarkan di `@theme inline`:
+Semua cover:
+- Aspect ratio **4:3** (sesuai kartu di `pustaka-regulasi.tsx`)
+- Tanpa teks di atas gambar (judul sudah ditampilkan via UI)
+- Ada ruang kosong di pojok kiri atas untuk badge kategori
+- Style: **flat illustration / editorial graphic**, bukan foto stok
 
-```css
-@theme inline {
-  /* … existing tokens … */
-  --color-surface-warm: var(--surface-warm);
-}
+## Implementasi Teknis
 
-:root {
-  /* … existing … */
-  --surface-warm: oklch(0.97 0.025 75); /* nilai krem terang yang sekarang */
-}
+1. **Skrip generator** (`/tmp/gen_regulasi_covers.py`)
+   - Pakai skill `lovable_ai` dengan model `google/gemini-3-pro-image-preview` (kualitas tinggi untuk cover hero).
+   - Prompt builder yang menerima `{kategori, judul}` → menghasilkan prompt sesuai mapping di atas.
+   - Output PNG ke `/tmp/regulasi-covers/{slug-id}.png`.
 
-.dark {
-  /* … existing … */
-  --surface-warm: oklch(0.2 0.02 55);   /* warm-tinted dark surface, sedikit lebih terang dari --background */
-}
-```
+2. **Upload ke Sanity** (`/tmp/upload_regulasi_covers.ts`)
+   - Pakai `@sanity/client` dengan token tulis untuk upload asset.
+   - Untuk tiap dokumen: upload PNG sebagai image asset → patch field `coverImage` pada draft → publish.
+   - Jika token tidak tersedia di env, fallback: gunakan MCP Sanity (`patch_document_from_json` + `publish_documents`) per dokumen dengan asset reference yang dihasilkan.
 
-Token ini memberi ManualHub "warm card surface" yang konsisten dengan brand orange di kedua tema.
+3. **QA visual**
+   - Setelah generate, tampilkan thumbnail tiap cover untuk verifikasi konsistensi palet & komposisi.
+   - Jika ada cover yang melenceng dari arah visual, regenerasi item tersebut saja.
 
-### 2. Edit `src/components/site/ManualHub.tsx`
+4. **Verifikasi di app**
+   - Buka `/pustaka-regulasi` di preview, pastikan setiap kartu menampilkan cover unik dan badge kategori tetap terbaca.
 
-- **Hapus** inline `style={{ backgroundColor: "oklch(0.97 0.025 75)" }}` di line 17.
-- **Ganti** dengan utility class `bg-surface-warm` (otomatis tersedia karena registrasi di `@theme inline`).
-- Pastikan dot-pattern overlay tetap memakai `var(--primary-deep)` — di dark mode token ini sudah berbentuk warm orange, jadi pattern tetap terlihat tapi halus.
-- Naikkan opacity overlay sedikit di dark mode bila perlu via class `opacity-[0.06] dark:opacity-[0.08]`.
+## Yang Tidak Berubah
 
-Hasil baris 14–17 menjadi:
+- Schema `regulation` di Sanity tetap sama.
+- Komponen `pustaka-regulasi.tsx` tidak diubah (sudah memakai `imageUrl(item.coverImage, 800) || regulasiFallback`).
+- Fallback `regulasi-uu.jpg` tetap dipertahankan untuk regulasi baru di masa depan yang belum punya cover.
 
-```tsx
-<section
-  id="manuals"
-  className="relative overflow-hidden border-t border-border bg-surface-warm py-24 text-foreground"
->
-```
+## Catatan
 
-## ✅ Verifikasi
-
-- `bunx tsc --noEmit`.
-- Manual: toggle Light → Dark via ThemeToggle, pastikan section ManualHub:
-  - Light mode: tetap krem hangat seperti semula (tidak ada regression).
-  - Dark mode: background gelap warm-tinted, judul/deskripsi/kartu jelas terbaca.
-- Pastikan kartu (`bg-card`), border, dan dot-pattern tetap kontras di kedua tema.
-
-## 🎁 Hasil
-
-- ✅ ManualHub tidak lagi "stuck" di tema terang.
-- ✅ Tetap memiliki karakter warm-tinted yang membedakannya dari InsightHub & Faq.
-- ✅ Token `--surface-warm` reusable bila nanti ada section lain yang butuh nuansa hangat.
+Generasi 8 gambar berkualitas tinggi memakan waktu beberapa menit dan akan menggunakan kredit Lovable AI. Setelah persetujuan, saya akan menjalankan generate → upload → publish secara berurutan dan melaporkan hasilnya.
