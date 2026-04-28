@@ -42,10 +42,34 @@ export function Footer() {
               as a product.
             </p>
             <div className="mt-6 flex items-center gap-3">
-              {[Instagram, Youtube, Send].map((Icon, i) => (
+              {[
+                {
+                  icon: Instagram,
+                  href: "https://www.instagram.com/krisna_systems/",
+                  label: "Instagram",
+                  external: true,
+                },
+                {
+                  icon: Youtube,
+                  href: "https://www.youtube.com/@SistemInformasiKRISNA",
+                  label: "YouTube",
+                  external: true,
+                },
+                {
+                  icon: Send,
+                  href: "#",
+                  label: "Telegram",
+                  external: false,
+                },
+              ].map(({ icon: Icon, href, label, external }) => (
                 <a
-                  key={i}
-                  href="#"
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  title={label}
+                  {...(external
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
                   className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                 >
                   <Icon className="h-4 w-4" />
