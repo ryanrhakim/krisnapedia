@@ -27,14 +27,16 @@ export function ManualHub() {
           <div>
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Manual Hub</span>
             <h2 className="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
-              Documentation, organized.
+              Seluruh manual KRISNA, terdokumentasi dalam satu portal.
             </h2>
             <p className="mt-3 max-w-lg text-foreground/70">
-              Standard operating procedures, technical guides, and reference manuals — all in one place.
+              Kumpulan panduan operasional, prosedur teknis, dan manual penggunaan
+              berbagai subsistem KRISNA yang disusun secara sistematis untuk
+              mendukung pelaksanaan perencanaan pembangunan.
             </p>
           </div>
           <Link to="/manual-hub" className="text-sm font-semibold text-primary hover:text-[var(--primary-deep)]">
-            Open library →
+            Buka pustaka manual →
           </Link>
         </div>
 
@@ -76,9 +78,9 @@ export function ManualHub() {
             <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-glow)] transition-transform group-hover:scale-110">
               <ArrowUpRight className="h-6 w-6" />
             </span>
-            <h3 className="relative mt-5 font-display text-lg font-semibold">View All Manual</h3>
-            <p className="relative mt-2 text-sm text-muted-foreground">Open the complete library.</p>
-            <span className="relative mt-5 inline-flex items-center text-sm font-semibold text-primary">Explore library →</span>
+            <h3 className="relative mt-5 font-display text-lg font-semibold">Lihat Seluruh Manual</h3>
+            <p className="relative mt-2 text-sm text-muted-foreground">Akses seluruh panduan teknis dan dokumentasi penggunaan KRISNA.</p>
+            <span className="relative mt-5 inline-flex items-center text-sm font-semibold text-primary">Telusuri Manual →</span>
           </Link>
         </div>
       </div>

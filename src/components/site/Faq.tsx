@@ -19,10 +19,11 @@ export function Faq() {
         <div>
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">FAQ</span>
           <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-            Questions, answered.
+            Butuh bantuan? Temukan jawabannya di sini.
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Everything you need to know about KRISNApedia. Still curious? Reach out and we'll get back within a day.
+            Informasi singkat mengenai penggunaan KRISNApedia, akses dokumen,
+            serta pertanyaan umum terkait pemanfaatan Sistem Informasi KRISNA.
           </p>
         </div>
 
@@ -45,7 +46,7 @@ export function Faq() {
               to="/faq"
               className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-[var(--primary-soft)] px-6 py-3 text-sm font-semibold text-primary transition-all hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-[var(--shadow-soft)]"
             >
-              More FAQ <span aria-hidden>→</span>
+              Lihat FAQ Lainnya <span aria-hidden>→</span>
             </Link>
           </div>
         </div>

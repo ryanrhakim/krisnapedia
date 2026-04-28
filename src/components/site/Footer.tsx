@@ -5,7 +5,7 @@ type FooterLink = { label: string; to?: string; href?: string };
 
 const cols: { title: string; links: FooterLink[] }[] = [
   {
-    title: "Product",
+    title: "Menu Utama",
     links: [
       { label: "Pustaka Regulasi", to: "/pustaka-regulasi" },
       { label: "Insight Hub", to: "/insight-hub" },
@@ -13,7 +13,7 @@ const cols: { title: string; links: FooterLink[] }[] = [
     ],
   },
   {
-    title: "Support",
+    title: "Dukungan",
     links: [
       { label: "FAQ", to: "/faq" },
       { label: "About", href: "#" },
@@ -38,8 +38,9 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              The integrated knowledge platform for teams who treat documentation
-              as a product.
+              Platform manajemen pengetahuan terintegrasi yang menghimpun
+              regulasi, panduan teknis, dan materi pembelajaran untuk mendukung
+              pemanfaatan Sistem Informasi KRISNA.
             </p>
             <div className="mt-6 flex items-center gap-3">
               {[
@@ -113,9 +114,9 @@ export function Footer() {
             © 2026 KRISNApedia. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-xs text-muted-foreground">
-            <a href="#" className="hover:text-foreground">Privacy</a>
-            <a href="#" className="hover:text-foreground">Terms</a>
-            <a href="#" className="hover:text-foreground">Cookies</a>
+            <a href="#" className="hover:text-foreground">Privasi</a>
+            <a href="#" className="hover:text-foreground">Ketentuan</a>
+            <a href="#" className="hover:text-foreground">Kebijakan Cookie</a>
           </div>
         </div>
       </div>

@@ -19,14 +19,16 @@ export function InsightHub() {
               Insight Hub
             </span>
             <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-              Ideas worth sharing.
+              Berbagi wawasan dan pembelajaran pemanfaatan KRISNA.
             </h2>
             <p className="mt-3 max-w-lg text-muted-foreground">
-              Curated thinking, research, and analysis from across the KRISNApedia network.
+              Kumpulan materi bimbingan teknis, sosialisasi, kajian, evaluasi,
+              dan berbagai informasi pendukung untuk memperluas pemahaman pengguna
+              terhadap Sistem Informasi KRISNA.
             </p>
           </div>
           <Link to="/insight-hub" className="text-sm font-semibold text-primary hover:text-[var(--primary-deep)]">
-            Browse all insights →
+            Lihat seluruh insight →
           </Link>
         </div>
 
@@ -72,9 +74,9 @@ export function InsightHub() {
             <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground transition-transform group-hover:scale-110">
               <ArrowUpRight className="h-6 w-6" />
             </span>
-            <h3 className="mt-5 font-display text-xl font-semibold text-foreground">Explore All Insight</h3>
-            <p className="mt-2 text-sm text-muted-foreground">Browse the full library.</p>
-            <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">View all →</span>
+            <h3 className="mt-5 font-display text-xl font-semibold text-foreground">Jelajahi Seluruh Insight</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Telusuri seluruh materi pembelajaran dan informasi pendukung KRISNA.</p>
+            <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">Lihat Semua →</span>
           </Link>
         </div>
       </div>
