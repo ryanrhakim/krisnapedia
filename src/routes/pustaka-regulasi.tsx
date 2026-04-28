@@ -6,13 +6,15 @@ import { z } from "zod";
 import { PaginationBar } from "@/components/site/PaginationBar";
 
 const PER_PAGE = 9;
+const SORT_VALUES = ["newest", "oldest", "title-asc", "title-desc"] as const;
+type SortValue = (typeof SORT_VALUES)[number];
 const searchSchema = z.object({
   page: fallback(z.number().int().min(1), 1).default(1),
+  sort: fallback(z.enum(SORT_VALUES), "newest").default("newest"),
 });
 import {
   Search,
   FileText,
-  ChevronDown,
   SlidersHorizontal,
   ScrollText,
   Loader2,
@@ -64,17 +66,21 @@ export const Route = createFileRoute("/pustaka-regulasi")({
 
 function PustakaRegulasiPage() {
   const { data: regulations } = useSuspenseQuery(regulationsQueryOptions());
-  const { page } = Route.useSearch();
+  const { page, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");
   const [fileType, setFileType] = useState("All");
   const [category, setCategory] = useState("All");
 
   const goToPage = (next: number) => {
-    navigate({ search: { page: next } });
+    navigate({ search: (prev) => ({ ...prev, page: next }) });
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  };
+
+  const setSort = (next: SortValue) => {
+    navigate({ search: (prev) => ({ ...prev, sort: next, page: 1 }) });
   };
 
   const categories = useMemo(
@@ -100,22 +106,36 @@ function PustakaRegulasiPage() {
     });
   }, [regulations, query, fileType, category]);
 
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    switch (sort) {
+      case "oldest":
+        return arr.sort((a, b) => +new Date(a.date) - +new Date(b.date));
+      case "title-asc":
+        return arr.sort((a, b) => a.title.localeCompare(b.title, "id"));
+      case "title-desc":
+        return arr.sort((a, b) => b.title.localeCompare(a.title, "id"));
+      default:
+        return arr.sort((a, b) => +new Date(b.date) - +new Date(a.date));
+    }
+  }, [filtered, sort]);
+
   const reset = () => {
     setQuery("");
     setFileType("All");
     setCategory("All");
-    if (page !== 1) navigate({ search: { page: 1 } });
+    navigate({ search: { page: 1, sort: "newest" } });
   };
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
   const safePage = Math.min(Math.max(1, page), totalPages);
-  const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
-  const rangeStart = filtered.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1;
+  const paginated = sorted.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+  const rangeStart = sorted.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1;
   const rangeEnd = (safePage - 1) * PER_PAGE + paginated.length;
 
   // Reset to page 1 when filters change
   useEffect(() => {
-    if (page !== 1) navigate({ search: { page: 1 } });
+    if (page !== 1) navigate({ search: (prev) => ({ ...prev, page: 1 }) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, fileType, category]);
 
@@ -204,10 +224,20 @@ function PustakaRegulasiPage() {
                   <> (difilter dari {regulations.length})</>
                 )}
               </span>
-              <span className="hidden md:inline">
-                Urutkan: <strong className="text-foreground">Terbaru</strong>{" "}
-                <ChevronDown className="ml-0.5 inline h-3 w-3" />
-              </span>
+              <div className="hidden items-center gap-2 md:flex">
+                <span>Urutkan</span>
+                <Select value={sort} onValueChange={(v) => setSort(v as SortValue)}>
+                  <SelectTrigger className="h-8 w-[150px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Terbaru</SelectItem>
+                    <SelectItem value="oldest">Terlama</SelectItem>
+                    <SelectItem value="title-asc">Judul A–Z</SelectItem>
+                    <SelectItem value="title-desc">Judul Z–A</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>

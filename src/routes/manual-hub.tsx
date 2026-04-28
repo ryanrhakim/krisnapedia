@@ -6,15 +6,17 @@ import { z } from "zod";
 import { PaginationBar } from "@/components/site/PaginationBar";
 
 const PER_PAGE = 9;
+const SORT_VALUES = ["newest", "oldest", "title-asc", "title-desc"] as const;
+type SortValue = (typeof SORT_VALUES)[number];
 const searchSchema = z.object({
   page: fallback(z.number().int().min(1), 1).default(1),
   cat: fallback(z.string(), "All").default("All"),
   sub: fallback(z.string(), "All").default("All"),
+  sort: fallback(z.enum(SORT_VALUES), "newest").default("newest"),
 });
 import {
   Search,
   FileText,
-  ChevronDown,
   SlidersHorizontal,
   Loader2,
 } from "lucide-react";
@@ -66,7 +68,7 @@ export const Route = createFileRoute("/manual-hub")({
 
 function ManualHubPage() {
   const { data: manuals } = useSuspenseQuery(manualsQueryOptions());
-  const { page, cat, sub } = Route.useSearch();
+  const { page, cat, sub, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");
   const [fileType, setFileType] = useState("All");
@@ -84,6 +86,10 @@ function ManualHubPage() {
 
   const setSub = (next: string) => {
     navigate({ search: (prev) => ({ ...prev, sub: next, page: 1 }) });
+  };
+
+  const setSort = (next: SortValue) => {
+    navigate({ search: (prev) => ({ ...prev, sort: next, page: 1 }) });
   };
 
   const categories = useMemo(
@@ -122,16 +128,30 @@ function ManualHubPage() {
     });
   }, [manuals, query, fileType, cat, sub]);
 
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    switch (sort) {
+      case "oldest":
+        return arr.sort((a, b) => +new Date(a.date) - +new Date(b.date));
+      case "title-asc":
+        return arr.sort((a, b) => a.title.localeCompare(b.title, "id"));
+      case "title-desc":
+        return arr.sort((a, b) => b.title.localeCompare(a.title, "id"));
+      default:
+        return arr.sort((a, b) => +new Date(b.date) - +new Date(a.date));
+    }
+  }, [filtered, sort]);
+
   const reset = () => {
     setQuery("");
     setFileType("All");
-    navigate({ search: { page: 1, cat: "All", sub: "All" } });
+    navigate({ search: { page: 1, cat: "All", sub: "All", sort: "newest" } });
   };
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
   const safePage = Math.min(Math.max(1, page), totalPages);
-  const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
-  const rangeStart = filtered.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1;
+  const paginated = sorted.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+  const rangeStart = sorted.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1;
   const rangeEnd = (safePage - 1) * PER_PAGE + paginated.length;
 
   useEffect(() => {
@@ -245,10 +265,20 @@ function ManualHubPage() {
                   <> (difilter dari {manuals.length})</>
                 )}
               </span>
-              <span className="hidden md:inline">
-                Urutkan: <strong className="text-foreground">Terbaru</strong>{" "}
-                <ChevronDown className="ml-0.5 inline h-3 w-3" />
-              </span>
+              <div className="hidden items-center gap-2 md:flex">
+                <span>Urutkan</span>
+                <Select value={sort} onValueChange={(v) => setSort(v as SortValue)}>
+                  <SelectTrigger className="h-8 w-[150px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Terbaru</SelectItem>
+                    <SelectItem value="oldest">Terlama</SelectItem>
+                    <SelectItem value="title-asc">Judul A–Z</SelectItem>
+                    <SelectItem value="title-desc">Judul Z–A</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
