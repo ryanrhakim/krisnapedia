@@ -66,17 +66,21 @@ export const Route = createFileRoute("/pustaka-regulasi")({
 
 function PustakaRegulasiPage() {
   const { data: regulations } = useSuspenseQuery(regulationsQueryOptions());
-  const { page } = Route.useSearch();
+  const { page, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");
   const [fileType, setFileType] = useState("All");
   const [category, setCategory] = useState("All");
 
   const goToPage = (next: number) => {
-    navigate({ search: { page: next } });
+    navigate({ search: (prev) => ({ ...prev, page: next }) });
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  };
+
+  const setSort = (next: SortValue) => {
+    navigate({ search: (prev) => ({ ...prev, sort: next, page: 1 }) });
   };
 
   const categories = useMemo(
@@ -102,22 +106,36 @@ function PustakaRegulasiPage() {
     });
   }, [regulations, query, fileType, category]);
 
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    switch (sort) {
+      case "oldest":
+        return arr.sort((a, b) => +new Date(a.date) - +new Date(b.date));
+      case "title-asc":
+        return arr.sort((a, b) => a.title.localeCompare(b.title, "id"));
+      case "title-desc":
+        return arr.sort((a, b) => b.title.localeCompare(a.title, "id"));
+      default:
+        return arr.sort((a, b) => +new Date(b.date) - +new Date(a.date));
+    }
+  }, [filtered, sort]);
+
   const reset = () => {
     setQuery("");
     setFileType("All");
     setCategory("All");
-    if (page !== 1) navigate({ search: { page: 1 } });
+    navigate({ search: { page: 1, sort: "newest" } });
   };
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
   const safePage = Math.min(Math.max(1, page), totalPages);
-  const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
-  const rangeStart = filtered.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1;
+  const paginated = sorted.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+  const rangeStart = sorted.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1;
   const rangeEnd = (safePage - 1) * PER_PAGE + paginated.length;
 
   // Reset to page 1 when filters change
   useEffect(() => {
-    if (page !== 1) navigate({ search: { page: 1 } });
+    if (page !== 1) navigate({ search: (prev) => ({ ...prev, page: 1 }) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, fileType, category]);
 
