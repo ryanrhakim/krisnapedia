@@ -10,13 +10,13 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "KRISNApedia — Integrated Knowledge Management" },
+      { title: "KRISNApedia — Knowledge Management System" },
       {
         name: "description",
         content:
           "KRISNApedia centralizes documents, manuals, and insights into one searchable knowledge repository for modern teams.",
       },
-      { property: "og:title", content: "KRISNApedia — Integrated Knowledge Management" },
+      { property: "og:title", content: "KRISNApedia — Knowledge Management System" },
       {
         property: "og:description",
         content:
