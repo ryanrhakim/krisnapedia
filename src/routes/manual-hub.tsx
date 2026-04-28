@@ -17,7 +17,6 @@ const searchSchema = z.object({
 import {
   Search,
   FileText,
-  ChevronDown,
   SlidersHorizontal,
   Loader2,
 } from "lucide-react";
