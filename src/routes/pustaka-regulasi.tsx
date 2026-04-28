@@ -15,7 +15,6 @@ const searchSchema = z.object({
 import {
   Search,
   FileText,
-  ChevronDown,
   SlidersHorizontal,
   ScrollText,
   Loader2,
