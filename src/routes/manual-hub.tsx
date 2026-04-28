@@ -68,7 +68,7 @@ export const Route = createFileRoute("/manual-hub")({
 
 function ManualHubPage() {
   const { data: manuals } = useSuspenseQuery(manualsQueryOptions());
-  const { page, cat, sub } = Route.useSearch();
+  const { page, cat, sub, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");
   const [fileType, setFileType] = useState("All");
@@ -86,6 +86,10 @@ function ManualHubPage() {
 
   const setSub = (next: string) => {
     navigate({ search: (prev) => ({ ...prev, sub: next, page: 1 }) });
+  };
+
+  const setSort = (next: SortValue) => {
+    navigate({ search: (prev) => ({ ...prev, sort: next, page: 1 }) });
   };
 
   const categories = useMemo(
@@ -124,16 +128,30 @@ function ManualHubPage() {
     });
   }, [manuals, query, fileType, cat, sub]);
 
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    switch (sort) {
+      case "oldest":
+        return arr.sort((a, b) => +new Date(a.date) - +new Date(b.date));
+      case "title-asc":
+        return arr.sort((a, b) => a.title.localeCompare(b.title, "id"));
+      case "title-desc":
+        return arr.sort((a, b) => b.title.localeCompare(a.title, "id"));
+      default:
+        return arr.sort((a, b) => +new Date(b.date) - +new Date(a.date));
+    }
+  }, [filtered, sort]);
+
   const reset = () => {
     setQuery("");
     setFileType("All");
-    navigate({ search: { page: 1, cat: "All", sub: "All" } });
+    navigate({ search: { page: 1, cat: "All", sub: "All", sort: "newest" } });
   };
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
   const safePage = Math.min(Math.max(1, page), totalPages);
-  const paginated = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
-  const rangeStart = filtered.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1;
+  const paginated = sorted.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+  const rangeStart = sorted.length === 0 ? 0 : (safePage - 1) * PER_PAGE + 1;
   const rangeEnd = (safePage - 1) * PER_PAGE + paginated.length;
 
   useEffect(() => {
