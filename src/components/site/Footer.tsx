@@ -18,7 +18,7 @@ const cols: { title: string; links: FooterLink[] }[] = [
       { label: "FAQ", to: "/faq" },
       { label: "About", href: "#" },
       { label: "User Guide", href: "#" },
-      { label: "Contact Us", href: "#" },
+      { label: "Contact Us", href: "mailto:krisna@bappenas.go.id" },
     ],
   },
 ];

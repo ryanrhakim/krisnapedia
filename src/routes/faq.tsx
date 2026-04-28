@@ -173,7 +173,12 @@ function FaqPage() {
                 </span>
                 <div>
                   <p className="text-sm font-semibold text-foreground">Email</p>
-                  <p className="text-xs text-muted-foreground">klinik@krisnapedia.id</p>
+                  <a
+                    href="mailto:krisna@bappenas.go.id"
+                    className="text-xs text-muted-foreground transition-colors hover:text-primary"
+                  >
+                    krisna@bappenas.go.id
+                  </a>
                 </div>
               </div>
             </div>
