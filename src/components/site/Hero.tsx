@@ -34,18 +34,19 @@ export function Hero() {
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary-foreground/60 px-4 py-1.5 text-xs font-medium text-[var(--primary-deep)] backdrop-blur">
             <Sparkles className="h-3.5 w-3.5" />
-            Know
+            Sistem Manajemen Pengetahuan
           </span>
 
           <h1 className="mt-6 font-display text-5xl font-bold leading-[1.05] tracking-tight text-foreground md:text-7xl">
-            One repository for
+            Satu portal pengetahuan untuk
             <br />
-            <span className="text-primary">every answer.</span>
+            <span className="text-primary">seluruh kebutuhan KRISNA.</span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            KRISNApedia centralizes documents, manuals, and insights — so your
-            team finds what they need in seconds, not hours.
+            KRISNApedia menghimpun regulasi, manual teknis, materi pembelajaran,
+            dan berbagai pengetahuan pendukung Sistem Informasi KRISNA agar
+            informasi dapat diakses lebih cepat, terstruktur, dan mudah dipahami.
           </p>
 
           <form
@@ -61,12 +62,12 @@ export function Hero() {
               value={heroQuery}
               onChange={(e) => setHeroQuery(e.target.value)}
               onFocus={() => openWith(heroQuery)}
-              placeholder="Search articles, manuals, SOPs..."
+              placeholder="Cari regulasi, manual, atau topik KRISNA lainnya…"
               className="flex-1 bg-transparent px-2 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               aria-label="Search KRISNApedia"
             />
             <Button type="submit" className="bg-primary text-primary-foreground hover:bg-[var(--primary-deep)]">
-              Search
+              Telusuri
               <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </form>

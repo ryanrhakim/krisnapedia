@@ -1,16 +1,48 @@
 ## Goal
-Memperbarui alamat email kontak resmi menjadi `krisna@bappenas.go.id` dan menjadikan link "Contact Us" di footer langsung membuka email tersebut.
+Memperbarui seluruh copywriting Home Page (Hero, Insight Hub, Manual Hub, FAQ, Footer) ke Bahasa Indonesia sesuai teks baru yang diberikan. Tidak ada perubahan struktur, layout, atau logika — hanya teks.
 
-## Perubahan
+## Perubahan per file
 
-### 1. `src/routes/faq.tsx` (kartu kontak di section "Ajukan Pertanyaan")
-- Ganti teks email dari `klinik@krisnapedia.id` menjadi `krisna@bappenas.go.id`.
-- Bungkus teks dengan `<a href="mailto:krisna@bappenas.go.id">` sehingga klik langsung membuka email client (sebelumnya hanya teks statis). Tambahkan styling hover ringan (`hover:text-primary transition-colors`) agar terlihat klikabel.
+### 1. `src/components/site/Hero.tsx`
+- Hero badge: `Know` → `Sistem Manajemen Pengetahuan`
+- Headline: `One repository for / every answer.` → `Satu portal pengetahuan untuk / seluruh kebutuhan KRISNA.` (kata "seluruh kebutuhan KRISNA." tetap dibungkus `<span className="text-primary">` agar styling biru terjaga)
+- Subheadline: ganti dengan teks baru tentang KRISNApedia menghimpun regulasi, manual teknis, dst.
+- Placeholder input: `Search articles, manuals, SOPs...` → `Cari regulasi, manual, atau topik KRISNA lainnya…`
+- Tombol search: `Search` → `Telusuri`
 
-### 2. `src/components/site/Footer.tsx` (link "Contact Us")
-- Ubah entry `{ label: "Contact Us", href: "#" }` menjadi `{ label: "Contact Us", href: "mailto:krisna@bappenas.go.id" }` agar klik langsung membuka komposer email ke alamat tersebut.
-- Jika rendering link footer saat ini memakai `<Link to=...>` (TanStack Router) untuk semua entry, sesuaikan agar entry dengan `href` berawalan `mailto:` dirender sebagai `<a href={...}>` biasa — TanStack `Link` tidak boleh menerima skema `mailto:`. (Akan dicek saat implementasi; jika sudah memakai `<a>`, cukup ganti `href`.)
+### 2. `src/components/site/InsightHub.tsx`
+- Headline (h2): `Ideas worth sharing.` → `Berbagi wawasan dan pembelajaran pemanfaatan KRISNA.`
+- Deskripsi: ganti dengan teks baru tentang materi bimtek, sosialisasi, kajian, evaluasi.
+- Link kanan atas: `Browse all insights →` → `Lihat seluruh insight →`
+- CTA card terakhir:
+  - Judul: `Explore All Insight` → `Jelajahi Seluruh Insight`
+  - Deskripsi: `Browse the full library.` → `Telusuri seluruh materi pembelajaran dan informasi pendukung KRISNA.`
+  - Link: `View all →` → `Lihat Semua →`
+
+### 3. `src/components/site/ManualHub.tsx`
+- Headline (h2): `Documentation, organized.` → `Seluruh manual KRISNA, terdokumentasi dalam satu portal.`
+- Deskripsi: ganti dengan teks baru tentang panduan operasional, prosedur teknis, manual subsistem KRISNA.
+- Link kanan atas: `Open library →` → `Buka pustaka manual →`
+- CTA card terakhir:
+  - Judul: `View All Manual` → `Lihat Seluruh Manual`
+  - Deskripsi: `Open the complete library.` → `Akses seluruh panduan teknis dan dokumentasi penggunaan KRISNA.`
+  - Link: `Explore library →` → `Telusuri Manual →`
+
+### 4. `src/components/site/Faq.tsx`
+- Headline (h2): `Questions, answered.` → `Butuh bantuan? Temukan jawabannya di sini.`
+- Deskripsi: ganti dengan teks baru tentang penggunaan KRISNApedia, akses dokumen, pertanyaan umum.
+- Tombol: `More FAQ →` → `Lihat FAQ Lainnya →`
+
+### 5. `src/components/site/Footer.tsx`
+- Deskripsi di bawah logo: ganti dengan teks baru tentang platform manajemen pengetahuan terintegrasi.
+- Kolom pertama `Product` → `MENU UTAMA` (sudah uppercase via CSS, tapi label tetap konsisten)
+- Kolom kedua `Support` → `DUKUNGAN`
+- Footer bawah kanan:
+  - `Privacy` → `Privasi`
+  - `Terms` → `Ketentuan`
+  - `Cookies` → `Kebijakan Cookie`
 
 ## Catatan
-- Tidak ada perubahan rute, schema, atau dependency.
-- Tidak menyentuh logika submit form FAQ (form tetap berjalan seperti sebelumnya).
+- Tidak ada perubahan ke schema Sanity, route, atau logika query.
+- Item label di kolom Support (`FAQ`, `About`, `User Guide`, `Contact Us`) tidak diubah karena tidak diminta.
+- Copyright dan ikon sosial (Instagram, YouTube, Telegram) tetap.
