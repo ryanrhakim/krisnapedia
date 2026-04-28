@@ -221,10 +221,20 @@ function InsightHubPage() {
                   <> (difilter dari {insights.length})</>
                 )}
               </span>
-              <span className="hidden md:inline">
-                Urutkan: <strong className="text-foreground">Terbaru</strong>{" "}
-                <ChevronDown className="ml-0.5 inline h-3 w-3" />
-              </span>
+              <div className="hidden items-center gap-2 md:flex">
+                <span>Urutkan</span>
+                <Select value={sort} onValueChange={(v) => setSort(v as SortValue)}>
+                  <SelectTrigger className="h-8 w-[150px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Terbaru</SelectItem>
+                    <SelectItem value="oldest">Terlama</SelectItem>
+                    <SelectItem value="title-asc">Judul A–Z</SelectItem>
+                    <SelectItem value="title-desc">Judul Z–A</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
