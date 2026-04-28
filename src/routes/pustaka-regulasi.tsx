@@ -6,8 +6,11 @@ import { z } from "zod";
 import { PaginationBar } from "@/components/site/PaginationBar";
 
 const PER_PAGE = 9;
+const SORT_VALUES = ["newest", "oldest", "title-asc", "title-desc"] as const;
+type SortValue = (typeof SORT_VALUES)[number];
 const searchSchema = z.object({
   page: fallback(z.number().int().min(1), 1).default(1),
+  sort: fallback(z.enum(SORT_VALUES), "newest").default("newest"),
 });
 import {
   Search,
