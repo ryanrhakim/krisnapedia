@@ -2,30 +2,31 @@ import { Link } from "@tanstack/react-router";
 import { Instagram, Youtube, Send } from "lucide-react";
 import logoLight from "@/assets/logo-light.svg";
 import logoDark from "@/assets/logo-dark.svg";
-
-type FooterLink = { label: string; to?: string; href?: string };
-
-const cols: { title: string; links: FooterLink[] }[] = [
-  {
-    title: "Menu Utama",
-    links: [
-      { label: "Pustaka Regulasi", to: "/pustaka-regulasi" },
-      { label: "Insight Hub", to: "/insight-hub" },
-      { label: "Manual Hub", to: "/manual-hub" },
-    ],
-  },
-  {
-    title: "Dukungan",
-    links: [
-      { label: "FAQ", to: "/faq" },
-      { label: "Tentang KRISNApedia", href: "#" },
-      { label: "Panduan Penggunaan", href: "#" },
-      { label: "Hubungi Kami", href: "mailto:krisna@bappenas.go.id" },
-    ],
-  },
-];
+import { useT } from "@/i18n/LanguageProvider";
 
 export function Footer() {
+  const { t } = useT();
+
+  const cols: { title: string; links: { label: string; to?: string; href?: string }[] }[] = [
+    {
+      title: t("footer.menuTitle"),
+      links: [
+        { label: t("nav.regulasi"), to: "/pustaka-regulasi" },
+        { label: t("nav.insight"), to: "/insight-hub" },
+        { label: t("nav.manual"), to: "/manual-hub" },
+      ],
+    },
+    {
+      title: t("footer.supportTitle"),
+      links: [
+        { label: t("footer.faq"), to: "/faq" },
+        { label: t("footer.about"), href: "#" },
+        { label: t("footer.guide"), href: "#" },
+        { label: t("footer.contact"), href: "mailto:krisna@bappenas.go.id" },
+      ],
+    },
+  ];
+
   return (
     <footer className="border-t border-border bg-background">
       <div className="mx-auto max-w-7xl px-6 py-16">
@@ -36,9 +37,7 @@ export function Footer() {
               <img src={logoDark} alt="KRISNApedia" className="hidden h-10 w-auto dark:block" />
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Platform manajemen pengetahuan terintegrasi yang menghimpun
-              regulasi, panduan teknis, dan materi pembelajaran untuk mendukung
-              pemanfaatan Sistem Informasi KRISNA.
+              {t("footer.tagline")}
             </p>
             <div className="mt-6 flex items-center gap-3">
               {[
@@ -109,12 +108,12 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 md:flex-row">
           <p className="text-xs text-muted-foreground">
-            © 2026 KRISNApedia. All rights reserved.
+            {t("footer.rights")}
           </p>
           <div className="flex items-center gap-6 text-xs text-muted-foreground">
-            <a href="#" className="hover:text-foreground">Privasi</a>
-            <a href="#" className="hover:text-foreground">Ketentuan</a>
-            <a href="#" className="hover:text-foreground">Kebijakan Cookie</a>
+            <a href="#" className="hover:text-foreground">{t("footer.privacy")}</a>
+            <a href="#" className="hover:text-foreground">{t("footer.terms")}</a>
+            <a href="#" className="hover:text-foreground">{t("footer.cookies")}</a>
           </div>
         </div>
       </div>
