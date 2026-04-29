@@ -1,42 +1,29 @@
-## Reposisi ViewCount pada Content Card
+## Plan: Optimasi Headline Hero — Satu Baris Responsif
 
-Pindahkan `ViewCount` dari posisi tengah ke sebelah ikon jenis dokumen. Tanggal tetap di kanan.
+**File:** `src/components/site/Hero.tsx` (baris 39-42)
 
-### Perubahan layout meta footer kartu
+### Masalah
+Pada viewport ~1000px, "Seluruh Pengetahuan KRISNA" pecah jadi dua baris karena `lg:text-6xl` (60px) terlalu besar untuk container `max-w-3xl` (768px).
 
-Sebelum:
-```text
-[FileType]      [Eye+count]      [date]
-```
+### Solusi
+Gunakan `clamp()` via arbitrary Tailwind value agar font-size menyesuaikan viewport secara mulus, plus `whitespace-nowrap` pada baris pertama untuk menjamin tetap satu baris. Container hero diperluas agar muat di desktop besar.
 
-Sesudah:
-```text
-[FileType]  [Eye+count]                [date]
-```
+### Perubahan
 
-### Implementasi
-
-Bungkus `FileText + typeLabel` dan `ViewCount` ke dalam satu `div` dengan `inline-flex gap-3`, lalu biarkan `justify-between` parent memisahkannya dari `<time>`.
-
+**1. Headline `<h1>`:**
 ```tsx
-<div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4 text-xs text-muted-foreground">
-  <div className="inline-flex items-center gap-3">
-    <span className="inline-flex items-center gap-1.5">
-      <FileText className="h-3.5 w-3.5" />
-      {typeLabel}
-    </span>
-    <ViewCount count={viewsMap[slug]} />
-  </div>
-  <time>{formatDate(date)}</time>
-</div>
+<h1 className="mt-6 font-display font-bold leading-[1.15] tracking-tight text-foreground text-center text-[clamp(1.5rem,5.2vw,3.75rem)]">
+  <span className="block whitespace-nowrap">Seluruh Pengetahuan KRISNA</span>
+  <span className="mt-2 block text-primary whitespace-nowrap">dalam Satu Portal</span>
+</h1>
 ```
 
-### File yang diubah
+**2. Container teks** (baris 36): ubah `max-w-3xl` → `max-w-5xl` agar headline punya ruang horizontal cukup di layar besar.
 
-- `src/components/site/InsightHub.tsx`
-- `src/components/site/ManualHub.tsx`
-- `src/routes/insight-hub.tsx`
-- `src/routes/manual-hub.tsx`
-- `src/routes/pustaka-regulasi.tsx`
-
-Tidak ada perubahan pada database, server function, query, atau logic sorting. Murni penyesuaian markup/styling.
+### Detail teknis
+- `clamp(1.5rem, 5.2vw, 3.75rem)` = min 24px (mobile), scale 5.2vw, max 60px (desktop ≥1152px).
+- `whitespace-nowrap` mencegah word-wrap pada kedua baris di semua breakpoint.
+- Pada 320px viewport: ~24px → "Seluruh Pengetahuan KRISNA" (~250px) muat.
+- Pada 1000px viewport: ~52px → muat dalam satu baris di max-w-5xl.
+- `text-center` eksplisit (sebelumnya diwarisi dari parent, dipertahankan untuk kejelasan).
+- Warna baris 1 hitam (`text-foreground`), baris 2 orange (`text-primary`) tetap.

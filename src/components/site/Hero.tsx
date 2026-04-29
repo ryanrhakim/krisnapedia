@@ -31,15 +31,15 @@ export function Hero() {
       <div className="pointer-events-none absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full bg-primary/30 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl px-6 py-24 md:py-32">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto max-w-5xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary-foreground/60 px-4 py-1.5 text-xs font-medium text-[var(--primary-deep)] backdrop-blur">
             <Sparkles className="h-3.5 w-3.5" />
             Sistem Manajemen Pengetahuan
           </span>
 
-          <h1 className="mt-6 font-display font-bold leading-[1.15] tracking-tight text-foreground text-[28px] sm:text-4xl md:text-5xl lg:text-6xl">
-            <span className="block">Seluruh Pengetahuan KRISNA</span>
-            <span className="mt-2 block text-primary">dalam Satu Portal</span>
+          <h1 className="mt-6 font-display font-bold leading-[1.15] tracking-tight text-foreground text-center text-[clamp(1.5rem,5.2vw,3.75rem)]">
+            <span className="block whitespace-nowrap">Seluruh Pengetahuan KRISNA</span>
+            <span className="mt-2 block text-primary whitespace-nowrap">dalam Satu Portal</span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
