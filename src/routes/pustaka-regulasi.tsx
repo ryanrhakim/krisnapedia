@@ -73,14 +73,14 @@ function PustakaRegulasiPage() {
   const [category, setCategory] = useState("All");
 
   const goToPage = (next: number) => {
-    navigate({ search: (prev) => ({ ...prev, page: next }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, page: next }) });
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const setSort = (next: SortValue) => {
-    navigate({ search: (prev) => ({ ...prev, sort: next, page: 1 }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, sort: next, page: 1 }) });
   };
 
   const categories = useMemo(
@@ -135,7 +135,7 @@ function PustakaRegulasiPage() {
 
   // Reset to page 1 when filters change
   useEffect(() => {
-    if (page !== 1) navigate({ search: (prev) => ({ ...prev, page: 1 }) });
+    if (page !== 1) navigate({ search: (prev: SearchParams) => ({ ...prev, page: 1 }) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, fileType, category]);
 

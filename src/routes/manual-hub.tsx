@@ -74,22 +74,22 @@ function ManualHubPage() {
   const [fileType, setFileType] = useState("All");
 
   const goToPage = (next: number) => {
-    navigate({ search: (prev) => ({ ...prev, page: next }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, page: next }) });
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const setCat = (next: string) => {
-    navigate({ search: (prev) => ({ ...prev, cat: next, sub: "All", page: 1 }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, cat: next, sub: "All", page: 1 }) });
   };
 
   const setSub = (next: string) => {
-    navigate({ search: (prev) => ({ ...prev, sub: next, page: 1 }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, sub: next, page: 1 }) });
   };
 
   const setSort = (next: SortValue) => {
-    navigate({ search: (prev) => ({ ...prev, sort: next, page: 1 }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, sort: next, page: 1 }) });
   };
 
   const categories = useMemo(
@@ -155,7 +155,7 @@ function ManualHubPage() {
   const rangeEnd = (safePage - 1) * PER_PAGE + paginated.length;
 
   useEffect(() => {
-    if (page !== 1) navigate({ search: (prev) => ({ ...prev, page: 1 }) });
+    if (page !== 1) navigate({ search: (prev: SearchParams) => ({ ...prev, page: 1 }) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, fileType]);
 
