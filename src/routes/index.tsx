@@ -5,8 +5,16 @@ import { InsightHub } from "@/components/site/InsightHub";
 import { ManualHub } from "@/components/site/ManualHub";
 import { Faq } from "@/components/site/Faq";
 import { Footer } from "@/components/site/Footer";
+import { viewsQueryOptions } from "@/lib/views-queries";
+import { insightsQueryOptions, manualsQueryOptions } from "@/lib/sanity-queries";
 
 export const Route = createFileRoute("/")({
+  loader: ({ context: { queryClient } }) => {
+    queryClient.prefetchQuery(insightsQueryOptions());
+    queryClient.prefetchQuery(manualsQueryOptions());
+    queryClient.prefetchQuery(viewsQueryOptions("insight"));
+    queryClient.prefetchQuery(viewsQueryOptions("manual"));
+  },
   component: Index,
   head: () => ({
     meta: [
