@@ -147,7 +147,7 @@ function InsightHubPage() {
             Insight Hub
           </span>
           <h1 className="mt-4 max-w-3xl font-display text-4xl font-bold tracking-tight text-foreground md:text-6xl">
-            Beragam wawasan dan bahan penguatan pemahaman KRISNA, dalam satu ruang.
+            Beragam wawasan dan penguatan pemahaman KRISNA, dalam satu ruang.
           </h1>
           <p className="mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
             Akses materi bimbingan teknis, bahan sosialisasi, laporan evaluasi, hasil survei, serta berbagai konten pengetahuan yang mendukung peningkatan pemahaman dan pemanfaatan Sistem Informasi KRISNA.
