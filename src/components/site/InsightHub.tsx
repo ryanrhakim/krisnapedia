@@ -2,13 +2,23 @@ import { ArrowUpRight, FileText } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { insightsQueryOptions } from "@/lib/sanity-queries";
+import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
+import { ViewCount } from "@/components/site/ViewCount";
 import insightFallback from "@/assets/insight-strategy.jpg";
 
 export function InsightHub() {
   const { data: all = [] } = useQuery(insightsQueryOptions());
-  const insights = all.slice(0, 3);
+  const { data: viewsMap = {} } = useQuery(viewsQueryOptions("insight"));
+  const insights = [...all]
+    .sort((a, b) => {
+      const va = viewsMap[a.slug] ?? 0;
+      const vb = viewsMap[b.slug] ?? 0;
+      if (vb !== va) return vb - va;
+      return +new Date(b.date) - +new Date(a.date);
+    })
+    .slice(0, 3);
 
   return (
     <section id="insights" className="border-t border-border bg-background py-24">
