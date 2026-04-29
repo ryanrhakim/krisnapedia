@@ -19,7 +19,9 @@ export function InsightHub() {
               Insight Hub
             </span>
             <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-              Berbagi wawasan dan pembelajaran pemanfaatan KRISNA.
+              Berbagi wawasan dan pembelajaran
+              <br />
+              pemanfaatan KRISNA.
             </h2>
             <p className="mt-3 max-w-lg text-muted-foreground">
               Kumpulan materi bimbingan teknis, sosialisasi, kajian, evaluasi,
@@ -27,9 +29,6 @@ export function InsightHub() {
               terhadap Sistem Informasi KRISNA.
             </p>
           </div>
-          <Link to="/insight-hub" className="text-sm font-semibold text-primary hover:text-[var(--primary-deep)]">
-            Lihat seluruh insight →
-          </Link>
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">

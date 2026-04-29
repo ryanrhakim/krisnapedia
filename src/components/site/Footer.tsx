@@ -16,9 +16,9 @@ const cols: { title: string; links: FooterLink[] }[] = [
     title: "Dukungan",
     links: [
       { label: "FAQ", to: "/faq" },
-      { label: "About", href: "#" },
-      { label: "User Guide", href: "#" },
-      { label: "Contact Us", href: "mailto:krisna@bappenas.go.id" },
+      { label: "Tentang KRISNApedia", href: "#" },
+      { label: "Panduan Penggunaan", href: "#" },
+      { label: "Hubungi Kami", href: "mailto:krisna@bappenas.go.id" },
     ],
   },
 ];

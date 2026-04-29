@@ -1,48 +1,53 @@
-## Goal
-Memperbarui seluruh copywriting Home Page (Hero, Insight Hub, Manual Hub, FAQ, Footer) ke Bahasa Indonesia sesuai teks baru yang diberikan. Tidak ada perubahan struktur, layout, atau logika — hanya teks.
+## Pembaruan Copywriting Home Page
 
-## Perubahan per file
+Perubahan teks dan struktur kecil pada empat komponen. Tidak ada perubahan logika, query, atau styling lain.
+
+---
 
 ### 1. `src/components/site/Hero.tsx`
-- Hero badge: `Know` → `Sistem Manajemen Pengetahuan`
-- Headline: `One repository for / every answer.` → `Satu portal pengetahuan untuk / seluruh kebutuhan KRISNA.` (kata "seluruh kebutuhan KRISNA." tetap dibungkus `<span className="text-primary">` agar styling biru terjaga)
-- Subheadline: ganti dengan teks baru tentang KRISNApedia menghimpun regulasi, manual teknis, dst.
-- Placeholder input: `Search articles, manuals, SOPs...` → `Cari regulasi, manual, atau topik KRISNA lainnya…`
-- Tombol search: `Search` → `Telusuri`
+
+**Headline** — 2 baris dengan warna berbeda:
+- Baris 1: `Satu portal untuk semua hal` (warna foreground/hitam)
+- Baris 2: `tentang KRISNA` (warna primary, dibungkus `<span className="text-primary">`)
+
+**Deskripsi** — diganti menjadi singkat (akan natural wrap ke 2 baris pada `max-w-xl`):
+> "Temukan seluruh pengetahuan tentang KRISNA lebih cepat, terstruktur, dan terpusat."
+
+---
 
 ### 2. `src/components/site/InsightHub.tsx`
-- Headline (h2): `Ideas worth sharing.` → `Berbagi wawasan dan pembelajaran pemanfaatan KRISNA.`
-- Deskripsi: ganti dengan teks baru tentang materi bimtek, sosialisasi, kajian, evaluasi.
-- Link kanan atas: `Browse all insights →` → `Lihat seluruh insight →`
-- CTA card terakhir:
-  - Judul: `Explore All Insight` → `Jelajahi Seluruh Insight`
-  - Deskripsi: `Browse the full library.` → `Telusuri seluruh materi pembelajaran dan informasi pendukung KRISNA.`
-  - Link: `View all →` → `Lihat Semua →`
+
+**Headline** — pecah menjadi 2 baris eksplisit dengan `<br />`:
+> "Berbagi wawasan dan pembelajaran" / "pemanfaatan KRISNA."
+
+**Hapus** link "Lihat seluruh insight →" di kanan atas section header. CTA card terakhir ("Jelajahi Seluruh Insight") tetap.
+
+---
 
 ### 3. `src/components/site/ManualHub.tsx`
-- Headline (h2): `Documentation, organized.` → `Seluruh manual KRISNA, terdokumentasi dalam satu portal.`
-- Deskripsi: ganti dengan teks baru tentang panduan operasional, prosedur teknis, manual subsistem KRISNA.
-- Link kanan atas: `Open library →` → `Buka pustaka manual →`
-- CTA card terakhir:
-  - Judul: `View All Manual` → `Lihat Seluruh Manual`
-  - Deskripsi: `Open the complete library.` → `Akses seluruh panduan teknis dan dokumentasi penggunaan KRISNA.`
-  - Link: `Explore library →` → `Telusuri Manual →`
 
-### 4. `src/components/site/Faq.tsx`
-- Headline (h2): `Questions, answered.` → `Butuh bantuan? Temukan jawabannya di sini.`
-- Deskripsi: ganti dengan teks baru tentang penggunaan KRISNApedia, akses dokumen, pertanyaan umum.
-- Tombol: `More FAQ →` → `Lihat FAQ Lainnya →`
+**Headline** — pecah menjadi 2 baris eksplisit:
+> "Seluruh manual KRISNA, terdokumentasi" / "dalam satu portal."
 
-### 5. `src/components/site/Footer.tsx`
-- Deskripsi di bawah logo: ganti dengan teks baru tentang platform manajemen pengetahuan terintegrasi.
-- Kolom pertama `Product` → `MENU UTAMA` (sudah uppercase via CSS, tapi label tetap konsisten)
-- Kolom kedua `Support` → `DUKUNGAN`
-- Footer bawah kanan:
-  - `Privacy` → `Privasi`
-  - `Terms` → `Ketentuan`
-  - `Cookies` → `Kebijakan Cookie`
+**Deskripsi** — diperpendek menjadi maksimal 3 baris:
+> "Kumpulan panduan operasional dan prosedur teknis berbagai subsistem KRISNA untuk mendukung perencanaan pembangunan."
 
-## Catatan
-- Tidak ada perubahan ke schema Sanity, route, atau logika query.
-- Item label di kolom Support (`FAQ`, `About`, `User Guide`, `Contact Us`) tidak diubah karena tidak diminta.
-- Copyright dan ikon sosial (Instagram, YouTube, Telegram) tetap.
+**Hapus** link "Buka pustaka manual →" di kanan atas section header. CTA card terakhir ("Lihat Seluruh Manual") tetap.
+
+---
+
+### 4. `src/components/site/Footer.tsx`
+
+Kolom **Dukungan** — ubah label (href tidak berubah):
+- `About` → `Tentang KRISNApedia`
+- `User Guide` → `Panduan Penggunaan`
+- `Contact Us` → `Hubungi Kami` (mailto tetap ke `krisna@bappenas.go.id`)
+
+`FAQ` tidak berubah.
+
+---
+
+### Catatan
+- Semua perubahan murni di JSX text + penghapusan satu elemen `<Link>` per section (Insight & Manual).
+- Tidak ada perubahan ke Sanity schema, routing, data fetching, atau Tailwind classes.
+- Import `Link` di Insight/Manual Hub tetap dipakai untuk card item & CTA card, jadi tidak perlu dihapus.

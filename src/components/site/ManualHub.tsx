@@ -27,17 +27,15 @@ export function ManualHub() {
           <div>
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Manual Hub</span>
             <h2 className="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
-              Seluruh manual KRISNA, terdokumentasi dalam satu portal.
+              Seluruh manual KRISNA, terdokumentasi
+              <br />
+              dalam satu portal.
             </h2>
             <p className="mt-3 max-w-lg text-foreground/70">
-              Kumpulan panduan operasional, prosedur teknis, dan manual penggunaan
-              berbagai subsistem KRISNA yang disusun secara sistematis untuk
-              mendukung pelaksanaan perencanaan pembangunan.
+              Kumpulan panduan operasional dan prosedur teknis berbagai
+              subsistem KRISNA untuk mendukung perencanaan pembangunan.
             </p>
           </div>
-          <Link to="/manual-hub" className="text-sm font-semibold text-primary hover:text-[var(--primary-deep)]">
-            Buka pustaka manual →
-          </Link>
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
