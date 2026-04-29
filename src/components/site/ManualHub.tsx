@@ -2,13 +2,23 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, FileText } from "lucide-react";
 import { manualsQueryOptions } from "@/lib/sanity-queries";
+import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
+import { ViewCount } from "@/components/site/ViewCount";
 import manualFallback from "@/assets/manual-onboarding.jpg";
 
 export function ManualHub() {
   const { data: all = [] } = useQuery(manualsQueryOptions());
-  const manuals = all.slice(0, 3);
+  const { data: viewsMap = {} } = useQuery(viewsQueryOptions("manual"));
+  const manuals = [...all]
+    .sort((a, b) => {
+      const va = viewsMap[a.slug] ?? 0;
+      const vb = viewsMap[b.slug] ?? 0;
+      if (vb !== va) return vb - va;
+      return +new Date(b.date) - +new Date(a.date);
+    })
+    .slice(0, 3);
 
   return (
     <section
