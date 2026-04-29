@@ -11,6 +11,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { SearchProvider } from "@/components/site/SearchProvider";
 import { SearchCommand } from "@/components/site/SearchCommand";
 import { ThemeProvider, themeInitScript } from "@/components/site/ThemeProvider";
+import { LanguageProvider } from "@/i18n/LanguageProvider";
 import appCss from "../styles.css?url";
 
 interface RouterContext {
@@ -88,10 +89,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <SearchProvider>
-          <Outlet />
-          <SearchCommand />
-        </SearchProvider>
+        <LanguageProvider>
+          <SearchProvider>
+            <Outlet />
+            <SearchCommand />
+          </SearchProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Search, Menu, Globe, Check } from "lucide-react";
 import logoLight from "@/assets/logo-light.svg";
@@ -12,25 +11,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSearchPalette } from "./SearchProvider";
 import { ThemeToggle } from "./ThemeToggle";
+import { useT } from "@/i18n/LanguageProvider";
+import type { LangCode } from "@/i18n/translations";
 
-const languages = [
-  { code: "en", label: "English" },
-  { code: "id", label: "Bahasa Indonesia" },
-  { code: "ja", label: "日本語" },
-  { code: "es", label: "Español" },
-];
-
-type NavLink = { label: string; href?: string; to?: string };
-
-const links: NavLink[] = [
-  { label: "Pustaka Regulasi", to: "/pustaka-regulasi" },
-  { label: "Insight Hub", to: "/insight-hub" },
-  { label: "Manual Hub", to: "/manual-hub" },
+const languages: { code: LangCode; labelKey: "nav.lang.id" | "nav.lang.en" }[] = [
+  { code: "id", labelKey: "nav.lang.id" },
+  { code: "en", labelKey: "nav.lang.en" },
 ];
 
 export function Navbar() {
-  const [lang, setLang] = useState("en");
   const { openWith: openSearch } = useSearchPalette();
+  const { t, lang, setLang } = useT();
+
+  const links = [
+    { label: t("nav.regulasi"), to: "/pustaka-regulasi" },
+    { label: t("nav.insight"), to: "/insight-hub" },
+    { label: t("nav.manual"), to: "/manual-hub" },
+  ];
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
@@ -40,26 +38,16 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {links.map((l) =>
-            l.to ? (
-              <Link
-                key={l.label}
-                to={l.to}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                activeProps={{ className: "text-primary font-semibold" }}
-              >
-                {l.label}
-              </Link>
-            ) : (
-              <a
-                key={l.label}
-                href={l.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {l.label}
-              </a>
-            ),
-          )}
+          {links.map((l) => (
+            <Link
+              key={l.label}
+              to={l.to}
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              activeProps={{ className: "text-primary font-semibold" }}
+            >
+              {l.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex items-center gap-1">
@@ -67,7 +55,7 @@ export function Navbar() {
             variant="ghost"
             size="icon"
             onClick={() => openSearch()}
-            aria-label="Search"
+            aria-label={t("nav.search")}
           >
             <Search className="h-4 w-4" />
           </Button>
@@ -80,7 +68,7 @@ export function Navbar() {
                 variant="ghost"
                 size="sm"
                 className="hidden items-center gap-1.5 md:inline-flex"
-                aria-label="Switch language"
+                aria-label={t("nav.switchLang")}
               >
                 <Globe className="h-4 w-4" />
                 <span className="text-xs font-semibold uppercase">{lang}</span>
@@ -93,7 +81,7 @@ export function Navbar() {
                   onClick={() => setLang(l.code)}
                   className="flex items-center justify-between"
                 >
-                  <span>{l.label}</span>
+                  <span>{t(l.labelKey)}</span>
                   {lang === l.code && <Check className="h-4 w-4 text-primary" />}
                 </DropdownMenuItem>
               ))}

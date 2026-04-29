@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/LanguageProvider";
 
 type CategoryTabsProps = {
   items: string[];
@@ -21,6 +22,7 @@ export function CategoryTabs({
   variant = "primary",
   className,
 }: CategoryTabsProps) {
+  const { t } = useT();
   if (items.length === 0) return null;
 
   return (
@@ -34,7 +36,7 @@ export function CategoryTabs({
     >
       {items.map((item) => {
         const isActive = item === active;
-        const label = item === "All" ? "Semua" : item;
+        const label = item === "All" ? t("tabs.all") : item;
         return (
           <button
             key={item}

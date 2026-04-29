@@ -36,6 +36,7 @@ import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
 import { ViewCount } from "@/components/site/ViewCount";
 import regulasiFallback from "@/assets/regulasi-uu.jpg";
+import { useT } from "@/i18n/LanguageProvider";
 
 type SearchParams = z.infer<typeof searchSchema>;
 
@@ -69,6 +70,7 @@ export const Route = createFileRoute("/pustaka-regulasi")({
 });
 
 function PustakaRegulasiPage() {
+  const { t } = useT();
   const { data: regulations } = useSuspenseQuery(regulationsQueryOptions());
   const { data: viewsMap = {} } = useQuery(viewsQueryOptions("regulation"));
   const { page, sort } = Route.useSearch();
@@ -152,7 +154,7 @@ function PustakaRegulasiPage() {
         <div className="mx-auto max-w-7xl px-6 py-20 md:py-28">
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-primary">
             <ScrollText className="h-3.5 w-3.5" />
-            Pustaka Regulasi
+            {t("page.regulasi.eyebrow")}
           </span>
           <h1 className="mt-4 max-w-3xl font-display text-4xl font-bold tracking-tight text-foreground md:text-6xl">
             Koleksi regulasi dan dasar kebijakan, dalam satu pustaka.
@@ -170,7 +172,7 @@ function PustakaRegulasiPage() {
           <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)]">
             <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
               <SlidersHorizontal className="h-4 w-4 text-primary" />
-              Filter regulasi
+              {t("filter.regulations")}
             </div>
             <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr_auto]">
               <div className="relative">
@@ -178,19 +180,19 @@ function PustakaRegulasiPage() {
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Cari judul regulasi…"
+                  placeholder={t("filter.searchRegulation")}
                   className="h-11 pl-9"
                 />
               </div>
 
               <Select value={fileType} onValueChange={setFileType}>
                 <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Tipe File" />
+                  <SelectValue placeholder={t("filter.fileType")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {fileTypes.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {t === "All" ? "Semua tipe file" : t}
+                  {fileTypes.map((t2) => (
+                    <SelectItem key={t2} value={t2}>
+                      {t2 === "All" ? t("filter.allFileTypes") : t2}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -198,12 +200,12 @@ function PustakaRegulasiPage() {
 
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Kategori" />
+                  <SelectValue placeholder={t("filter.category")} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((c) => (
                     <SelectItem key={c} value={c}>
-                      {c === "All" ? "Semua kategori" : c}
+                      {c === "All" ? t("filter.allCategories") : c}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -214,32 +216,32 @@ function PustakaRegulasiPage() {
                 onClick={reset}
                 className="h-11 border-border"
               >
-                Reset
+                {t("filter.reset")}
               </Button>
             </div>
 
             <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
               <span>
-                Menampilkan{" "}
+                {t("filter.showing")}{" "}
                 <strong className="text-foreground">
                   {rangeStart}–{rangeEnd}
                 </strong>{" "}
-                dari {filtered.length} regulasi
+                {t("filter.of")} {filtered.length} {t("unit.regulasi")}
                 {filtered.length !== regulations.length && (
-                  <> (difilter dari {regulations.length})</>
+                  <> ({t("filter.filteredFrom")} {regulations.length})</>
                 )}
               </span>
               <div className="hidden items-center gap-2 md:flex">
-                <span>Urutkan</span>
+                <span>{t("filter.sortBy")}</span>
                 <Select value={sort} onValueChange={(v) => setSort(v as SortValue)}>
                   <SelectTrigger className="h-8 w-[150px] text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">Terbaru</SelectItem>
-                    <SelectItem value="oldest">Terlama</SelectItem>
-                    <SelectItem value="title-asc">Judul A–Z</SelectItem>
-                    <SelectItem value="title-desc">Judul Z–A</SelectItem>
+                    <SelectItem value="newest">{t("filter.sort.newest")}</SelectItem>
+                    <SelectItem value="oldest">{t("filter.sort.oldest")}</SelectItem>
+                    <SelectItem value="title-asc">{t("filter.sort.titleAsc")}</SelectItem>
+                    <SelectItem value="title-desc">{t("filter.sort.titleDesc")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -253,13 +255,13 @@ function PustakaRegulasiPage() {
           {filtered.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-16 text-center">
               <p className="font-display text-xl font-semibold text-foreground">
-                Tidak ada regulasi yang cocok.
+                {t("filter.empty.regulation")}
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Coba ubah kata kunci atau filter Anda.
+                {t("filter.emptyHint")}
               </p>
               <Button onClick={reset} className="mt-5">
-                Reset filter
+                {t("filter.resetFilter")}
               </Button>
             </div>
           ) : (

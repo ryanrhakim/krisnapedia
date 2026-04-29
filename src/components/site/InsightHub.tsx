@@ -7,8 +7,10 @@ import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
 import { ViewCount } from "@/components/site/ViewCount";
 import insightFallback from "@/assets/insight-strategy.jpg";
+import { useT } from "@/i18n/LanguageProvider";
 
 export function InsightHub() {
+  const { t } = useT();
   const { data: all = [] } = useQuery(insightsQueryOptions());
   const { data: viewsMap = {} } = useQuery(viewsQueryOptions("insight"));
   const insights = [...all]
@@ -26,17 +28,15 @@ export function InsightHub() {
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-              Insight Hub
+              {t("insight.eyebrow")}
             </span>
             <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-              Berbagi wawasan dan pembelajaran
+              {t("insight.heading1")}
               <br />
-              pemanfaatan KRISNA.
+              {t("insight.heading2")}
             </h2>
             <p className="mt-3 max-w-lg text-muted-foreground">
-              Kumpulan materi bimbingan teknis, sosialisasi, kajian, evaluasi,
-              dan berbagai informasi pendukung untuk memperluas pemahaman pengguna
-              terhadap Sistem Informasi KRISNA.
+              {t("insight.lead")}
             </p>
           </div>
         </div>
@@ -86,9 +86,9 @@ export function InsightHub() {
             <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground transition-transform group-hover:scale-110">
               <ArrowUpRight className="h-6 w-6" />
             </span>
-            <h3 className="mt-5 font-display text-xl font-semibold text-foreground">Jelajahi Seluruh Insight</h3>
-            <p className="mt-2 text-sm text-muted-foreground">Telusuri seluruh materi pembelajaran dan informasi pendukung KRISNA.</p>
-            <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">Lihat Semua →</span>
+            <h3 className="mt-5 font-display text-xl font-semibold text-foreground">{t("insight.exploreTitle")}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{t("insight.exploreDesc")}</p>
+            <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">{t("insight.viewAll")}</span>
           </Link>
         </div>
       </div>

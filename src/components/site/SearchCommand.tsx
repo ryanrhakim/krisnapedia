@@ -20,8 +20,11 @@ import {
   regulationsQueryOptions,
 } from "@/lib/sanity-queries";
 
+import { useT } from "@/i18n/LanguageProvider";
+
 export function SearchCommand() {
   const { open, setOpen, initialQuery } = useSearchPalette();
+  const { t } = useT();
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
@@ -73,26 +76,26 @@ export function SearchCommand() {
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput
-        placeholder="Cari insight, manual, regulasi, atau FAQ..."
+        placeholder={t("search.placeholder")}
         value={query}
         onValueChange={setQuery}
       />
       <CommandList>
         {query.trim() === "" ? (
           <div className="py-8 text-center text-sm text-muted-foreground">
-            Mulai mengetik untuk mencari di seluruh KRISNApedia.
+            {t("search.startTyping")}
             <div className="mt-2 text-xs opacity-70">
-              Tekan <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px]">Esc</kbd> untuk menutup.
+              {t("search.pressEsc")} <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px]">Esc</kbd> {t("search.escHint")}
             </div>
           </div>
         ) : isLoading && totalHits === 0 ? (
-          <div className="py-8 text-center text-sm text-muted-foreground">Memuat hasil...</div>
+          <div className="py-8 text-center text-sm text-muted-foreground">{t("search.loading")}</div>
         ) : totalHits === 0 ? (
-          <CommandEmpty>Tidak ada hasil untuk &ldquo;{query}&rdquo;.</CommandEmpty>
+          <CommandEmpty>{t("search.noResults")} &ldquo;{query}&rdquo;.</CommandEmpty>
         ) : null}
 
         {insightHits.length > 0 && (
-          <CommandGroup heading="Insight Hub">
+          <CommandGroup heading={t("search.group.insight")}>
             {insightHits.map((hit) => (
               <CommandItem
                 key={hit._id}
@@ -113,7 +116,7 @@ export function SearchCommand() {
         )}
 
         {manualHits.length > 0 && (
-          <CommandGroup heading="Manual Hub">
+          <CommandGroup heading={t("search.group.manual")}>
             {manualHits.map((hit) => (
               <CommandItem
                 key={hit._id}
@@ -135,7 +138,7 @@ export function SearchCommand() {
         )}
 
         {regulationHits.length > 0 && (
-          <CommandGroup heading="Pustaka Regulasi">
+          <CommandGroup heading={t("search.group.regulasi")}>
             {regulationHits.map((hit) => (
               <CommandItem
                 key={hit._id}
@@ -156,7 +159,7 @@ export function SearchCommand() {
         )}
 
         {faqHits.length > 0 && (
-          <CommandGroup heading="FAQ">
+          <CommandGroup heading={t("search.group.faq")}>
             {faqHits.map((hit) => (
               <CommandItem
                 key={hit._id}
