@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { PaginationBar } from "@/components/site/PaginationBar";
@@ -30,9 +30,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { insightsQueryOptions } from "@/lib/sanity-queries";
+import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
+import { ViewCount } from "@/components/site/ViewCount";
 import insightFallback from "@/assets/insight-strategy.jpg";
+
+type SearchParams = z.infer<typeof searchSchema>;
 
 export const Route = createFileRoute("/insight-hub")({
   validateSearch: zodValidator(searchSchema),
@@ -65,6 +69,7 @@ export const Route = createFileRoute("/insight-hub")({
 
 function InsightHubPage() {
   const { data: insights } = useSuspenseQuery(insightsQueryOptions());
+  const { data: viewsMap = {} } = useQuery(viewsQueryOptions("insight"));
   const { page, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");
@@ -72,14 +77,14 @@ function InsightHubPage() {
   const [category, setCategory] = useState("All");
 
   const goToPage = (next: number) => {
-    navigate({ search: (prev) => ({ ...prev, page: next }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, page: next }) });
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const setSort = (next: SortValue) => {
-    navigate({ search: (prev) => ({ ...prev, sort: next, page: 1 }) });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, sort: next, page: 1 }) });
   };
 
   const categories = useMemo(
@@ -133,7 +138,7 @@ function InsightHubPage() {
   const rangeEnd = (safePage - 1) * PER_PAGE + paginated.length;
 
   useEffect(() => {
-    if (page !== 1) navigate({ search: (prev) => ({ ...prev, page: 1 }) });
+    if (page !== 1) navigate({ search: (prev: SearchParams) => ({ ...prev, page: 1 }) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, fileType, category]);
 
@@ -289,11 +294,12 @@ function InsightHubPage() {
                         {item.description}
                       </p>
 
-                      <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
+                      <div className="mt-5 flex items-center justify-between gap-2 border-t border-border pt-4 text-xs text-muted-foreground">
                         <span className="inline-flex items-center gap-1.5">
                           <FileText className="h-3.5 w-3.5" />
                           {typeLabel}
                         </span>
+                        <ViewCount count={viewsMap[item.slug]} />
                         <time>{formatDate(item.date)}</time>
                       </div>
                     </div>

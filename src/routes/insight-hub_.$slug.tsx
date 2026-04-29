@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { incrementView } from "@/server/views.functions";
 import {
   ArrowLeft,
   Calendar,
@@ -92,6 +94,15 @@ function InsightDetailPage() {
   const { slug } = Route.useLoaderData();
   const { data: insight } = useSuspenseQuery(insightBySlugQueryOptions(slug));
   const { data: all } = useSuspenseQuery(insightsQueryOptions());
+
+  const incrementedRef = useRef(false);
+  useEffect(() => {
+    if (incrementedRef.current || !insight) return;
+    incrementedRef.current = true;
+    incrementView({
+      data: { type: "insight", slug: insight.slug, contentId: insight._id },
+    }).catch(() => {});
+  }, [insight]);
 
   if (!insight) return null;
 

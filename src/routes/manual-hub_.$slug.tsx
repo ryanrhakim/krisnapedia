@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { incrementView } from "@/server/views.functions";
 import {
   ArrowLeft,
   BookOpen,
@@ -86,6 +88,15 @@ function ManualDetailPage() {
   const { slug } = Route.useLoaderData();
   const { data: manual } = useSuspenseQuery(manualBySlugQueryOptions(slug));
   const { data: all } = useSuspenseQuery(manualsQueryOptions());
+
+  const incrementedRef = useRef(false);
+  useEffect(() => {
+    if (incrementedRef.current || !manual) return;
+    incrementedRef.current = true;
+    incrementView({
+      data: { type: "manual", slug: manual.slug, contentId: manual._id },
+    }).catch(() => {});
+  }, [manual]);
 
   if (!manual) return null;
 

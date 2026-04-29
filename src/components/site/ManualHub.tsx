@@ -2,13 +2,23 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, FileText } from "lucide-react";
 import { manualsQueryOptions } from "@/lib/sanity-queries";
+import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
+import { ViewCount } from "@/components/site/ViewCount";
 import manualFallback from "@/assets/manual-onboarding.jpg";
 
 export function ManualHub() {
   const { data: all = [] } = useQuery(manualsQueryOptions());
-  const manuals = all.slice(0, 3);
+  const { data: viewsMap = {} } = useQuery(viewsQueryOptions("manual"));
+  const manuals = [...all]
+    .sort((a, b) => {
+      const va = viewsMap[a.slug] ?? 0;
+      const vb = viewsMap[b.slug] ?? 0;
+      if (vb !== va) return vb - va;
+      return +new Date(b.date) - +new Date(a.date);
+    })
+    .slice(0, 3);
 
   return (
     <section
@@ -57,11 +67,12 @@ export function ManualHub() {
                 <div className="flex flex-1 flex-col p-5">
                   <h3 className="font-display text-lg font-semibold leading-snug">{m.title}</h3>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{m.description}</p>
-                  <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
+                  <div className="mt-5 flex items-center justify-between gap-2 border-t border-border pt-4 text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-1.5">
                       <FileText className="h-3.5 w-3.5" />
                       {m.fileType ?? m.viewer.toUpperCase()}
                     </span>
+                    <ViewCount count={viewsMap[m.slug]} />
                     <time>{formatDate(m.date)}</time>
                   </div>
                 </div>
