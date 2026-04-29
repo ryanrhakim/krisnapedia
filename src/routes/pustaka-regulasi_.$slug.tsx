@@ -91,6 +91,15 @@ function RegulasiDetailPage() {
   const { data: regulasi } = useSuspenseQuery(regulationBySlugQueryOptions(slug));
   const { data: all } = useSuspenseQuery(regulationsQueryOptions());
 
+  const incrementedRef = useRef(false);
+  useEffect(() => {
+    if (incrementedRef.current || !regulasi) return;
+    incrementedRef.current = true;
+    incrementView({
+      data: { type: "regulation", slug: regulasi.slug, contentId: regulasi._id },
+    }).catch(() => {});
+  }, [regulasi]);
+
   if (!regulasi) return null;
 
   const related = all
