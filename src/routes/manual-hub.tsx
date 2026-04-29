@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { PaginationBar } from "@/components/site/PaginationBar";
@@ -72,6 +72,7 @@ export const Route = createFileRoute("/manual-hub")({
 
 function ManualHubPage() {
   const { data: manuals } = useSuspenseQuery(manualsQueryOptions());
+  const { data: viewsMap = {} } = useQuery(viewsQueryOptions("manual"));
   const { page, cat, sub, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");

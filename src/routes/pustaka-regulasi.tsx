@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { PaginationBar } from "@/components/site/PaginationBar";
@@ -70,6 +70,7 @@ export const Route = createFileRoute("/pustaka-regulasi")({
 
 function PustakaRegulasiPage() {
   const { data: regulations } = useSuspenseQuery(regulationsQueryOptions());
+  const { data: viewsMap = {} } = useQuery(viewsQueryOptions("regulation"));
   const { page, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");

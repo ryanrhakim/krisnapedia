@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { PaginationBar } from "@/components/site/PaginationBar";
@@ -69,6 +69,7 @@ export const Route = createFileRoute("/insight-hub")({
 
 function InsightHubPage() {
   const { data: insights } = useSuspenseQuery(insightsQueryOptions());
+  const { data: viewsMap = {} } = useQuery(viewsQueryOptions("insight"));
   const { page, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");
