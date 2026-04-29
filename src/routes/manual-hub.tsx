@@ -169,7 +169,7 @@ function ManualHubPage() {
             Manual Hub
           </span>
           <h1 className="mt-4 max-w-3xl font-display text-4xl font-bold tracking-tight text-foreground md:text-6xl">
-            Koleksi panduan penggunaan subsistem KRISNA, dalam satu pusat dokumentasi.
+            Koleksi panduan penggunaan KRISNA, dalam satu pusat dokumentasi.
           </h1>
           <p className="mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
             Akses panduan penggunaan, prosedur teknis, dan dokumentasi operasional berbagai subsistem KRISNA yang disusun sistematis agar setiap proses lebih mudah dipelajari, ditelusuri, dan diterapkan.
