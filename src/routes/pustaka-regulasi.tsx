@@ -31,9 +31,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { regulationsQueryOptions } from "@/lib/sanity-queries";
+import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
+import { ViewCount } from "@/components/site/ViewCount";
 import regulasiFallback from "@/assets/regulasi-uu.jpg";
+
+type SearchParams = z.infer<typeof searchSchema>;
 
 export const Route = createFileRoute("/pustaka-regulasi")({
   validateSearch: zodValidator(searchSchema),

@@ -32,10 +32,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { manualsQueryOptions } from "@/lib/sanity-queries";
+import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
 import { CategoryTabs } from "@/components/site/CategoryTabs";
+import { ViewCount } from "@/components/site/ViewCount";
 import manualFallback from "@/assets/manual-onboarding.jpg";
+
+type SearchParams = z.infer<typeof searchSchema>;
 
 export const Route = createFileRoute("/manual-hub")({
   validateSearch: zodValidator(searchSchema),
