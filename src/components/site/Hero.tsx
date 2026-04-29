@@ -37,15 +37,19 @@ export function Hero() {
             Sistem Manajemen Pengetahuan
           </span>
 
-          <h1 className="mt-6 font-display text-5xl font-bold leading-[1.05] tracking-tight text-foreground md:text-7xl">
-            Satu portal untuk semua hal
-            <br />
-            <span className="text-primary">tentang KRISNA</span>
+          <h1 className="mt-6 font-display font-bold leading-[1.05] tracking-tight text-foreground">
+            <span className="block whitespace-nowrap text-[8vw] md:text-6xl lg:text-7xl">
+              Satu portal untuk semua hal
+            </span>
+            <span className="mt-2 block text-primary text-5xl md:text-6xl lg:text-7xl">
+              tentang KRISNA
+            </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            Temukan seluruh pengetahuan tentang KRISNA lebih cepat, terstruktur,
-            dan terpusat.
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+            Temukan materi, manual, dan berbagai pengetahuan tentang KRISNA
+            <br className="hidden md:block" />
+            lebih cepat, terstruktur, dan terpusat.
           </p>
 
           <form
