@@ -38,15 +38,14 @@ export function Hero() {
           </span>
 
           <h1 className="mt-6 font-display text-5xl font-bold leading-[1.05] tracking-tight text-foreground md:text-7xl">
-            Satu portal pengetahuan untuk
+            Satu portal untuk semua hal
             <br />
-            <span className="text-primary">seluruh kebutuhan KRISNA.</span>
+            <span className="text-primary">tentang KRISNA</span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            KRISNApedia menghimpun regulasi, manual teknis, materi pembelajaran,
-            dan berbagai pengetahuan pendukung Sistem Informasi KRISNA agar
-            informasi dapat diakses lebih cepat, terstruktur, dan mudah dipahami.
+            Temukan seluruh pengetahuan tentang KRISNA lebih cepat, terstruktur,
+            dan terpusat.
           </p>
 
           <form
