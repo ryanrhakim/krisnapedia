@@ -7,8 +7,10 @@ import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
 import { ViewCount } from "@/components/site/ViewCount";
 import manualFallback from "@/assets/manual-onboarding.jpg";
+import { useT } from "@/i18n/LanguageProvider";
 
 export function ManualHub() {
+  const { t } = useT();
   const { data: all = [] } = useQuery(manualsQueryOptions());
   const { data: viewsMap = {} } = useQuery(viewsQueryOptions("manual"));
   const manuals = [...all]
@@ -35,15 +37,14 @@ export function ManualHub() {
       <div className="relative mx-auto max-w-7xl px-6">
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Manual Hub</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("manual.eyebrow")}</span>
             <h2 className="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
-              Seluruh manual KRISNA, terdokumentasi
+              {t("manual.heading1")}
               <br />
-              dalam satu portal.
+              {t("manual.heading2")}
             </h2>
             <p className="mt-3 max-w-lg text-foreground/70">
-              Kumpulan panduan operasional dan prosedur teknis berbagai
-              subsistem KRISNA untuk mendukung perencanaan pembangunan.
+              {t("manual.lead")}
             </p>
           </div>
         </div>
@@ -89,9 +90,9 @@ export function ManualHub() {
             <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-glow)] transition-transform group-hover:scale-110">
               <ArrowUpRight className="h-6 w-6" />
             </span>
-            <h3 className="relative mt-5 font-display text-lg font-semibold">Lihat Seluruh Manual</h3>
-            <p className="relative mt-2 text-sm text-muted-foreground">Akses seluruh panduan teknis dan dokumentasi penggunaan KRISNA.</p>
-            <span className="relative mt-5 inline-flex items-center text-sm font-semibold text-primary">Telusuri Manual →</span>
+            <h3 className="relative mt-5 font-display text-lg font-semibold">{t("manual.exploreTitle")}</h3>
+            <p className="relative mt-2 text-sm text-muted-foreground">{t("manual.exploreDesc")}</p>
+            <span className="relative mt-5 inline-flex items-center text-sm font-semibold text-primary">{t("manual.viewAll")}</span>
           </Link>
         </div>
       </div>

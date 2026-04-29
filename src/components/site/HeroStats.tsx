@@ -7,6 +7,7 @@ import {
 } from "@/lib/sanity-queries";
 import { formatRelative } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useT } from "@/i18n/LanguageProvider";
 
 type StatPillProps = {
   icon: React.ReactNode;
@@ -38,6 +39,7 @@ function StatPill({ icon, value, label, loading }: StatPillProps) {
 }
 
 export function HeroStats() {
+  const { t } = useT();
   const insights = useQuery(insightsQueryOptions());
   const manuals = useQuery(manualsQueryOptions());
   const regulations = useQuery(regulationsQueryOptions());
@@ -69,19 +71,19 @@ export function HeroStats() {
       <StatPill
         icon={<FileText className="h-4 w-4" />}
         value={totalDocs}
-        label="Dokumen"
+        label={t("stats.docs")}
         loading={isLoading}
       />
       <StatPill
         icon={<Layers className="h-4 w-4" />}
         value={totalCategories}
-        label="Kategori"
+        label={t("stats.categories")}
         loading={isLoading}
       />
       <StatPill
         icon={<Clock className="h-4 w-4" />}
         value={updatedLabel}
-        label="Terakhir diperbarui"
+        label={t("stats.updated")}
         loading={isLoading}
       />
     </div>
