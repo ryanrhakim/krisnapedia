@@ -14,13 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      content_views: {
+        Row: {
+          content_id: string
+          content_type: string
+          id: string
+          slug: string
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          id?: string
+          slug: string
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          id?: string
+          slug?: string
+          updated_at?: string
+          views?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_view: {
+        Args: { p_content_id: string; p_slug: string; p_type: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
