@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Search, Menu, Globe, Check } from "lucide-react";
+import { Search, Menu, Globe, Check } from "lucide-react";
+import logoLight from "@/assets/logo-light.svg";
+import logoDark from "@/assets/logo-dark.svg";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -32,13 +34,9 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <Link to="/" className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-[var(--shadow-soft)]">
-            <BookOpen className="h-5 w-5" strokeWidth={2.5} />
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight text-foreground">
-            KRISNA<span className="text-primary">pedia</span>
-          </span>
+        <Link to="/" className="flex items-center" aria-label="KRISNApedia">
+          <img src={logoLight} alt="KRISNApedia" className="block h-9 w-auto dark:hidden" />
+          <img src={logoDark} alt="KRISNApedia" className="hidden h-9 w-auto dark:block" />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

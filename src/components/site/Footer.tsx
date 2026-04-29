@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Instagram, Youtube, Send } from "lucide-react";
+import { Instagram, Youtube, Send } from "lucide-react";
+import logoLight from "@/assets/logo-light.svg";
+import logoDark from "@/assets/logo-dark.svg";
 
 type FooterLink = { label: string; to?: string; href?: string };
 
@@ -29,13 +31,9 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
           <div>
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <BookOpen className="h-5 w-5" strokeWidth={2.5} />
-              </span>
-              <span className="font-display text-lg font-bold tracking-tight text-foreground">
-                KRISNA<span className="text-primary">pedia</span>
-              </span>
+            <div className="flex items-center">
+              <img src={logoLight} alt="KRISNApedia" className="block h-10 w-auto dark:hidden" />
+              <img src={logoDark} alt="KRISNApedia" className="hidden h-10 w-auto dark:block" />
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Platform manajemen pengetahuan terintegrasi yang menghimpun
