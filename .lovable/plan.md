@@ -1,53 +1,28 @@
-## Pembaruan Copywriting Home Page
+## Fix Hero Headline Sizing & Responsiveness
 
-Perubahan teks dan struktur kecil pada empat komponen. Tidak ada perubahan logika, query, atau styling lain.
+**File:** `src/components/site/Hero.tsx`
 
----
+### Problem
+- Line 1 uses `text-[8vw] md:text-6xl lg:text-7xl` + `whitespace-nowrap` → on desktop it scales to viewport width (much bigger than line 2); on mobile (<768px) the `whitespace-nowrap` forces overflow beyond the screen.
+- Line 2 uses fixed `text-5xl md:text-6xl lg:text-7xl` → smaller than line 1 on desktop.
+- Result: mismatched sizes + horizontal overflow on narrow viewports.
 
-### 1. `src/components/site/Hero.tsx`
+### Fix
+Apply one shared, fully responsive size class to BOTH spans, drop `whitespace-nowrap`, and let line 1 wrap naturally on small screens (it's fine if "Satu portal untuk semua hal" wraps to 2 lines on mobile — the layout stays centered and contained).
 
-**Headline** — 2 baris dengan warna berbeda:
-- Baris 1: `Satu portal untuk semua hal` (warna foreground/hitam)
-- Baris 2: `tentang KRISNA` (warna primary, dibungkus `<span className="text-primary">`)
+Replace the `<h1>` block (Hero.tsx lines 41–48) with:
 
-**Deskripsi** — diganti menjadi singkat (akan natural wrap ke 2 baris pada `max-w-xl`):
-> "Temukan seluruh pengetahuan tentang KRISNA lebih cepat, terstruktur, dan terpusat."
+```tsx
+<h1 className="mt-6 font-display font-bold leading-[1.1] tracking-tight text-foreground text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
+  <span className="block">Satu portal untuk semua hal</span>
+  <span className="mt-2 block text-primary">tentang KRISNA</span>
+</h1>
+```
 
----
+### Why this works
+- **Equal sizing**: the size classes live on the `<h1>` and both `<span>` inherit, so both lines render at the exact same font size at every breakpoint.
+- **Responsive scale**: `text-4xl` (mobile) → `sm:text-5xl` → `md:text-6xl` → `lg:text-7xl` — fits cleanly inside the iPhone 8 Plus (414px) viewport without overflow.
+- **Centered**: the parent already has `text-center` + `max-w-3xl mx-auto`; removing `whitespace-nowrap` lets the text respect the container width, so it stays centered on every screen.
+- **No layout side effects**: description, search bar, stats, and the section's `max-w-3xl` container are untouched.
 
-### 2. `src/components/site/InsightHub.tsx`
-
-**Headline** — pecah menjadi 2 baris eksplisit dengan `<br />`:
-> "Berbagi wawasan dan pembelajaran" / "pemanfaatan KRISNA."
-
-**Hapus** link "Lihat seluruh insight →" di kanan atas section header. CTA card terakhir ("Jelajahi Seluruh Insight") tetap.
-
----
-
-### 3. `src/components/site/ManualHub.tsx`
-
-**Headline** — pecah menjadi 2 baris eksplisit:
-> "Seluruh manual KRISNA, terdokumentasi" / "dalam satu portal."
-
-**Deskripsi** — diperpendek menjadi maksimal 3 baris:
-> "Kumpulan panduan operasional dan prosedur teknis berbagai subsistem KRISNA untuk mendukung perencanaan pembangunan."
-
-**Hapus** link "Buka pustaka manual →" di kanan atas section header. CTA card terakhir ("Lihat Seluruh Manual") tetap.
-
----
-
-### 4. `src/components/site/Footer.tsx`
-
-Kolom **Dukungan** — ubah label (href tidak berubah):
-- `About` → `Tentang KRISNApedia`
-- `User Guide` → `Panduan Penggunaan`
-- `Contact Us` → `Hubungi Kami` (mailto tetap ke `krisna@bappenas.go.id`)
-
-`FAQ` tidak berubah.
-
----
-
-### Catatan
-- Semua perubahan murni di JSX text + penghapusan satu elemen `<Link>` per section (Insight & Manual).
-- Tidak ada perubahan ke Sanity schema, routing, data fetching, atau Tailwind classes.
-- Import `Link` di Insight/Manual Hub tetap dipakai untuk card item & CTA card, jadi tidak perlu dihapus.
+No other files change.
