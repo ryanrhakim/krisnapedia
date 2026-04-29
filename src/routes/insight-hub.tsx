@@ -147,12 +147,10 @@ function InsightHubPage() {
             Insight Hub
           </span>
           <h1 className="mt-4 max-w-3xl font-display text-4xl font-bold tracking-tight text-foreground md:text-6xl">
-            Ideas, research, and analysis — all in one place.
+            Beragam wawasan dan bahan penguatan pemahaman KRISNA, dalam satu ruang.
           </h1>
           <p className="mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
-            Explore curated thinking from the KRISNApedia network. Browse
-            whitepapers, articles, and reports that help you make better
-            knowledge decisions, faster.
+            Akses materi bimbingan teknis, bahan sosialisasi, laporan evaluasi, hasil survei, serta berbagai konten pengetahuan yang mendukung peningkatan pemahaman dan pemanfaatan Sistem Informasi KRISNA.
           </p>
         </div>
       </section>
