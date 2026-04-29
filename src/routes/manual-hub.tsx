@@ -38,6 +38,7 @@ import { formatDate } from "@/lib/format";
 import { CategoryTabs } from "@/components/site/CategoryTabs";
 import { ViewCount } from "@/components/site/ViewCount";
 import manualFallback from "@/assets/manual-onboarding.jpg";
+import { useT } from "@/i18n/LanguageProvider";
 
 type SearchParams = z.infer<typeof searchSchema>;
 
@@ -71,6 +72,7 @@ export const Route = createFileRoute("/manual-hub")({
 });
 
 function ManualHubPage() {
+  const { t } = useT();
   const { data: manuals } = useSuspenseQuery(manualsQueryOptions());
   const { data: viewsMap = {} } = useQuery(viewsQueryOptions("manual"));
   const { page, cat, sub, sort } = Route.useSearch();
@@ -171,7 +173,7 @@ function ManualHubPage() {
       <section className="relative overflow-hidden border-b border-border bg-[var(--gradient-hero)]">
         <div className="mx-auto max-w-7xl px-6 py-20 md:py-28">
           <span className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
-            Manual Hub
+            {t("page.manual.eyebrow")}
           </span>
           <h1 className="mt-4 max-w-3xl font-display text-4xl font-bold tracking-tight text-foreground md:text-6xl">
             Koleksi panduan penggunaan KRISNA, dalam satu pusat dokumentasi.
@@ -209,7 +211,7 @@ function ManualHubPage() {
           <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)]">
             <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
               <SlidersHorizontal className="h-4 w-4 text-primary" />
-              Filter manuals
+              {t("filter.manuals")}
             </div>
             <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr_auto]">
               <div className="relative">
@@ -217,19 +219,19 @@ function ManualHubPage() {
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Cari judul manual…"
+                  placeholder={t("filter.searchManual")}
                   className="h-11 pl-9"
                 />
               </div>
 
               <Select value={fileType} onValueChange={setFileType}>
                 <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Tipe File" />
+                  <SelectValue placeholder={t("filter.fileType")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {fileTypes.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {t === "All" ? "Semua tipe file" : t}
+                  {fileTypes.map((t2) => (
+                    <SelectItem key={t2} value={t2}>
+                      {t2 === "All" ? t("filter.allFileTypes") : t2}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -237,12 +239,12 @@ function ManualHubPage() {
 
               <Select value={cat} onValueChange={setCat}>
                 <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Kategori" />
+                  <SelectValue placeholder={t("filter.category")} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((c) => (
                     <SelectItem key={c} value={c}>
-                      {c === "All" ? "Semua kategori" : c}
+                      {c === "All" ? t("filter.allCategories") : c}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -253,32 +255,32 @@ function ManualHubPage() {
                 onClick={reset}
                 className="h-11 border-border"
               >
-                Reset
+                {t("filter.reset")}
               </Button>
             </div>
 
             <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
               <span>
-                Menampilkan{" "}
+                {t("filter.showing")}{" "}
                 <strong className="text-foreground">
                   {rangeStart}–{rangeEnd}
                 </strong>{" "}
-                dari {filtered.length} manual
+                {t("filter.of")} {filtered.length} {t("unit.manual")}
                 {filtered.length !== manuals.length && (
-                  <> (difilter dari {manuals.length})</>
+                  <> ({t("filter.filteredFrom")} {manuals.length})</>
                 )}
               </span>
               <div className="hidden items-center gap-2 md:flex">
-                <span>Urutkan</span>
+                <span>{t("filter.sortBy")}</span>
                 <Select value={sort} onValueChange={(v) => setSort(v as SortValue)}>
                   <SelectTrigger className="h-8 w-[150px] text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">Terbaru</SelectItem>
-                    <SelectItem value="oldest">Terlama</SelectItem>
-                    <SelectItem value="title-asc">Judul A–Z</SelectItem>
-                    <SelectItem value="title-desc">Judul Z–A</SelectItem>
+                    <SelectItem value="newest">{t("filter.sort.newest")}</SelectItem>
+                    <SelectItem value="oldest">{t("filter.sort.oldest")}</SelectItem>
+                    <SelectItem value="title-asc">{t("filter.sort.titleAsc")}</SelectItem>
+                    <SelectItem value="title-desc">{t("filter.sort.titleDesc")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -292,13 +294,13 @@ function ManualHubPage() {
           {filtered.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-16 text-center">
               <p className="font-display text-xl font-semibold text-foreground">
-                Tidak ada manual yang cocok.
+                {t("filter.empty.manual")}
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Coba ubah kata kunci atau filter Anda.
+                {t("filter.emptyHint")}
               </p>
               <Button onClick={reset} className="mt-5">
-                Reset filter
+                {t("filter.resetFilter")}
               </Button>
             </div>
           ) : (
