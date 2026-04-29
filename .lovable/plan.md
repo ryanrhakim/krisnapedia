@@ -1,26 +1,30 @@
-## Update Hero Text — Insight Hub & Manual Hub Pages
+## Pasang Logo SVG (Light, Dark, Favicon)
 
-Replace the hero headline and description copy on both hub listing pages.
+Mengganti logo berbasis ikon Lucide + teks dengan file SVG yang sudah kamu upload (sudah berisi tulisan "KRISNApedia").
 
-### 1. `src/routes/insight-hub.tsx` (lines 152–162)
+### 1. Salin file SVG ke project
+- `user-uploads://Light_Mode_Logo.svg` → `src/assets/logo-light.svg`
+- `user-uploads://Dark_Mode_Logo.svg` → `src/assets/logo-dark.svg`
+- `user-uploads://Favicon.svg` → `public/favicon.svg`
 
-Change `<h1>` and `<p>` inside the hero section:
+### 2. Update Navbar (`src/components/site/Navbar.tsx`)
+- Hapus import `BookOpen` (lucide).
+- Import kedua logo: `import logoLight from "@/assets/logo-light.svg"` dan `import logoDark from "@/assets/logo-dark.svg"`.
+- Ganti blok `<Link to="/">…</Link>` di header: tampilkan dua `<img>` — versi light dengan kelas `block dark:hidden`, versi dark dengan `hidden dark:block`. Tinggi ~36px (`h-9 w-auto`), `alt="KRISNApedia"`.
+- Hapus `<span>` teks "KRISNApedia" karena logo sudah memuat teks.
 
-- **Headline** → "Beragam wawasan dan bahan penguatan pemahaman KRISNA, dalam satu ruang."
-- **Description** → "Akses materi bimbingan teknis, bahan sosialisasi, laporan evaluasi, hasil survei, serta berbagai konten pengetahuan yang mendukung peningkatan pemahaman dan pemanfaatan Sistem Informasi KRISNA."
+### 3. Update Footer (`src/components/site/Footer.tsx`)
+- Hapus import `BookOpen`.
+- Import logo yang sama.
+- Ganti blok logo + teks dengan dua `<img>` (light/dark) berukuran `h-10 w-auto`.
 
-The eyebrow label "Insight Hub", classes, layout, and surrounding markup stay unchanged.
+### 4. Update favicon di `src/routes/__root.tsx`
+- Tambahkan ke array `links`:
+  ```
+  { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }
+  ```
 
-### 2. `src/routes/manual-hub.tsx` (lines 171–178)
-
-Change `<h1>` and `<p>` inside the hero section:
-
-- **Headline** → "Koleksi panduan penggunaan subsistem KRISNA, dalam satu pusat dokumentasi."
-- **Description** → "Akses panduan penggunaan, prosedur teknis, dan dokumentasi operasional berbagai subsistem KRISNA yang disusun sistematis agar setiap proses lebih mudah dipelajari, ditelusuri, dan diterapkan."
-
-The eyebrow label "Manual Hub", classes, layout, and surrounding markup stay unchanged.
-
-### Out of scope
-- No changes to the homepage `InsightHub` / `ManualHub` section components.
-- No changes to `head()` meta titles/descriptions (can be a follow-up if desired).
-- No styling, font-size, or layout changes — text-only swap.
+### Catatan teknis
+- Tema gelap pakai class `dark` di `<html>` (lihat `ThemeProvider`), jadi pola `dark:hidden` / `hidden dark:block` aman untuk swap logo.
+- File SVG asli punya `viewBox="0 0 708.79 217.35"` (rasio ~3.26:1) — pakai `h-9 w-auto` agar lebar mengikuti otomatis tanpa distorsi.
+- Tidak perlu mengubah halaman lain — Navbar & Footer dipakai di seluruh route.
