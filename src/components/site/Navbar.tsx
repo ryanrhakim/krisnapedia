@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Search, Menu, Globe, Check } from "lucide-react";
 import logoLight from "@/assets/logo-light.svg";
@@ -9,6 +10,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useSearchPalette } from "./SearchProvider";
 import { ThemeToggle } from "./ThemeToggle";
 import { useT } from "@/i18n/LanguageProvider";
