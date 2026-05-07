@@ -30,6 +30,7 @@ const languages: { code: LangCode; labelKey: "nav.lang.id" | "nav.lang.en" }[] =
 export function Navbar() {
   const { openWith: openSearch } = useSearchPalette();
   const { t, lang, setLang } = useT();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const links = [
     { label: t("nav.regulasi"), to: "/pustaka-regulasi" },
