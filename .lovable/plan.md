@@ -1,43 +1,102 @@
-## Optimasi Language Switcher (ID & EN)
 
-Fitur ini **tidak sulit**, tapi cakupan pengerjaannya menengah karena seluruh teks UI saat ini di-hardcode dalam Bahasa Indonesia di banyak komponen (Navbar, Hero, InsightHub, ManualHub, Faq, Footer, SearchCommand, CategoryTabs, halaman route, dll). Untuk benar-benar berfungsi, setiap teks itu harus diganti dengan key terjemahan.
+# Plan: Halaman Tentang KRISNApedia & Panduan Penggunaan
 
-Saya akan menggunakan pendekatan **ringan tanpa library i18n** (cukup React Context + dua kamus JSON), supaya cepat, type-safe, dan tidak menambah dependensi.
+## Tujuan
+1. Membuat dua halaman baru: `/tentang` dan `/panduan`.
+2. Mengaktifkan tombol "Tentang" dan "Panduan" di Footer (saat ini `href="#"`).
+3. Konsisten dengan design system (token semantik, font display, gradien hero), responsive, dan mendukung i18n ID/EN.
 
-### Yang akan dilakukan
+---
 
-1. **Sederhanakan opsi bahasa** di `Navbar.tsx` menjadi hanya 2: `ID` dan `EN` (hapus `ja`, `es`).
+## 1. Halaman Tentang KRISNApedia — `/tentang`
+Pendekatan: **Produk & Ekosistem**
 
-2. **Buat sistem terjemahan ringan**:
-   - `src/i18n/translations.ts` — dua objek kamus (`id` dan `en`) dengan key terstruktur (mis. `nav.regulasi`, `hero.badge`, `hero.title1`, `hero.title2`, `hero.subtitle`, `hero.searchPlaceholder`, `hero.searchCta`, `footer.*`, `faq.*`, dst.)
-   - `src/i18n/LanguageProvider.tsx` — Context + hook `useT()` yang mengembalikan fungsi `t("hero.title1")` dan state `lang` + `setLang`.
-   - Bahasa default: **Indonesia (`id`)**.
-   - Pilihan bahasa disimpan di `localStorage` agar persisten antar kunjungan.
+Struktur section (top → bottom):
 
-3. **Pasang Provider** di `src/routes/__root.tsx` (membungkus `<Outlet />`).
+1. **Hero**
+   - Badge "Tentang KRISNApedia" + headline besar + subjudul singkat.
+   - Background `var(--gradient-hero)` (sama seperti FAQ) agar konsisten.
 
-4. **Ganti string hardcoded** dengan `t(...)` di komponen-komponen ini:
-   - `Navbar.tsx` (label menu, aria-label, language dropdown)
-   - `Hero.tsx` (badge, headline 2 baris, subtitle, placeholder search, tombol Telusuri)
-   - `HeroStats.tsx`, `InsightHub.tsx`, `ManualHub.tsx`, `CategoryTabs.tsx`
-   - `Faq.tsx`, `Footer.tsx`, `SearchCommand.tsx`
-   - Heading dan label statis di route: `insight-hub.tsx`, `manual-hub.tsx`, `pustaka-regulasi.tsx`, dan halaman detail
-   - `ContentViewer.tsx` & `PaginationBar.tsx` (label tombol seperti "Halaman", "Berikutnya", dsb.)
+2. **Apa itu KRISNApedia**
+   - 2 kolom: paragraf naratif + ilustrasi/logo besar.
+   - Menjelaskan KRISNApedia sebagai pusat pengetahuan KRISNA (Kolaborasi Perencanaan dan Informasi Kinerja Anggaran).
 
-5. **Update Navbar dropdown bahasa**:
-   - Hanya menampilkan "Bahasa Indonesia" dan "English"
-   - Klik = panggil `setLang('id'|'en')` dari provider (bukan state lokal)
-   - Indikator (chip "ID"/"EN") menggunakan bahasa aktif dari context
+3. **Ekosistem & Fitur Utama**
+   - Grid 4 kartu: Pustaka Regulasi, Insight Hub, Manual Hub, Klinik KRISNA.
+   - Tiap kartu: ikon (lucide), judul, deskripsi 1–2 kalimat, link ke halaman terkait.
 
-### Detail teknis
+4. **Statistik / Dampak**
+   - Reuse pola `HeroStats` (jumlah dokumen, kategori, dsb.) — strip 3–4 angka.
 
-- **Tidak menerjemahkan konten dinamis** dari Sanity (artikel, manual, regulasi). Konten editor tetap apa adanya — hanya UI/chrome situs yang diterjemahkan. Jika nanti ingin konten Sanity multibahasa juga, itu butuh skema field terjemahan terpisah dan bisa dikerjakan sebagai tahap berikutnya.
-- **Tipe aman**: `t()` menerima string key; kamus `en` dan `id` dipaksa memiliki bentuk yang sama lewat `Record<keyof typeof id, string>`.
-- **Tanpa SSR mismatch**: bahasa awal dibaca dari `localStorage` di dalam `useEffect` setelah hydration, sehingga server selalu render Bahasa Indonesia (default), lalu beralih di klien jika user pernah memilih EN.
+5. **Untuk Siapa**
+   - 3 kartu persona singkat: Perencana K/L, Pemerintah Daerah, Publik/Akademisi.
 
-### Yang TIDAK termasuk dalam plan ini
-- Terjemahan konten artikel/manual/regulasi dari Sanity.
-- Deteksi bahasa otomatis dari header browser (bisa ditambahkan kemudian).
-- URL berbasis lokal (mis. `/en/...`) — tetap satu URL, bahasa via toggle.
+6. **CTA Penutup**
+   - Banner "Mulai jelajahi KRISNApedia" → tombol ke `/insight-hub` & `/faq`.
 
-Setelah disetujui, saya akan implementasikan dalam satu kali pengerjaan.
+7. **Footer** (reuse).
+
+Route file: `src/routes/tentang.tsx` dengan `head()` berisi title & meta deskripsi unik.
+
+---
+
+## 2. Halaman Panduan Penggunaan — `/panduan`
+Pendekatan: **Quickstart + Modul**
+
+Struktur section:
+
+1. **Hero**
+   - Badge "Panduan Penggunaan" + headline + subjudul singkat.
+
+2. **Quickstart 1-2-3**
+   - 3 kartu langkah berurutan dengan nomor besar:
+     1. Cari konten lewat search/kategori
+     2. Buka & baca/unduh dokumen
+     3. Tanya ke Klinik KRISNA jika perlu
+
+3. **Panduan per Modul** (kategori per modul)
+   - 4 blok (Pustaka Regulasi, Insight Hub, Manual Hub, Klinik KRISNA).
+   - Tiap blok: ikon + judul + 3–5 langkah singkat (numbered list) + tombol "Buka modul".
+   - Layout zigzag (alternating left/right) di desktop, stacked di mobile.
+
+4. **Tips & Trik**
+   - Grid 3 kartu kecil: shortcut search (⌘K), filter & sort, language switcher.
+
+5. **Butuh bantuan lebih?**
+   - CTA banner ke `/faq` (Klinik KRISNA) + email `krisna@bappenas.go.id`.
+
+6. **Footer** (reuse).
+
+Route file: `src/routes/panduan.tsx` dengan `head()` unik.
+
+---
+
+## 3. Aktifkan link Footer
+Edit `src/components/site/Footer.tsx`:
+- Ubah item "about" dan "guide" dari `href: "#"` menjadi `to: "/tentang"` dan `to: "/panduan"` agar dirender sebagai `<Link>` TanStack Router (sudah ada cabang `l.to` di JSX).
+
+Tambahkan juga link "Tentang" & "Panduan" pada Navbar? **Tidak** — menjaga navbar tetap ringkas; akses via Footer sesuai permintaan.
+
+---
+
+## 4. Internationalization (ID/EN)
+Tambahkan key baru di `src/i18n/translations.ts` untuk semua teks halaman Tentang & Panduan (judul section, deskripsi, label tombol, langkah quickstart, dll). Komponen memakai `useT()`.
+
+Contoh prefix key: `about.*` dan `guide.*`.
+
+---
+
+## 5. Detail Teknis
+- **Routing**: TanStack Start file-based routing → `src/routes/tentang.tsx` & `src/routes/panduan.tsx` (plugin akan auto-generate `routeTree.gen.ts`).
+- **SEO**: `head()` per route dengan title, description, og:title, og:description unik.
+- **Komponen**: gunakan kembali `Navbar`, `Footer`, pola Card dari shadcn, ikon `lucide-react`, token warna dari `src/styles.css` (`--primary`, `--primary-soft`, `--gradient-hero`, `--shadow-soft`).
+- **Responsif**: grid `md:grid-cols-2` / `lg:grid-cols-4`, container `max-w-7xl px-6`.
+- **Konten**: hardcoded di komponen (mudah diedit nanti, bisa dimigrasi ke Sanity di iterasi berikutnya).
+
+---
+
+## File yang akan diubah/dibuat
+- create `src/routes/tentang.tsx`
+- create `src/routes/panduan.tsx`
+- edit `src/components/site/Footer.tsx` (aktifkan link)
+- edit `src/i18n/translations.ts` (tambah key ID/EN)
