@@ -98,9 +98,50 @@ export function Navbar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-5 w-5" />
-          </Button>
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <nav className="mt-6 flex flex-col gap-1">
+                {links.map((l) => (
+                  <Link
+                    key={l.label}
+                    to={l.to}
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                    activeProps={{ className: "bg-[var(--primary-soft)] text-primary font-semibold" }}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="mt-8 border-t border-border pt-4">
+                <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("nav.switchLang")}
+                </p>
+                {languages.map((l) => (
+                  <button
+                    key={l.code}
+                    onClick={() => setLang(l.code)}
+                    className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Globe className="h-4 w-4" />
+                      {t(l.labelKey)}
+                    </span>
+                    {lang === l.code && <Check className="h-4 w-4 text-primary" />}
+                  </button>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
