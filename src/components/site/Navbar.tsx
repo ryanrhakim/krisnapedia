@@ -27,6 +27,7 @@ export function Navbar() {
     { label: t("nav.regulasi"), to: "/pustaka-regulasi" },
     { label: t("nav.insight"), to: "/insight-hub" },
     { label: t("nav.manual"), to: "/manual-hub" },
+    { label: t("nav.klinik"), to: "/faq" },
   ];
 
   return (
