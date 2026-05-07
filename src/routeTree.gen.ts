@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TentangRouteImport } from './routes/tentang'
 import { Route as PustakaRegulasiRouteImport } from './routes/pustaka-regulasi'
+import { Route as PanduanRouteImport } from './routes/panduan'
 import { Route as ManualHubRouteImport } from './routes/manual-hub'
 import { Route as InsightHubRouteImport } from './routes/insight-hub'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -29,6 +30,11 @@ const TentangRoute = TentangRouteImport.update({
 const PustakaRegulasiRoute = PustakaRegulasiRouteImport.update({
   id: '/pustaka-regulasi',
   path: '/pustaka-regulasi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanduanRoute = PanduanRouteImport.update({
+  id: '/panduan',
+  path: '/panduan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManualHubRoute = ManualHubRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
+  '/panduan': typeof PanduanRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
   '/tentang': typeof TentangRoute
   '/insight-hub/$slug': typeof InsightHubSlugRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
+  '/panduan': typeof PanduanRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
   '/tentang': typeof TentangRoute
   '/insight-hub/$slug': typeof InsightHubSlugRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/insight-hub': typeof InsightHubRoute
   '/manual-hub': typeof ManualHubRoute
+  '/panduan': typeof PanduanRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
   '/tentang': typeof TentangRoute
   '/insight-hub_/$slug': typeof InsightHubSlugRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/insight-hub'
     | '/manual-hub'
+    | '/panduan'
     | '/pustaka-regulasi'
     | '/tentang'
     | '/insight-hub/$slug'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/insight-hub'
     | '/manual-hub'
+    | '/panduan'
     | '/pustaka-regulasi'
     | '/tentang'
     | '/insight-hub/$slug'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/insight-hub'
     | '/manual-hub'
+    | '/panduan'
     | '/pustaka-regulasi'
     | '/tentang'
     | '/insight-hub_/$slug'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   InsightHubRoute: typeof InsightHubRoute
   ManualHubRoute: typeof ManualHubRoute
+  PanduanRoute: typeof PanduanRoute
   PustakaRegulasiRoute: typeof PustakaRegulasiRoute
   TentangRoute: typeof TentangRoute
   InsightHubSlugRoute: typeof InsightHubSlugRoute
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/pustaka-regulasi'
       fullPath: '/pustaka-regulasi'
       preLoaderRoute: typeof PustakaRegulasiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panduan': {
+      id: '/panduan'
+      path: '/panduan'
+      fullPath: '/panduan'
+      preLoaderRoute: typeof PanduanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manual-hub': {
@@ -260,6 +280,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   InsightHubRoute: InsightHubRoute,
   ManualHubRoute: ManualHubRoute,
+  PanduanRoute: PanduanRoute,
   PustakaRegulasiRoute: PustakaRegulasiRoute,
   TentangRoute: TentangRoute,
   InsightHubSlugRoute: InsightHubSlugRoute,
