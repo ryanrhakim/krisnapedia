@@ -20,8 +20,8 @@ export function Footer() {
       title: t("footer.supportTitle"),
       links: [
         { label: t("footer.faq"), to: "/faq" },
-        { label: t("footer.about"), href: "#" },
-        { label: t("footer.guide"), href: "#" },
+        { label: t("footer.about"), to: "/tentang" },
+        { label: t("footer.guide"), to: "/panduan" },
         { label: t("footer.contact"), href: "mailto:krisna@bappenas.go.id" },
       ],
     },
