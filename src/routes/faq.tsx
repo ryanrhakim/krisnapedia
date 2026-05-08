@@ -238,6 +238,53 @@ function FaqPage() {
       </section>
 
       <Footer />
+
+      <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="items-center text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--primary-soft)]">
+              <CheckCircle2 className="h-9 w-9 text-primary" strokeWidth={2.2} />
+            </div>
+            <DialogTitle className="font-display text-2xl">Pertanyaan berhasil terkirim</DialogTitle>
+            <DialogDescription className="text-center">
+              Tim Klinik KRISNA akan meninjau pertanyaan Anda dan membalas via email dalam 1–3 hari kerja.
+            </DialogDescription>
+          </DialogHeader>
+
+          {submittedData && (
+            <div className="mt-2 space-y-2 rounded-xl bg-muted/40 p-4 text-sm">
+              <div className="flex gap-2">
+                <span className="w-20 shrink-0 font-semibold text-muted-foreground">Nama</span>
+                <span className="text-foreground">{submittedData.nama}</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="w-20 shrink-0 font-semibold text-muted-foreground">Email</span>
+                <span className="break-all text-foreground">{submittedData.email}</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="w-20 shrink-0 font-semibold text-muted-foreground">Subjek</span>
+                <span className="text-foreground">{submittedData.subjek}</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="w-20 shrink-0 font-semibold text-muted-foreground">Pertanyaan</span>
+                <span className="text-foreground">
+                  {submittedData.pertanyaan.length > 200
+                    ? `${submittedData.pertanyaan.slice(0, 200)}…`
+                    : submittedData.pertanyaan}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="mt-2 gap-2 sm:gap-2">
+            <Button variant="outline" onClick={() => setSuccessOpen(false)}>
+              Tutup
+            </Button>
+            <Button onClick={handleSendAnother}>Kirim pertanyaan lain</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
+
   );
 }
