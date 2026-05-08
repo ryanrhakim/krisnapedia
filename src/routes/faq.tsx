@@ -207,7 +207,7 @@ function FaqPage() {
                 <Label htmlFor="nama" className="text-sm font-semibold">Nama Lengkap</Label>
                 <div className="relative mt-2">
                   <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input id="nama" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} placeholder="Nama Anda" className="h-11 pl-9" maxLength={100} required />
+                  <Input ref={namaInputRef} id="nama" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} placeholder="Nama Anda" className="h-11 pl-9" maxLength={100} required />
                 </div>
               </div>
               <div className="md:col-span-1">
