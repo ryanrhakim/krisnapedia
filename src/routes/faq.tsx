@@ -61,6 +61,9 @@ function FaqPage() {
   const [query, setQuery] = useState("");
   const [form, setForm] = useState({ nama: "", email: "", subjek: "", pertanyaan: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [submittedData, setSubmittedData] = useState<typeof form | null>(null);
+  const namaInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return faqs;
@@ -81,10 +84,16 @@ function FaqPage() {
     }
     setSubmitting(true);
     setTimeout(() => {
-      toast.success("Pertanyaan terkirim! Tim Klinik KRISNA akan membalas via email.");
+      setSubmittedData(form);
+      setSuccessOpen(true);
       setForm({ nama: "", email: "", subjek: "", pertanyaan: "" });
       setSubmitting(false);
     }, 600);
+  };
+
+  const handleSendAnother = () => {
+    setSuccessOpen(false);
+    setTimeout(() => namaInputRef.current?.focus(), 100);
   };
 
   return (
