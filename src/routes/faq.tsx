@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
+import { PaginationBar } from "@/components/site/PaginationBar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,11 +60,13 @@ const inquirySchema = z.object({
 function FaqPage() {
   const { data: faqs } = useSuspenseQuery(faqsQueryOptions());
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [form, setForm] = useState({ nama: "", email: "", subjek: "", pertanyaan: "" });
   const [submitting, setSubmitting] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [submittedData, setSubmittedData] = useState<typeof form | null>(null);
   const namaInputRef = useRef<HTMLInputElement>(null);
+  const PAGE_SIZE = 8;
 
   const filtered = useMemo(() => {
     if (!query.trim()) return faqs;
@@ -74,6 +77,19 @@ function FaqPage() {
         blocksToPlainText(f.answer).toLowerCase().includes(q),
     );
   }, [faqs, query]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = useMemo(
+    () => filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filtered, currentPage],
+  );
+
+  // Reset to page 1 when query changes
+  const handleQueryChange = (v: string) => {
+    setQuery(v);
+    setPage(1);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,7 +145,7 @@ function FaqPage() {
               <Input
                 id="faq-search"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => handleQueryChange(e.target.value)}
                 placeholder="Ketik kata kunci…"
                 className="h-12 pl-9"
               />
@@ -154,18 +170,30 @@ function FaqPage() {
                 </p>
               </div>
             ) : (
-              <Accordion type="single" collapsible className="w-full">
-                {filtered.map((f, i) => (
-                  <AccordionItem key={f._id} value={`item-${i}`} className="border-b border-border">
-                    <AccordionTrigger className="py-5 text-left font-display text-base font-semibold text-foreground hover:text-primary hover:no-underline md:text-lg">
-                      {f.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground md:text-base">
-                      <PortableText value={f.answer} />
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+              <>
+                <Accordion type="single" collapsible className="w-full">
+                  {paginated.map((f, i) => (
+                    <AccordionItem key={f._id} value={`item-${i}`} className="border-b border-border">
+                      <AccordionTrigger className="py-5 text-left font-display text-base font-semibold text-foreground hover:text-primary hover:no-underline md:text-lg">
+                        {f.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground md:text-base">
+                        <PortableText value={f.answer} />
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+                <PaginationBar
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={(p) => {
+                    setPage(p);
+                    if (typeof window !== "undefined") {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                />
+              </>
             )}
           </div>
         </div>
