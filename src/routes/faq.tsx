@@ -78,6 +78,19 @@ function FaqPage() {
     );
   }, [faqs, query]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = useMemo(
+    () => filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filtered, currentPage],
+  );
+
+  // Reset to page 1 when query changes
+  const handleQueryChange = (v: string) => {
+    setQuery(v);
+    setPage(1);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const result = inquirySchema.safeParse(form);
