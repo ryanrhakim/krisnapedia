@@ -170,18 +170,30 @@ function FaqPage() {
                 </p>
               </div>
             ) : (
-              <Accordion type="single" collapsible className="w-full">
-                {filtered.map((f, i) => (
-                  <AccordionItem key={f._id} value={`item-${i}`} className="border-b border-border">
-                    <AccordionTrigger className="py-5 text-left font-display text-base font-semibold text-foreground hover:text-primary hover:no-underline md:text-lg">
-                      {f.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground md:text-base">
-                      <PortableText value={f.answer} />
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+              <>
+                <Accordion type="single" collapsible className="w-full">
+                  {paginated.map((f, i) => (
+                    <AccordionItem key={f._id} value={`item-${i}`} className="border-b border-border">
+                      <AccordionTrigger className="py-5 text-left font-display text-base font-semibold text-foreground hover:text-primary hover:no-underline md:text-lg">
+                        {f.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground md:text-base">
+                        <PortableText value={f.answer} />
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+                <PaginationBar
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={(p) => {
+                    setPage(p);
+                    if (typeof window !== "undefined") {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                />
+              </>
             )}
           </div>
         </div>
