@@ -1,7 +1,15 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Search, MessageCircleQuestion, Send, Mail, User, Tag, Loader2 } from "lucide-react";
+import { Search, MessageCircleQuestion, Send, Mail, User, Tag, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { Input } from "@/components/ui/input";
@@ -53,6 +61,9 @@ function FaqPage() {
   const [query, setQuery] = useState("");
   const [form, setForm] = useState({ nama: "", email: "", subjek: "", pertanyaan: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [submittedData, setSubmittedData] = useState<typeof form | null>(null);
+  const namaInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return faqs;
@@ -73,10 +84,16 @@ function FaqPage() {
     }
     setSubmitting(true);
     setTimeout(() => {
-      toast.success("Pertanyaan terkirim! Tim Klinik KRISNA akan membalas via email.");
+      setSubmittedData(form);
+      setSuccessOpen(true);
       setForm({ nama: "", email: "", subjek: "", pertanyaan: "" });
       setSubmitting(false);
     }, 600);
+  };
+
+  const handleSendAnother = () => {
+    setSuccessOpen(false);
+    setTimeout(() => namaInputRef.current?.focus(), 100);
   };
 
   return (
@@ -190,7 +207,7 @@ function FaqPage() {
                 <Label htmlFor="nama" className="text-sm font-semibold">Nama Lengkap</Label>
                 <div className="relative mt-2">
                   <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input id="nama" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} placeholder="Nama Anda" className="h-11 pl-9" maxLength={100} required />
+                  <Input ref={namaInputRef} id="nama" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} placeholder="Nama Anda" className="h-11 pl-9" maxLength={100} required />
                 </div>
               </div>
               <div className="md:col-span-1">
@@ -221,6 +238,53 @@ function FaqPage() {
       </section>
 
       <Footer />
+
+      <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="items-center text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--primary-soft)]">
+              <CheckCircle2 className="h-9 w-9 text-primary" strokeWidth={2.2} />
+            </div>
+            <DialogTitle className="font-display text-2xl">Pertanyaan berhasil terkirim</DialogTitle>
+            <DialogDescription className="text-center">
+              Tim Klinik KRISNA akan meninjau pertanyaan Anda dan membalas via email dalam 1–3 hari kerja.
+            </DialogDescription>
+          </DialogHeader>
+
+          {submittedData && (
+            <div className="mt-2 space-y-2 rounded-xl bg-muted/40 p-4 text-sm">
+              <div className="flex gap-2">
+                <span className="w-20 shrink-0 font-semibold text-muted-foreground">Nama</span>
+                <span className="text-foreground">{submittedData.nama}</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="w-20 shrink-0 font-semibold text-muted-foreground">Email</span>
+                <span className="break-all text-foreground">{submittedData.email}</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="w-20 shrink-0 font-semibold text-muted-foreground">Subjek</span>
+                <span className="text-foreground">{submittedData.subjek}</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="w-20 shrink-0 font-semibold text-muted-foreground">Pertanyaan</span>
+                <span className="text-foreground">
+                  {submittedData.pertanyaan.length > 200
+                    ? `${submittedData.pertanyaan.slice(0, 200)}…`
+                    : submittedData.pertanyaan}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="mt-2 gap-2 sm:gap-2">
+            <Button variant="outline" onClick={() => setSuccessOpen(false)}>
+              Tutup
+            </Button>
+            <Button onClick={handleSendAnother}>Kirim pertanyaan lain</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
+
   );
 }
