@@ -145,7 +145,7 @@ function FaqPage() {
               <Input
                 id="faq-search"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => handleQueryChange(e.target.value)}
                 placeholder="Ketik kata kunci…"
                 className="h-12 pl-9"
               />
