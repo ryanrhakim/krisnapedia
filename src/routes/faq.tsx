@@ -60,11 +60,13 @@ const inquirySchema = z.object({
 function FaqPage() {
   const { data: faqs } = useSuspenseQuery(faqsQueryOptions());
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [form, setForm] = useState({ nama: "", email: "", subjek: "", pertanyaan: "" });
   const [submitting, setSubmitting] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [submittedData, setSubmittedData] = useState<typeof form | null>(null);
   const namaInputRef = useRef<HTMLInputElement>(null);
+  const PAGE_SIZE = 8;
 
   const filtered = useMemo(() => {
     if (!query.trim()) return faqs;
