@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
+import { PaginationBar } from "@/components/site/PaginationBar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
