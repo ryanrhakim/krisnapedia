@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getViewsMap } from "@/server/views.functions";
+import { getViewsMap } from "@/lib/views.functions";
 
 export type ContentType = "insight" | "manual" | "regulation";
 
