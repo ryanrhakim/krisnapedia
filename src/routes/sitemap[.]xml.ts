@@ -1,10 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import {
-  insightsQueryOptions,
-  manualsQueryOptions,
-  regulationsQueryOptions,
-} from "@/lib/sanity-queries";
+import { sanityClient } from "@/lib/sanity";
 
 const BASE_URL = "https://krisnapedia.lovable.app";
 
@@ -14,6 +10,8 @@ interface SitemapEntry {
   changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
   priority?: string;
 }
+
+type Slugged = { slug: string; date?: string };
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
@@ -29,32 +27,43 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/panduan", changefreq: "monthly", priority: "0.5" },
         ];
 
-        const [insights, manuals, regulations] = await Promise.all([
-          insightsQueryOptions().queryFn!({} as never),
-          manualsQueryOptions().queryFn!({} as never),
-          regulationsQueryOptions().queryFn!({} as never),
-        ]).catch(() => [[], [], []] as const);
-
-        const dynamicEntries: SitemapEntry[] = [
-          ...insights.map((i) => ({
-            path: `/insight-hub/${i.slug}`,
-            lastmod: i.date?.slice(0, 10),
-            changefreq: "monthly" as const,
-            priority: "0.7",
-          })),
-          ...manuals.map((m) => ({
-            path: `/manual-hub/${m.slug}`,
-            lastmod: m.date?.slice(0, 10),
-            changefreq: "monthly" as const,
-            priority: "0.7",
-          })),
-          ...regulations.map((r) => ({
-            path: `/pustaka-regulasi/${r.slug}`,
-            lastmod: r.date?.slice(0, 10),
-            changefreq: "monthly" as const,
-            priority: "0.7",
-          })),
-        ];
+        const projection = `{ "slug": slug.current, "date": coalesce(date, _updatedAt) }`;
+        let dynamicEntries: SitemapEntry[] = [];
+        try {
+          const [insights, manuals, regulations] = await Promise.all([
+            sanityClient.fetch<Slugged[]>(
+              `*[_type == "insight" && published == true] ${projection}`,
+            ),
+            sanityClient.fetch<Slugged[]>(
+              `*[_type == "manual" && published == true] ${projection}`,
+            ),
+            sanityClient.fetch<Slugged[]>(
+              `*[_type == "regulation" && published == true] ${projection}`,
+            ),
+          ]);
+          dynamicEntries = [
+            ...insights.map((i) => ({
+              path: `/insight-hub/${i.slug}`,
+              lastmod: i.date?.slice(0, 10),
+              changefreq: "monthly" as const,
+              priority: "0.7",
+            })),
+            ...manuals.map((m) => ({
+              path: `/manual-hub/${m.slug}`,
+              lastmod: m.date?.slice(0, 10),
+              changefreq: "monthly" as const,
+              priority: "0.7",
+            })),
+            ...regulations.map((r) => ({
+              path: `/pustaka-regulasi/${r.slug}`,
+              lastmod: r.date?.slice(0, 10),
+              changefreq: "monthly" as const,
+              priority: "0.7",
+            })),
+          ];
+        } catch {
+          dynamicEntries = [];
+        }
 
         const entries = [...staticEntries, ...dynamicEntries];
 
