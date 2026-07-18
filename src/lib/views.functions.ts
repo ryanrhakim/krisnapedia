@@ -6,7 +6,7 @@ import {
   rpcIncrementView,
   shouldThrottle,
   type ContentType,
-} from "@/server/views.server";
+} from "./views.server";
 
 const TYPE = z.enum(["insight", "manual", "regulation"]);
 const SLUG = z.string().min(1).max(200).regex(/^[a-z0-9-_]+$/i);
