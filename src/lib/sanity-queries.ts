@@ -14,7 +14,7 @@ const BASE_PROJECTION = `
   _id,
   title,
   "slug": slug.current,
-  "category": coalesce(category->title, category),
+  "category": category->title,
   "categorySlug": category->slug.current,
   subCategory,
   description,
