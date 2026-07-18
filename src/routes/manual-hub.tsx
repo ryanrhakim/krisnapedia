@@ -100,10 +100,11 @@ function ManualHubPage() {
     navigate({ search: (prev: SearchParams) => ({ ...prev, sort: next, page: 1 }) });
   };
 
-  const categories = useMemo(
-    () => ["All", ...Array.from(new Set(manuals.map((m) => m.category).filter(Boolean)))],
-    [manuals],
-  );
+  const categories = useMemo(() => {
+    const fromCms = cmsCategories.map((c) => c.title);
+    const fromContent = manuals.map((m) => m.category).filter(Boolean) as string[];
+    return ["All", ...Array.from(new Set([...fromCms, ...fromContent]))];
+  }, [cmsCategories, manuals]);
   const subCategories = useMemo(() => {
     if (cat === "All") return [];
     const subs = Array.from(
