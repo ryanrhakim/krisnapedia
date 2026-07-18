@@ -74,6 +74,7 @@ export const Route = createFileRoute("/manual-hub")({
 function ManualHubPage() {
   const { t } = useT();
   const { data: manuals } = useSuspenseQuery(manualsQueryOptions());
+  const { data: cmsCategories = [] } = useQuery(categoriesQueryOptions("manual"));
   const { data: viewsMap = {} } = useQuery(viewsQueryOptions("manual"));
   const { page, cat, sub, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
