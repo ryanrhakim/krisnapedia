@@ -1,0 +1,13 @@
+# KRISNApedia
+
+> Knowledge Management System untuk KRISNA (Kolaborasi Perencanaan dan Informasi Kinerja Anggaran). KRISNApedia menghimpun regulasi, panduan, insight, dan tanya jawab dalam satu portal.
+
+## Pages
+
+- [Beranda](/): Ringkasan KRISNApedia dan pintu masuk ke seluruh modul pengetahuan.
+- [Insight Hub](/insight-hub): Artikel, kajian, dan analisis seputar perencanaan dan penganggaran.
+- [Manual Hub](/manual-hub): Panduan operasional, SOP, dan manual teknis penggunaan KRISNA.
+- [Pustaka Regulasi](/pustaka-regulasi): Undang-Undang, Peraturan Presiden, Peraturan Menteri, dan kebijakan terkait.
+- [Klinik KRISNA (FAQ)](/faq): Pusat tanya jawab dan kanal pengajuan pertanyaan pengguna.
+- [Tentang KRISNApedia](/tentang): Latar belakang, tujuan, dan ekosistem KRISNApedia.
+- [Panduan Penggunaan](/panduan): Cara menelusuri, membaca, dan memanfaatkan KRISNApedia.

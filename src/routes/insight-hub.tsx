@@ -56,15 +56,17 @@ export const Route = createFileRoute("/insight-hub")({
       {
         name: "description",
         content:
-          "Browse curated articles, whitepapers, and research from the KRISNApedia Insight Hub. Filter by title, file type, and category.",
+          "Kumpulan artikel, kajian, dan analisis KRISNApedia. Telusuri insight berdasarkan judul, tipe file, dan kategori.",
       },
       { property: "og:title", content: "Insight Hub — KRISNApedia" },
       {
         property: "og:description",
         content:
-          "Curated thinking, research, and analysis from across the KRISNApedia network.",
+          "Kumpulan artikel, kajian, dan analisis dari KRISNApedia dalam satu portal.",
       },
+      { property: "og:url", content: "https://krisnapedia.lovable.app/insight-hub" },
     ],
+    links: [{ rel: "canonical", href: "https://krisnapedia.lovable.app/insight-hub" }],
   }),
 });
 

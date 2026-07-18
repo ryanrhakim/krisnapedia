@@ -35,15 +35,54 @@ export const Route = createFileRoute("/insight-hub_/$slug")({
     );
     if (!insight) throw notFound();
     queryClient.ensureQueryData(insightsQueryOptions());
-    return { slug: params.slug };
+    return { slug: params.slug, insight };
   },
-  head: ({ loaderData }) => {
+  head: ({ params, loaderData }) => {
+    const url = `https://krisnapedia.lovable.app/insight-hub/${params.slug}`;
     if (!loaderData) {
-      return { meta: [{ title: "Insight not found — KRISNApedia" }] };
+      return {
+        meta: [
+          { title: "Insight tidak ditemukan — KRISNApedia" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
     }
+    const { insight } = loaderData;
+    const cover = insight.coverImage ? imageUrl(insight.coverImage, 1200) : undefined;
+    const title = `${insight.title} — Insight Hub KRISNApedia`.slice(0, 65);
+    const description = insight.description.slice(0, 160);
     return {
       meta: [
-        { title: `Insight Hub — KRISNApedia` },
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: insight.title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "article" },
+        ...(cover ? [{ property: "og:image", content: cover } as const] : []),
+        ...(cover ? [{ name: "twitter:image", content: cover } as const] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: insight.title,
+            description,
+            datePublished: insight.date,
+            author: insight.author
+              ? { "@type": "Person", name: insight.author }
+              : { "@type": "Organization", name: "KRISNApedia" },
+            image: cover ? [cover] : undefined,
+            mainEntityOfPage: url,
+            publisher: {
+              "@type": "Organization",
+              name: "KRISNApedia",
+            },
+          }),
+        },
       ],
     };
   },

@@ -22,15 +22,19 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "KRISNApedia centralizes documents, manuals, and insights into one searchable knowledge repository for modern teams.",
+          "Portal pengetahuan KRISNA: regulasi, panduan, insight, dan tanya jawab dalam satu tempat yang mudah dicari.",
       },
       { property: "og:title", content: "KRISNApedia — Knowledge Management System" },
       {
         property: "og:description",
         content:
-          "One repository for every answer. Centralize manuals, insights, and SOPs in a single platform.",
+          "Portal pengetahuan KRISNA: regulasi, panduan, insight, dan tanya jawab dalam satu tempat.",
       },
+      { property: "og:url", content: "https://krisnapedia.lovable.app/" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/AfPlB052icUF36yeEAECGRv30ZJ2/social-images/social-1777438187435-Screenshot_2026-04-29_at_11.45.04.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/AfPlB052icUF36yeEAECGRv30ZJ2/social-images/social-1777438187435-Screenshot_2026-04-29_at_11.45.04.webp" },
     ],
+    links: [{ rel: "canonical", href: "https://krisnapedia.lovable.app/" }],
   }),
 });
 

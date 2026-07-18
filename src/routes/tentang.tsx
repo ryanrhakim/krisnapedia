@@ -33,7 +33,9 @@ export const Route = createFileRoute("/tentang")({
         content:
           "Pusat pengetahuan KRISNA — regulasi, panduan, dan materi pembelajaran dalam satu portal.",
       },
+      { property: "og:url", content: "https://krisnapedia.lovable.app/tentang" },
     ],
+    links: [{ rel: "canonical", href: "https://krisnapedia.lovable.app/tentang" }],
   }),
 });
 

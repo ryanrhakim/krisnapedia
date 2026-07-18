@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TentangRouteImport } from './routes/tentang'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PustakaRegulasiRouteImport } from './routes/pustaka-regulasi'
 import { Route as PanduanRouteImport } from './routes/panduan'
 import { Route as ManualHubRouteImport } from './routes/manual-hub'
@@ -25,6 +26,11 @@ import { Route as InsightHubSlugRouteImport } from './routes/insight-hub_.$slug'
 const TentangRoute = TentangRouteImport.update({
   id: '/tentang',
   path: '/tentang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PustakaRegulasiRoute = PustakaRegulasiRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/manual-hub': typeof ManualHubRoute
   '/panduan': typeof PanduanRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tentang': typeof TentangRoute
   '/insight-hub/$slug': typeof InsightHubSlugRoute
   '/manual-hub/$slug': typeof ManualHubSlugRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/manual-hub': typeof ManualHubRoute
   '/panduan': typeof PanduanRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tentang': typeof TentangRoute
   '/insight-hub/$slug': typeof InsightHubSlugRoute
   '/manual-hub/$slug': typeof ManualHubSlugRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/manual-hub': typeof ManualHubRoute
   '/panduan': typeof PanduanRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tentang': typeof TentangRoute
   '/insight-hub_/$slug': typeof InsightHubSlugRoute
   '/manual-hub_/$slug': typeof ManualHubSlugRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/manual-hub'
     | '/panduan'
     | '/pustaka-regulasi'
+    | '/sitemap.xml'
     | '/tentang'
     | '/insight-hub/$slug'
     | '/manual-hub/$slug'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/manual-hub'
     | '/panduan'
     | '/pustaka-regulasi'
+    | '/sitemap.xml'
     | '/tentang'
     | '/insight-hub/$slug'
     | '/manual-hub/$slug'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/manual-hub'
     | '/panduan'
     | '/pustaka-regulasi'
+    | '/sitemap.xml'
     | '/tentang'
     | '/insight-hub_/$slug'
     | '/manual-hub_/$slug'
@@ -178,6 +190,7 @@ export interface RootRouteChildren {
   ManualHubRoute: typeof ManualHubRoute
   PanduanRoute: typeof PanduanRoute
   PustakaRegulasiRoute: typeof PustakaRegulasiRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TentangRoute: typeof TentangRoute
   InsightHubSlugRoute: typeof InsightHubSlugRoute
   ManualHubSlugRoute: typeof ManualHubSlugRoute
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/tentang'
       fullPath: '/tentang'
       preLoaderRoute: typeof TentangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pustaka-regulasi': {
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   ManualHubRoute: ManualHubRoute,
   PanduanRoute: PanduanRoute,
   PustakaRegulasiRoute: PustakaRegulasiRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TentangRoute: TentangRoute,
   InsightHubSlugRoute: InsightHubSlugRoute,
   ManualHubSlugRoute: ManualHubSlugRoute,
