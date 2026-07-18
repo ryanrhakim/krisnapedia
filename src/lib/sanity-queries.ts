@@ -132,3 +132,23 @@ export const faqsQueryOptions = () =>
       ),
     staleTime: 60_000,
   });
+
+/* ───────── Categories ───────── */
+
+export const categoriesQueryOptions = (scope: CategoryScope) =>
+  queryOptions({
+    queryKey: ["categories", scope],
+    queryFn: async (): Promise<CategoryOption[]> =>
+      sanityClient.fetch(
+        `*[_type == "category" && scope == $scope && published == true]
+          | order(orderIndex asc, title asc) {
+            _id,
+            title,
+            "slug": slug.current,
+            scope,
+            orderIndex
+          }`,
+        { scope },
+      ),
+    staleTime: 5 * 60_000,
+  });
