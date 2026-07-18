@@ -36,11 +36,54 @@ export const Route = createFileRoute("/manual-hub_/$slug")({
     );
     if (!manual) throw notFound();
     queryClient.ensureQueryData(manualsQueryOptions());
-    return { slug: params.slug };
+    return { slug: params.slug, manual };
   },
-  head: () => ({
-    meta: [{ title: "Manual Hub — KRISNApedia" }],
-  }),
+  head: ({ params, loaderData }) => {
+    const url = `https://krisnapedia.lovable.app/manual-hub/${params.slug}`;
+    if (!loaderData) {
+      return {
+        meta: [
+          { title: "Manual tidak ditemukan — KRISNApedia" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
+    }
+    const { manual } = loaderData;
+    const cover = manual.coverImage ? imageUrl(manual.coverImage, 1200) : undefined;
+    const title = `${manual.title} — Manual Hub KRISNApedia`.slice(0, 65);
+    const description = manual.description.slice(0, 160);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: manual.title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "article" },
+        ...(cover ? [{ property: "og:image", content: cover } as const] : []),
+        ...(cover ? [{ name: "twitter:image", content: cover } as const] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: manual.title,
+            description,
+            datePublished: manual.date,
+            author: manual.author
+              ? { "@type": "Person", name: manual.author }
+              : { "@type": "Organization", name: "KRISNApedia" },
+            image: cover ? [cover] : undefined,
+            mainEntityOfPage: url,
+            publisher: { "@type": "Organization", name: "KRISNApedia" },
+          }),
+        },
+      ],
+    };
+  },
   pendingComponent: () => (
     <main className="flex min-h-screen items-center justify-center bg-background">
       <Loader2 className="h-6 w-6 animate-spin text-primary" />
