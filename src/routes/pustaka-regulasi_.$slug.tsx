@@ -38,11 +38,54 @@ export const Route = createFileRoute("/pustaka-regulasi_/$slug")({
     );
     if (!regulasi) throw notFound();
     queryClient.ensureQueryData(regulationsQueryOptions());
-    return { slug: params.slug };
+    return { slug: params.slug, regulasi };
   },
-  head: () => ({
-    meta: [{ title: "Pustaka Regulasi — KRISNApedia" }],
-  }),
+  head: ({ params, loaderData }) => {
+    const url = `https://krisnapedia.lovable.app/pustaka-regulasi/${params.slug}`;
+    if (!loaderData) {
+      return {
+        meta: [
+          { title: "Regulasi tidak ditemukan — KRISNApedia" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
+    }
+    const { regulasi } = loaderData;
+    const cover = regulasi.coverImage ? imageUrl(regulasi.coverImage, 1200) : undefined;
+    const title = `${regulasi.title} — Pustaka Regulasi KRISNApedia`.slice(0, 65);
+    const description = regulasi.description.slice(0, 160);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: regulasi.title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "article" },
+        ...(cover ? [{ property: "og:image", content: cover } as const] : []),
+        ...(cover ? [{ name: "twitter:image", content: cover } as const] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: regulasi.title,
+            description,
+            datePublished: regulasi.date,
+            author: regulasi.author
+              ? { "@type": "Person", name: regulasi.author }
+              : { "@type": "Organization", name: "KRISNApedia" },
+            image: cover ? [cover] : undefined,
+            mainEntityOfPage: url,
+            publisher: { "@type": "Organization", name: "KRISNApedia" },
+          }),
+        },
+      ],
+    };
+  },
   pendingComponent: () => (
     <main className="flex min-h-screen items-center justify-center bg-background">
       <Loader2 className="h-6 w-6 animate-spin text-primary" />
