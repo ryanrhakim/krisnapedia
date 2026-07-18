@@ -72,6 +72,7 @@ export const Route = createFileRoute("/pustaka-regulasi")({
 function PustakaRegulasiPage() {
   const { t } = useT();
   const { data: regulations } = useSuspenseQuery(regulationsQueryOptions());
+  const { data: cmsCategories = [] } = useQuery(categoriesQueryOptions("regulation"));
   const { data: viewsMap = {} } = useQuery(viewsQueryOptions("regulation"));
   const { page, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
