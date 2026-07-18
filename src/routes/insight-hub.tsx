@@ -90,10 +90,11 @@ function InsightHubPage() {
     navigate({ search: (prev: SearchParams) => ({ ...prev, sort: next, page: 1 }) });
   };
 
-  const categories = useMemo(
-    () => ["All", ...Array.from(new Set(insights.map((i) => i.category).filter(Boolean)))],
-    [insights],
-  );
+  const categories = useMemo(() => {
+    const fromCms = cmsCategories.map((c) => c.title);
+    const fromContent = insights.map((i) => i.category).filter(Boolean) as string[];
+    return ["All", ...Array.from(new Set([...fromCms, ...fromContent]))];
+  }, [cmsCategories, insights]);
   const fileTypes = useMemo(
     () => [
       "All",
