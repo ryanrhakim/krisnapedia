@@ -1,6 +1,13 @@
 import { queryOptions } from "@tanstack/react-query";
 import { sanityClient } from "./sanity";
-import type { Faq, Insight, Manual, Regulation } from "./sanity-types";
+import type {
+  CategoryOption,
+  CategoryScope,
+  Faq,
+  Insight,
+  Manual,
+  Regulation,
+} from "./sanity-types";
 
 /** Common projection so we get string slug + asset urls in one shot. */
 const BASE_PROJECTION = `
