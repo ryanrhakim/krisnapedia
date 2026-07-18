@@ -30,8 +30,9 @@ import { PortableText } from "@/components/site/PortableText";
 import { blocksToPlainText } from "@/lib/sanity";
 
 export const Route = createFileRoute("/faq")({
-  loader: ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(faqsQueryOptions());
+  loader: async ({ context: { queryClient } }) => {
+    const faqs = await queryClient.ensureQueryData(faqsQueryOptions());
+    return { faqs };
   },
   pendingComponent: () => (
     <main className="flex min-h-screen items-center justify-center bg-background">
@@ -39,15 +40,42 @@ export const Route = createFileRoute("/faq")({
     </main>
   ),
   component: FaqPage,
-  head: () => ({
-    meta: [
-      { title: "Klinik KRISNA — FAQ KRISNApedia" },
-      {
-        name: "description",
-        content: "Klinik KRISNA adalah pusat tanya jawab KRISNApedia.",
-      },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const faqs = loaderData?.faqs ?? [];
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.slice(0, 20).map((f) => ({
+        "@type": "Question",
+        name: f.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: blocksToPlainText(f.answer).slice(0, 500),
+        },
+      })),
+    };
+    return {
+      meta: [
+        { title: "Klinik KRISNA — FAQ KRISNApedia" },
+        {
+          name: "description",
+          content:
+            "Klinik KRISNA adalah pusat tanya jawab KRISNApedia. Temukan jawaban seputar penggunaan, regulasi, dan modul KRISNA.",
+        },
+        { property: "og:title", content: "Klinik KRISNA — FAQ KRISNApedia" },
+        {
+          property: "og:description",
+          content: "Pusat tanya jawab KRISNApedia — jawaban seputar penggunaan dan modul KRISNA.",
+        },
+        { property: "og:url", content: "https://krisnapedia.lovable.app/faq" },
+      ],
+      links: [{ rel: "canonical", href: "https://krisnapedia.lovable.app/faq" }],
+      scripts:
+        faqs.length > 0
+          ? [{ type: "application/ld+json", children: JSON.stringify(jsonLd) }]
+          : [],
+    };
+  },
 });
 
 const inquirySchema = z.object({
