@@ -1,13 +1,21 @@
 import { queryOptions } from "@tanstack/react-query";
 import { sanityClient } from "./sanity";
-import type { Faq, Insight, Manual, Regulation } from "./sanity-types";
+import type {
+  CategoryOption,
+  CategoryScope,
+  Faq,
+  Insight,
+  Manual,
+  Regulation,
+} from "./sanity-types";
 
 /** Common projection so we get string slug + asset urls in one shot. */
 const BASE_PROJECTION = `
   _id,
   title,
   "slug": slug.current,
-  category,
+  "category": coalesce(category->title, category),
+  "categorySlug": category->slug.current,
   subCategory,
   description,
   longDescription,
@@ -123,4 +131,24 @@ export const faqsQueryOptions = () =>
         }`,
       ),
     staleTime: 60_000,
+  });
+
+/* ───────── Categories ───────── */
+
+export const categoriesQueryOptions = (scope: CategoryScope) =>
+  queryOptions({
+    queryKey: ["categories", scope],
+    queryFn: async (): Promise<CategoryOption[]> =>
+      sanityClient.fetch(
+        `*[_type == "category" && scope == $scope && published == true]
+          | order(orderIndex asc, title asc) {
+            _id,
+            title,
+            "slug": slug.current,
+            scope,
+            orderIndex
+          }`,
+        { scope },
+      ),
+    staleTime: 5 * 60_000,
   });

@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { insightsQueryOptions } from "@/lib/sanity-queries";
+import { insightsQueryOptions, categoriesQueryOptions } from "@/lib/sanity-queries";
 import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
@@ -71,6 +71,7 @@ export const Route = createFileRoute("/insight-hub")({
 function InsightHubPage() {
   const { t } = useT();
   const { data: insights } = useSuspenseQuery(insightsQueryOptions());
+  const { data: cmsCategories = [] } = useQuery(categoriesQueryOptions("insight"));
   const { data: viewsMap = {} } = useQuery(viewsQueryOptions("insight"));
   const { page, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
@@ -89,10 +90,11 @@ function InsightHubPage() {
     navigate({ search: (prev: SearchParams) => ({ ...prev, sort: next, page: 1 }) });
   };
 
-  const categories = useMemo(
-    () => ["All", ...Array.from(new Set(insights.map((i) => i.category).filter(Boolean)))],
-    [insights],
-  );
+  const categories = useMemo(() => {
+    const fromCms = cmsCategories.map((c) => c.title);
+    const fromContent = insights.map((i) => i.category).filter(Boolean) as string[];
+    return ["All", ...Array.from(new Set([...fromCms, ...fromContent]))];
+  }, [cmsCategories, insights]);
   const fileTypes = useMemo(
     () => [
       "All",

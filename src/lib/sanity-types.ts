@@ -72,3 +72,13 @@ export type Faq = {
   orderIndex?: number;
   published?: boolean;
 };
+
+export type CategoryScope = "insight" | "manual" | "regulation";
+
+export type CategoryOption = {
+  _id: string;
+  title: string;
+  slug: string;
+  scope: CategoryScope;
+  orderIndex?: number;
+};

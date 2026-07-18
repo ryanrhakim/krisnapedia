@@ -12,7 +12,16 @@ export const insightSchema = defineType({
       options: { source: "title", maxLength: 96 },
       validation: (R) => R.required(),
     }),
-    defineField({ name: "category", type: "string", validation: (R) => R.required() }),
+    defineField({
+      name: "category",
+      type: "reference",
+      to: [{ type: "category" }],
+      options: {
+        filter: 'scope == $scope',
+        filterParams: { scope: "insight" },
+      },
+      validation: (R) => R.required(),
+    }),
     defineField({ name: "subCategory", type: "string" }),
     defineField({
       name: "description",

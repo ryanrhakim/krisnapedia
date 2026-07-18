@@ -31,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { manualsQueryOptions } from "@/lib/sanity-queries";
+import { manualsQueryOptions, categoriesQueryOptions } from "@/lib/sanity-queries";
 import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
@@ -74,6 +74,7 @@ export const Route = createFileRoute("/manual-hub")({
 function ManualHubPage() {
   const { t } = useT();
   const { data: manuals } = useSuspenseQuery(manualsQueryOptions());
+  const { data: cmsCategories = [] } = useQuery(categoriesQueryOptions("manual"));
   const { data: viewsMap = {} } = useQuery(viewsQueryOptions("manual"));
   const { page, cat, sub, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
@@ -99,10 +100,11 @@ function ManualHubPage() {
     navigate({ search: (prev: SearchParams) => ({ ...prev, sort: next, page: 1 }) });
   };
 
-  const categories = useMemo(
-    () => ["All", ...Array.from(new Set(manuals.map((m) => m.category).filter(Boolean)))],
-    [manuals],
-  );
+  const categories = useMemo(() => {
+    const fromCms = cmsCategories.map((c) => c.title);
+    const fromContent = manuals.map((m) => m.category).filter(Boolean) as string[];
+    return ["All", ...Array.from(new Set([...fromCms, ...fromContent]))];
+  }, [cmsCategories, manuals]);
   const subCategories = useMemo(() => {
     if (cat === "All") return [];
     const subs = Array.from(

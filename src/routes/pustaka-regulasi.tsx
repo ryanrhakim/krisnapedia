@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { regulationsQueryOptions } from "@/lib/sanity-queries";
+import { regulationsQueryOptions, categoriesQueryOptions } from "@/lib/sanity-queries";
 import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
@@ -72,6 +72,7 @@ export const Route = createFileRoute("/pustaka-regulasi")({
 function PustakaRegulasiPage() {
   const { t } = useT();
   const { data: regulations } = useSuspenseQuery(regulationsQueryOptions());
+  const { data: cmsCategories = [] } = useQuery(categoriesQueryOptions("regulation"));
   const { data: viewsMap = {} } = useQuery(viewsQueryOptions("regulation"));
   const { page, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
@@ -90,10 +91,11 @@ function PustakaRegulasiPage() {
     navigate({ search: (prev: SearchParams) => ({ ...prev, sort: next, page: 1 }) });
   };
 
-  const categories = useMemo(
-    () => ["All", ...Array.from(new Set(regulations.map((r) => r.category).filter(Boolean)))],
-    [regulations],
-  );
+  const categories = useMemo(() => {
+    const fromCms = cmsCategories.map((c) => c.title);
+    const fromContent = regulations.map((r) => r.category).filter(Boolean) as string[];
+    return ["All", ...Array.from(new Set([...fromCms, ...fromContent]))];
+  }, [cmsCategories, regulations]);
   const fileTypes = useMemo(
     () => [
       "All",
