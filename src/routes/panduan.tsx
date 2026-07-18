@@ -32,7 +32,9 @@ export const Route = createFileRoute("/panduan")({
         property: "og:description",
         content: "Pelajari cara menelusuri, membaca, dan memanfaatkan KRISNApedia.",
       },
+      { property: "og:url", content: "https://krisnapedia.lovable.app/panduan" },
     ],
+    links: [{ rel: "canonical", href: "https://krisnapedia.lovable.app/panduan" }],
   }),
 });
 

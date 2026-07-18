@@ -65,7 +65,9 @@ export const Route = createFileRoute("/pustaka-regulasi")({
         content:
           "Koleksi regulasi dan dasar kebijakan dalam satu pustaka. Cari berdasarkan judul, tipe file, dan kategori.",
       },
+      { property: "og:url", content: "https://krisnapedia.lovable.app/pustaka-regulasi" },
     ],
+    links: [{ rel: "canonical", href: "https://krisnapedia.lovable.app/pustaka-regulasi" }],
   }),
 });
 

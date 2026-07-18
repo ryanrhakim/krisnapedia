@@ -59,15 +59,17 @@ export const Route = createFileRoute("/manual-hub")({
       {
         name: "description",
         content:
-          "Browse standard operating procedures, technical guides, and reference manuals from the KRISNApedia Manual Hub.",
+          "Kumpulan SOP, panduan teknis, dan manual referensi KRISNApedia. Cari berdasarkan judul, tipe file, dan kategori.",
       },
       { property: "og:title", content: "Manual Hub — KRISNApedia" },
       {
         property: "og:description",
         content:
-          "Standard operating procedures, technical guides, and reference manuals — all in one place.",
+          "SOP, panduan teknis, dan manual referensi KRISNA dalam satu portal.",
       },
+      { property: "og:url", content: "https://krisnapedia.lovable.app/manual-hub" },
     ],
+    links: [{ rel: "canonical", href: "https://krisnapedia.lovable.app/manual-hub" }],
   }),
 });
 
