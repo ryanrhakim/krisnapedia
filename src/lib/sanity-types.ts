@@ -82,6 +82,3 @@ export type CategoryOption = {
   scope: CategoryScope;
   orderIndex?: number;
 };
-  orderIndex?: number;
-  published?: boolean;
-};
