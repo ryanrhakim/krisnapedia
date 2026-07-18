@@ -71,6 +71,7 @@ export const Route = createFileRoute("/insight-hub")({
 function InsightHubPage() {
   const { t } = useT();
   const { data: insights } = useSuspenseQuery(insightsQueryOptions());
+  const { data: cmsCategories = [] } = useQuery(categoriesQueryOptions("insight"));
   const { data: viewsMap = {} } = useQuery(viewsQueryOptions("insight"));
   const { page, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
