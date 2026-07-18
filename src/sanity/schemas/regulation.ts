@@ -14,8 +14,12 @@ export const regulationSchema = defineType({
     }),
     defineField({
       name: "category",
-      type: "string",
-      title: "Category (e.g. Undang-Undang, Peraturan Menteri)",
+      type: "reference",
+      to: [{ type: "category" }],
+      options: {
+        filter: 'scope == $scope',
+        filterParams: { scope: "regulation" },
+      },
       validation: (R) => R.required(),
     }),
     defineField({ name: "subCategory", type: "string" }),
