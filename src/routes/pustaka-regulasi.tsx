@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { regulationsQueryOptions } from "@/lib/sanity-queries";
+import { regulationsQueryOptions, categoriesQueryOptions } from "@/lib/sanity-queries";
 import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
