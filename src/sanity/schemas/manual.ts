@@ -85,6 +85,6 @@ export const manualSchema = defineType({
     defineField({ name: "published", type: "boolean", initialValue: true }),
   ],
   preview: {
-    select: { title: "title", subtitle: "category", media: "coverImage" },
+    select: { title: "title", subtitle: "category.title", media: "coverImage" },
   },
 });
