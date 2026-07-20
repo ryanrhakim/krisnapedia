@@ -1,40 +1,80 @@
-## Tujuan
-Membuat tag status **"Terbaru"** terlihat berbeda dari tag **kategori** pada content card dan halaman detail. Warna tag "Terbaru" akan beralih dari oranye ke palet hijau (konsep "toggle on") yang tetap selaras dengan warna brand KRISNApedia.
+## Masalah
 
-## Analisis singkat
-Saat ini:
-- **Tag kategori**: `bg-background/90 text-primary` → latar terang, teks oranye.
-- **Tag "Terbaru"**: `bg-primary/15 text-[var(--primary-deep)]` → latar oranye muda, teks oranye tua.
+UI bawaan Sanity untuk cover memakai **dua tool terpisah**:
 
-Keduanya masih dalam keluarga oranye, sehingga sulit dibedakan. Kategori tetap menggunakan warna brand oranye, sementara status "Terbaru" akan dialihkan ke hijau.
+- **Hotspot** = lingkaran + titik fokus (untuk crop otomatis di berbagai rasio)
+- **Crop** = kotak potong manual dari sisi gambar
 
-## Rencana implementasi
+Buat editor yang cuma ingin "pas-in cover ke kartu 4:3", dua tool ini membingungkan — lingkaran hotspot terasa tidak relevan karena kartu bentuknya persegi panjang.
 
-### 1. Tambahkan token warna hijau ke design system
-File: `src/styles.css`
+Yang kamu mau: **satu editor Instagram-style** — viewport kotak 4:3 (sama persis dengan kartu), gambar bisa di-**drag** dan **zoom in/out**, selesai. Tidak ada lingkaran, tidak ada dua tool.
 
-- Tambahkan variabel `--status-new` (hijau) dan `--status-new-foreground` di dalam blok `:root` dan `.dark` menggunakan format `oklch`.
-- Pilih nuansa hijau yang harmonis dengan oranye brand — arahnya ke **emerald-teal** yang segar namun tidak bertabrakan dengan oranye.
-- Daftarkan token di `@theme inline` agar bisa dipakai sebagai utility Tailwind, misalnya `bg-status-new`, `text-status-new`.
+## Solusi
 
-### 2. Update komponen `StatusBadge.tsx`
+Buat **custom input component** untuk field `coverImage` di Sanity Studio yang menggantikan UI hotspot/crop bawaan dengan cropper pan-and-zoom.
 
-- Ganti styling status `"Terbaru"` dari oranye menjadi hijau menggunakan token baru.
-- Sesuaikan juga warna dot indicator di sebelah label.
-- Status "Aktif" dan "Arsip" tetap seperti sekarang.
+### Teknis
 
-### 3. Pastikan kontras di kedua mode tema
+1. **Tambah dependency**: `react-easy-crop` (library ringan, ~15 KB, memang dipakai untuk UX ala Instagram/Facebook — drag & pinch zoom, viewport dengan rasio bebas).
 
-- Verifikasi warna hijau memiliki kontras yang cukup baik di latar terang (light) maupun gelap (dark).
-- Jika diperlukan, tambahkan varian dark yang sedikit lebih terang agar badge tetap terbaca.
+2. **Buat komponen** `src/sanity/components/CoverImageInput.tsx`:
+   - Menerima props Sanity image input standar (`value`, `onChange`, dsb.).
+   - Menampilkan tombol upload seperti biasa.
+   - Setelah gambar terunggah, tampilkan **viewport 4:3** dengan `react-easy-crop` di atasnya (bukan tool hotspot/crop bawaan).
+   - Editor menggeser gambar & memutar slider zoom → koordinat crop dihitung otomatis.
+   - Simpan hasilnya ke field `crop` dan `hotspot` **milik Sanity sendiri** (bukan skema custom). Ini penting karena:
+     - `@sanity/image-url` sudah membaca kedua field itu di frontend.
+     - Semua cover yang sudah kamu setel sebelumnya tetap kompatibel.
+     - Kalau suatu hari plugin ini di-nonaktifkan, data tidak hilang.
 
-### 4. Validasi visual
+3. **Konversi koordinat**: `react-easy-crop` memberi output `{x, y, width, height}` dalam persen 0-100 → dipetakan ke bentuk yang Sanity harapkan (`crop.top/right/bottom/left` dan `hotspot.x/y/width/height` dalam skala 0-1).
 
-- Cek tampilan tag "Terbaru" di content card homepage (`InsightHub`, `ManualHub`) dan halaman listing (`insight-hub`, `manual-hub`, `pustaka-regulasi`).
-- Cek juga di halaman detail masing-masing konten.
-- Pastikan tag kategori tetap oranye dan tag "Terbaru" sekarang hijau, sehingga perbedaannya jelas.
+4. **Sematkan ke schema**: di `insight.ts`, `manual.ts`, `regulation.ts` ganti:
+   ```ts
+   defineField({ name: "coverImage", type: "image", options: { hotspot: true } })
+   ```
+   menjadi:
+   ```ts
+   defineField({
+     name: "coverImage",
+     type: "image",
+     options: { hotspot: true },       // tetap true, supaya field crop/hotspot tersimpan
+     components: { input: CoverImageInput },  // ← ini yang menggantikan UI bawaan
+   })
+   ```
+   Tool hotspot/crop bawaan **tidak lagi muncul** karena input component sudah override.
 
-## Catatan
-- Tidak mengubah struktur data atau schema Sanity.
-- Tidak mengubah warna tag kategori, hanya membedakan warna status "Terbaru".
-- Perubahan terbatas pada design token CSS dan komponen `StatusBadge`.
+5. **Frontend tidak berubah** — `imageUrl(item.coverImage, 800)` di kartu tetap dipakai. Karena kartu berukuran 4:3 dan crop yang tersimpan juga 4:3, browser tinggal menampilkan hasil crop yang sudah tepat.
+
+### Alur editor setelah perbaikan
+
+```text
+1. Klik field "Cover Image" → Upload gambar
+2. Muncul kotak 4:3 dengan gambar di dalamnya
+3. Drag gambar untuk memindahkan fokus
+4. Slider zoom untuk perbesar/perkecil (atau scroll wheel)
+5. Klik "Simpan crop" → selesai
+```
+
+Tidak ada dua tab (Hotspot / Crop), tidak ada lingkaran, hanya satu viewport rectangle 4:3.
+
+### File yang berubah
+
+| File | Perubahan |
+| --- | --- |
+| `package.json` | + `react-easy-crop` |
+| `src/sanity/components/CoverImageInput.tsx` | Baru — komponen cropper pan/zoom |
+| `src/sanity/schemas/insight.ts` | Sematkan `components.input` ke `coverImage` |
+| `src/sanity/schemas/manual.ts` | Sama |
+| `src/sanity/schemas/regulation.ts` | Sama |
+
+### Yang tidak berubah
+
+- Data cover yang sudah kamu setel sebelumnya (hotspot/crop lama tetap terbaca).
+- Skema field, GROQ query, dan cara `imageUrl` dipanggil di kartu.
+- Tampilan frontend — kartu 4:3 tetap sama.
+
+### Batasan / catatan
+
+- Cropper ini **mengunci rasio ke 4:3** (sesuai kartu). Kalau suatu saat kamu perlu rasio berbeda per halaman (mis. detail hero 16:9), kita bisa buat viewport preview kedua di komponen yang sama — belum termasuk scope kali ini.
+- Studio adalah bundle klien; dependency baru menambah ~15 KB gzip, tidak berdampak ke bundle publik karena Studio sudah lazy-loaded di route `/studio`.
