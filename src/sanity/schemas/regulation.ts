@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { CoverImageInput } from "../components/CoverImageInput";
 
 export const regulationSchema = defineType({
   name: "regulation",
@@ -30,7 +31,12 @@ export const regulationSchema = defineType({
       validation: (R) => R.required().max(400),
     }),
     defineField({ name: "longDescription", type: "array", of: [{ type: "block" }] }),
-    defineField({ name: "coverImage", type: "image", options: { hotspot: true } }),
+    defineField({
+      name: "coverImage",
+      type: "image",
+      options: { hotspot: true },
+      components: { input: CoverImageInput },
+    }),
     defineField({ name: "file", type: "file", title: "Regulation document (PDF)" }),
     defineField({ name: "youtubeUrl", type: "url" }),
     defineField({
