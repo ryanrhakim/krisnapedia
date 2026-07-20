@@ -26,6 +26,7 @@ import {
 } from "@/lib/sanity-queries";
 import { fileUrl, imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
+import { StatusBadge } from "@/components/site/StatusBadge";
 import insightFallback from "@/assets/insight-strategy.jpg";
 
 export const Route = createFileRoute("/insight-hub_/$slug")({
@@ -192,6 +193,7 @@ function InsightDetailPage() {
             <span className="rounded-full border border-border bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               {typeLabel}
             </span>
+            <StatusBadge status={insight.status} />
           </div>
 
           <h1 className="mt-4 max-w-4xl font-display text-3xl font-bold leading-tight tracking-tight text-foreground md:text-5xl">
@@ -321,6 +323,7 @@ function InsightDetailPage() {
                       <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
                         {item.category}
                       </span>
+                      <StatusBadge status={item.status} hideActive className="absolute right-3 top-3 bg-background/90" />
                     </div>
                     <div className="flex flex-1 flex-col p-5">
                       <h3 className="font-display text-base font-semibold leading-snug text-foreground">

@@ -34,6 +34,7 @@ import { viewsQueryOptions } from "@/lib/views-queries";
 import { imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
 import { ViewCount } from "@/components/site/ViewCount";
+import { StatusBadge } from "@/components/site/StatusBadge";
 import insightFallback from "@/assets/insight-strategy.jpg";
 import { useT } from "@/i18n/LanguageProvider";
 
@@ -290,6 +291,7 @@ function InsightHubPage() {
                       <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
                         {item.category}
                       </span>
+                      <StatusBadge status={item.status} hideActive className="absolute right-3 top-3 bg-background/90" />
                     </div>
 
                     <div className="flex flex-1 flex-col p-5">

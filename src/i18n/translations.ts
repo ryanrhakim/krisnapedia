@@ -125,6 +125,13 @@ export const id = {
   "unit.manual": "manual",
   "unit.regulasi": "regulasi",
 
+  // Document status
+  "status.aktif": "Aktif",
+  "status.baru": "Aktif Terbaru",
+  "status.arsip": "Arsip",
+
+
+
   // About page
   "about.badge": "Tentang KRISNApedia",
   "about.heroTitle": "Pusat pengetahuan KRISNA, dirancang untuk semua pengguna.",
@@ -328,6 +335,12 @@ export const en: Record<TranslationKey, string> = {
   "unit.insight": "insights",
   "unit.manual": "manuals",
   "unit.regulasi": "regulations",
+
+  // Document status
+  "status.aktif": "Active",
+  "status.baru": "Newly Active",
+  "status.arsip": "Archived",
+
 
   // About page
   "about.badge": "About KRISNApedia",

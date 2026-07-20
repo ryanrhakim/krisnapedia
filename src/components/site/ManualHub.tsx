@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/format";
 import { ViewCount } from "@/components/site/ViewCount";
 import manualFallback from "@/assets/manual-onboarding.jpg";
 import { useT } from "@/i18n/LanguageProvider";
+import { StatusBadge } from "@/components/site/StatusBadge";
 
 export function ManualHub() {
   const { t } = useT();
@@ -64,6 +65,7 @@ export function ManualHub() {
                   <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
                     {m.category}
                   </span>
+                  <StatusBadge status={m.status} hideActive className="absolute right-3 top-3 bg-background/90" />
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <h3 className="font-display text-lg font-semibold leading-snug">{m.title}</h3>

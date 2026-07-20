@@ -27,6 +27,7 @@ import {
 } from "@/lib/sanity-queries";
 import { fileUrl, imageUrl } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
+import { StatusBadge } from "@/components/site/StatusBadge";
 import manualFallback from "@/assets/manual-onboarding.jpg";
 
 export const Route = createFileRoute("/manual-hub_/$slug")({
@@ -191,6 +192,7 @@ function ManualDetailPage() {
                 <BookOpen className="h-3 w-3" /> {manual.version}
               </span>
             )}
+            <StatusBadge status={manual.status} />
           </div>
 
           <h1 className="mt-4 max-w-4xl font-display text-3xl font-bold leading-tight tracking-tight text-foreground md:text-5xl">
@@ -320,6 +322,7 @@ function ManualDetailPage() {
                       <span className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary backdrop-blur">
                         {item.category}
                       </span>
+                      <StatusBadge status={item.status} hideActive className="absolute right-3 top-3 bg-background/90" />
                     </div>
                     <div className="flex flex-1 flex-col p-5">
                       <h3 className="font-display text-base font-semibold leading-snug text-foreground">
