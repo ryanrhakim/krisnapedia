@@ -11,7 +11,6 @@ import {
   FileText,
   Languages,
   Loader2,
-  Maximize2,
   Share2,
   Tag,
   User,
@@ -264,10 +263,8 @@ function InsightDetailPage() {
                 Content viewer
               </h2>
             </div>
-            <button className="hidden items-center gap-1.5 text-xs font-semibold text-primary hover:text-[var(--primary-deep)] sm:inline-flex">
-              <Maximize2 className="h-3.5 w-3.5" /> Layar penuh
-            </button>
           </div>
+
 
           <ContentViewer item={insight} fallbackCover={insightFallback} />
 

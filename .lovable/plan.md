@@ -1,80 +1,39 @@
 ## Masalah
 
-UI bawaan Sanity untuk cover memakai **dua tool terpisah**:
-
-- **Hotspot** = lingkaran + titik fokus (untuk crop otomatis di berbagai rasio)
-- **Crop** = kotak potong manual dari sisi gambar
-
-Buat editor yang cuma ingin "pas-in cover ke kartu 4:3", dua tool ini membingungkan — lingkaran hotspot terasa tidak relevan karena kartu bentuknya persegi panjang.
-
-Yang kamu mau: **satu editor Instagram-style** — viewport kotak 4:3 (sama persis dengan kartu), gambar bisa di-**drag** dan **zoom in/out**, selesai. Tidak ada lingkaran, tidak ada dua tool.
+Tombol **"Layar penuh"** di section "Pratinjau" (halaman detail Insight, Manual, Regulasi) tidak berfungsi:
+- Elemen `<button>` tidak punya `onClick`.
+- Class `hidden ... sm:inline-flex` menyembunyikan di mobile — tapi meski tampil di desktop, klik tidak melakukan apa-apa karena tidak ada handler.
+- Tidak ada ref/target ke ContentViewer, jadi Fullscreen API belum pernah dipanggil.
 
 ## Solusi
 
-Buat **custom input component** untuk field `coverImage` di Sanity Studio yang menggantikan UI hotspot/crop bawaan dengan cropper pan-and-zoom.
+Pindahkan tombol "Layar penuh" menjadi bagian dari `ContentViewer` sendiri (satu tempat) dan pakai **Fullscreen API browser** pada wrapper viewer.
 
-### Teknis
+### Perubahan
 
-1. **Tambah dependency**: `react-easy-crop` (library ringan, ~15 KB, memang dipakai untuk UX ala Instagram/Facebook — drag & pinch zoom, viewport dengan rasio bebas).
+1. **`src/components/site/ContentViewer.tsx`**
+   - Bungkus seluruh output viewer dengan `<div ref={containerRef} className="relative group">`.
+   - Tambah tombol overlay pojok kanan atas: ikon `Maximize2` / `Minimize2` (lucide-react) dengan `aria-label="Layar penuh"`.
+   - Handler: `containerRef.current?.requestFullscreen()` bila tidak fullscreen; jika sudah, `document.exitFullscreen()`.
+   - Sinkronkan state dengan listener `fullscreenchange` supaya ikon berganti dan tombol tetap muncul saat fullscreen.
+   - Dalam mode fullscreen tambah class `data-[fullscreen=true]:bg-background data-[fullscreen=true]:p-6` supaya iframe/preview mengisi layar dengan rapi (iframe PDF/Slides diberi `h-full` saat fullscreen; default tetap `h-[720px]`).
+   - Guard SSR: cek `typeof document !== "undefined"` dan fitur `document.fullscreenEnabled` sebelum render tombol.
 
-2. **Buat komponen** `src/sanity/components/CoverImageInput.tsx`:
-   - Menerima props Sanity image input standar (`value`, `onChange`, dsb.).
-   - Menampilkan tombol upload seperti biasa.
-   - Setelah gambar terunggah, tampilkan **viewport 4:3** dengan `react-easy-crop` di atasnya (bukan tool hotspot/crop bawaan).
-   - Editor menggeser gambar & memutar slider zoom → koordinat crop dihitung otomatis.
-   - Simpan hasilnya ke field `crop` dan `hotspot` **milik Sanity sendiri** (bukan skema custom). Ini penting karena:
-     - `@sanity/image-url` sudah membaca kedua field itu di frontend.
-     - Semua cover yang sudah kamu setel sebelumnya tetap kompatibel.
-     - Kalau suatu hari plugin ini di-nonaktifkan, data tidak hilang.
+2. **`src/routes/insight-hub_.$slug.tsx`, `src/routes/manual-hub_.$slug.tsx`, `src/routes/pustaka-regulasi_.$slug.tsx`**
+   - Hapus tombol "Layar penuh" duplikat di header section "Pratinjau" (yang sekarang tidak berfungsi). Fungsinya kini sudah ada di dalam ContentViewer.
 
-3. **Konversi koordinat**: `react-easy-crop` memberi output `{x, y, width, height}` dalam persen 0-100 → dipetakan ke bentuk yang Sanity harapkan (`crop.top/right/bottom/left` dan `hotspot.x/y/width/height` dalam skala 0-1).
+3. **`src/i18n/translations.ts`** — tambah key `viewer.fullscreen` = "Layar penuh" / "Fullscreen" untuk aria-label (opsional, tapi konsisten dengan sistem i18n).
 
-4. **Sematkan ke schema**: di `insight.ts`, `manual.ts`, `regulation.ts` ganti:
-   ```ts
-   defineField({ name: "coverImage", type: "image", options: { hotspot: true } })
-   ```
-   menjadi:
-   ```ts
-   defineField({
-     name: "coverImage",
-     type: "image",
-     options: { hotspot: true },       // tetap true, supaya field crop/hotspot tersimpan
-     components: { input: CoverImageInput },  // ← ini yang menggantikan UI bawaan
-   })
-   ```
-   Tool hotspot/crop bawaan **tidak lagi muncul** karena input component sudah override.
+### Detail teknis
 
-5. **Frontend tidak berubah** — `imageUrl(item.coverImage, 800)` di kartu tetap dipakai. Karena kartu berukuran 4:3 dan crop yang tersimpan juga 4:3, browser tinggal menampilkan hasil crop yang sudah tepat.
-
-### Alur editor setelah perbaikan
-
-```text
-1. Klik field "Cover Image" → Upload gambar
-2. Muncul kotak 4:3 dengan gambar di dalamnya
-3. Drag gambar untuk memindahkan fokus
-4. Slider zoom untuk perbesar/perkecil (atau scroll wheel)
-5. Klik "Simpan crop" → selesai
-```
-
-Tidak ada dua tab (Hotspot / Crop), tidak ada lingkaran, hanya satu viewport rectangle 4:3.
+- Fullscreen API tersedia di Chromium, Firefox, Safari (butuh prefix `webkitRequestFullscreen` untuk Safari lama — sertakan fallback).
+- Iframe pihak ketiga (YouTube, Office Online) sudah punya kontrol fullscreen sendiri, tapi tombol wrapper tetap berguna untuk memperbesar seluruh frame termasuk header.
+- Ini murni frontend, tidak menyentuh Sanity/Supabase.
 
 ### File yang berubah
 
-| File | Perubahan |
-| --- | --- |
-| `package.json` | + `react-easy-crop` |
-| `src/sanity/components/CoverImageInput.tsx` | Baru — komponen cropper pan/zoom |
-| `src/sanity/schemas/insight.ts` | Sematkan `components.input` ke `coverImage` |
-| `src/sanity/schemas/manual.ts` | Sama |
-| `src/sanity/schemas/regulation.ts` | Sama |
-
-### Yang tidak berubah
-
-- Data cover yang sudah kamu setel sebelumnya (hotspot/crop lama tetap terbaca).
-- Skema field, GROQ query, dan cara `imageUrl` dipanggil di kartu.
-- Tampilan frontend — kartu 4:3 tetap sama.
-
-### Batasan / catatan
-
-- Cropper ini **mengunci rasio ke 4:3** (sesuai kartu). Kalau suatu saat kamu perlu rasio berbeda per halaman (mis. detail hero 16:9), kita bisa buat viewport preview kedua di komponen yang sama — belum termasuk scope kali ini.
-- Studio adalah bundle klien; dependency baru menambah ~15 KB gzip, tidak berdampak ke bundle publik karena Studio sudah lazy-loaded di route `/studio`.
+- `src/components/site/ContentViewer.tsx` (utama)
+- `src/routes/insight-hub_.$slug.tsx` (hapus tombol lama)
+- `src/routes/manual-hub_.$slug.tsx` (hapus tombol lama)
+- `src/routes/pustaka-regulasi_.$slug.tsx` (hapus tombol lama)
+- `src/i18n/translations.ts` (opsional, label i18n)

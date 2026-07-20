@@ -1,10 +1,20 @@
-import { useState } from "react";
-import { FileText, Globe, Pause, Play, Presentation, Youtube } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  FileText,
+  Globe,
+  Maximize2,
+  Minimize2,
+  Pause,
+  Play,
+  Presentation,
+  Youtube,
+} from "lucide-react";
 import type { ContentBase } from "@/lib/sanity-types";
 import { fileExtension, fileUrl, imageUrl, youtubeEmbedUrl } from "@/lib/sanity";
 import { PortableText } from "@/components/site/PortableText";
 import { blocksToPlainText } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
+
 
 /**
  * Content viewer that auto-switches between PDF iframe, slides preview,
@@ -18,6 +28,96 @@ export function ContentViewer({
   fallbackCover: string;
 }) {
   const cover = imageUrl(item.coverImage, 1200) || fallbackCover;
+  return (
+    <FullscreenShell>
+      <ContentViewerInner item={item} fallbackCover={fallbackCover} cover={cover} />
+    </FullscreenShell>
+  );
+}
+
+function FullscreenShell({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isFs, setIsFs] = useState(false);
+  const [supported, setSupported] = useState(false);
+
+  useEffect(() => {
+    setSupported(
+      typeof document !== "undefined" &&
+        (document.fullscreenEnabled ||
+          // @ts-expect-error webkit
+          document.webkitFullscreenEnabled),
+    );
+    const onChange = () => {
+      const el =
+        document.fullscreenElement ||
+        // @ts-expect-error webkit
+        document.webkitFullscreenElement;
+      setIsFs(el === ref.current);
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
+  }, []);
+
+  const toggle = async () => {
+    const el = ref.current;
+    if (!el) return;
+    const inFs =
+      document.fullscreenElement ||
+      // @ts-expect-error webkit
+      document.webkitFullscreenElement;
+    try {
+      if (!inFs) {
+        if (el.requestFullscreen) await el.requestFullscreen();
+        // @ts-expect-error webkit
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        // @ts-expect-error webkit
+        else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+      }
+    } catch {
+      /* noop */
+    }
+  };
+
+  return (
+    <div
+      ref={ref}
+      data-fullscreen={isFs}
+      className="relative group data-[fullscreen=true]:flex data-[fullscreen=true]:h-screen data-[fullscreen=true]:w-screen data-[fullscreen=true]:items-center data-[fullscreen=true]:justify-center data-[fullscreen=true]:bg-background data-[fullscreen=true]:p-4 md:data-[fullscreen=true]:p-8"
+    >
+      <div className="w-full data-[fullscreen=true]:max-w-6xl">{children}</div>
+      {supported && (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={isFs ? "Keluar layar penuh" : "Layar penuh"}
+          title={isFs ? "Keluar layar penuh" : "Layar penuh"}
+          className="absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-md bg-background/90 px-2.5 py-1.5 text-xs font-semibold text-foreground shadow-sm ring-1 ring-border backdrop-blur hover:bg-background"
+        >
+          {isFs ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+          <span className="hidden sm:inline">{isFs ? "Keluar" : "Layar penuh"}</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ContentViewerInner({
+  item,
+  fallbackCover,
+  cover,
+}: {
+  item: ContentBase;
+  fallbackCover: string;
+  cover: string;
+}) {
+  void fallbackCover;
+
 
   // Video — prefer YouTube embed when set, otherwise mp4 placeholder
   if (item.viewer === "video") {
