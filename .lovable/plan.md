@@ -1,36 +1,40 @@
-## Rencana: Ubah status dokumen menjadi "Terbaru, Aktif, Arsip"
+## Tujuan
+Membuat tag status **"Terbaru"** terlihat berbeda dari tag **kategori** pada content card dan halaman detail. Warna tag "Terbaru" akan beralih dari oranye ke palet hijau (konsep "toggle on") yang tetap selaras dengan warna brand KRISNApedia.
 
-Saat ini field `status` di dokumen Insight, Manual, dan Regulation memiliki pilihan: **Aktif / Aktif Terbaru / Arsip**. Kamu ingin mengganti "Aktif Terbaru" menjadi **"Terbaru"**, sehingga kategori status menjadi **Terbaru, Aktif, Arsip**.
+## Analisis singkat
+Saat ini:
+- **Tag kategori**: `bg-background/90 text-primary` → latar terang, teks oranye.
+- **Tag "Terbaru"**: `bg-primary/15 text-[var(--primary-deep)]` → latar oranye muda, teks oranye tua.
 
-### Yang akan diubah
+Keduanya masih dalam keluarga oranye, sehingga sulit dibedakan. Kategori tetap menggunakan warna brand oranye, sementara status "Terbaru" akan dialihkan ke hijau.
 
-1. **Sanity schemas**
-   - `src/sanity/schemas/insight.ts`
-   - `src/sanity/schemas/manual.ts`
-   - `src/sanity/schemas/regulation.ts`
-   - Mengganti opsi list dari `["Aktif", "Aktif Terbaru", "Arsip"]` menjadi `["Terbaru", "Aktif", "Arsip"]`.
-   - `initialValue` tetap `"Aktif"` (atau diubah menjadi `"Terbaru"` jika kamu inginkan — bisa dibahas).
+## Rencana implementasi
 
-2. **Data migration di Sanity**
-   - Semua dokumen yang saat ini bernilai `"Aktif Terbaru"` perlu di-patch menjadi `"Terbaru"`.
-   - Dokumen dengan status `"Aktif"` atau `"Arsip"` tidak berubah.
-   - Migration dilakukan via Sanity API (patch bulk) untuk tiga tipe dokumen: `insight`, `manual`, `regulation`.
+### 1. Tambahkan token warna hijau ke design system
+File: `src/styles.css`
 
-3. **Komponen UI**
-   - `src/components/site/StatusBadge.tsx`: memperbarui mapping warna, label, dan logika `hideActive` agar mengenali `"Terbaru"` sebagai status oranye, dan tetap menyembunyikan badge `"Aktif"` di content card.
+- Tambahkan variabel `--status-new` (hijau) dan `--status-new-foreground` di dalam blok `:root` dan `.dark` menggunakan format `oklch`.
+- Pilih nuansa hijau yang harmonis dengan oranye brand — arahnya ke **emerald-teal** yang segar namun tidak bertabrakan dengan oranye.
+- Daftarkan token di `@theme inline` agar bisa dipakai sebagai utility Tailwind, misalnya `bg-status-new`, `text-status-new`.
 
-4. **Terjemahan i18n**
-   - `src/i18n/translations.ts`: memperbarui key `status.baru` dari `"Aktif Terbaru"` menjadi `"Terbaru"` (ID), dan EN-nya dari `"Newly Active"` menjadi `"Latest"` (atau sesuai pilihan).
+### 2. Update komponen `StatusBadge.tsx`
 
-### Catatan
+- Ganti styling status `"Terbaru"` dari oranye menjadi hijau menggunakan token baru.
+- Sesuaikan juga warna dot indicator di sebelah label.
+- Status "Aktif" dan "Arsip" tetap seperti sekarang.
 
-- Perubahan ini **tidak** menyentuh field `regulasiStatus` di schema Regulation (Berlaku/Dicabut/Direvisi), karena itu adalah status hukum regulasi, bukan status tampilan dokumen.
-- Setelah schema diubah, dokumen lama yang masih menyimpan `"Aktif Terbaru"` akan tetap tampil di UI, tetapi badge-nya mungkin tidak ter-styling. Oleh karena itu migration data wajib dilakukan bersamaan.
+### 3. Pastikan kontras di kedua mode tema
 
-### Langkah pengerjaan
-1. Update tiga schema Sanity.
-2. Patch data existing `"Aktif Terbaru"` → `"Terbaru"`.
-3. Update `StatusBadge.tsx` dan `translations.ts`.
-4. Verifikasi build & preview badge di content card dan halaman detail.
+- Verifikasi warna hijau memiliki kontras yang cukup baik di latar terang (light) maupun gelap (dark).
+- Jika diperlukan, tambahkan varian dark yang sedikit lebih terang agar badge tetap terbaca.
 
-Apakah ingin `initialValue`-nya tetap `"Aktif"` atau diubah menjadi `"Terbaru"`?
+### 4. Validasi visual
+
+- Cek tampilan tag "Terbaru" di content card homepage (`InsightHub`, `ManualHub`) dan halaman listing (`insight-hub`, `manual-hub`, `pustaka-regulasi`).
+- Cek juga di halaman detail masing-masing konten.
+- Pastikan tag kategori tetap oranye dan tag "Terbaru" sekarang hijau, sehingga perbedaannya jelas.
+
+## Catatan
+- Tidak mengubah struktur data atau schema Sanity.
+- Tidak mengubah warna tag kategori, hanya membedakan warna status "Terbaru".
+- Perubahan terbatas pada design token CSS dan komponen `StatusBadge`.

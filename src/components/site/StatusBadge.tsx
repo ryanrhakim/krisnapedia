@@ -12,7 +12,7 @@ type Props = {
 
 /**
  * Small semantic badge for document lifecycle status:
- * - Terbaru → primary (oranye KRISNA)
+ * - Terbaru → emerald green (differentiated from category tag)
  * - Aktif   → emerald soft
  * - Arsip   → muted grey
  */
@@ -23,7 +23,7 @@ export function StatusBadge({ status, hideActive = false, className }: Props) {
 
   const styles: Record<string, string> = {
     Terbaru:
-      "bg-primary/15 text-[var(--primary-deep)] dark:text-primary ring-1 ring-inset ring-primary/25",
+      "bg-status-new/15 text-status-new-foreground ring-1 ring-inset ring-status-new/25",
     Aktif:
       "bg-emerald-500/12 text-emerald-700 dark:text-emerald-300 ring-1 ring-inset ring-emerald-500/25",
     Arsip:
@@ -50,7 +50,7 @@ export function StatusBadge({ status, hideActive = false, className }: Props) {
       <span
         className={cn(
           "h-1.5 w-1.5 rounded-full",
-          status === "Terbaru" && "bg-primary",
+          status === "Terbaru" && "bg-status-new",
           status === "Aktif" && "bg-emerald-500",
           status === "Arsip" && "bg-muted-foreground/60",
         )}
