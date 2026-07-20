@@ -1,10 +1,20 @@
-import { useState } from "react";
-import { FileText, Globe, Pause, Play, Presentation, Youtube } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  FileText,
+  Globe,
+  Maximize2,
+  Minimize2,
+  Pause,
+  Play,
+  Presentation,
+  Youtube,
+} from "lucide-react";
 import type { ContentBase } from "@/lib/sanity-types";
 import { fileExtension, fileUrl, imageUrl, youtubeEmbedUrl } from "@/lib/sanity";
 import { PortableText } from "@/components/site/PortableText";
 import { blocksToPlainText } from "@/lib/sanity";
 import { formatDate } from "@/lib/format";
+
 
 /**
  * Content viewer that auto-switches between PDF iframe, slides preview,
