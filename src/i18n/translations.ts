@@ -125,6 +125,13 @@ export const id = {
   "unit.manual": "manual",
   "unit.regulasi": "regulasi",
 
+  // Document status
+  "status.aktif": "Aktif",
+  "status.baru": "Aktif Terbaru",
+  "status.arsip": "Arsip",
+
+
+
   // About page
   "about.badge": "Tentang KRISNApedia",
   "about.heroTitle": "Pusat pengetahuan KRISNA, dirancang untuk semua pengguna.",
