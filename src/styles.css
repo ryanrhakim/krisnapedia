@@ -60,6 +60,8 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-surface-warm: var(--surface-warm);
+  --color-status-new: var(--status-new);
+  --color-status-new-foreground: var(--status-new-foreground);
 }
 
 :root {
@@ -79,6 +81,10 @@
   --primary-foreground: oklch(0.99 0.005 80);
   --primary-soft: oklch(0.95 0.04 70);
   --primary-deep: oklch(0.55 0.18 38);
+
+  /* Status: New — emerald green, harmonis dengan oranye brand */
+  --status-new: oklch(0.60 0.18 150);
+  --status-new-foreground: oklch(0.42 0.16 148);
 
   --secondary: oklch(0.18 0.015 50);
   --secondary-foreground: oklch(0.99 0.005 80);
@@ -137,6 +143,10 @@
   --primary-foreground: oklch(0.16 0.012 50);
   --primary-soft: oklch(0.3 0.06 55);
   --primary-deep: oklch(0.62 0.19 42);
+
+  /* Status: New — lebih terang di dark mode agar tetap terbaca */
+  --status-new: oklch(0.72 0.16 152);
+  --status-new-foreground: oklch(0.85 0.12 152);
 
   --secondary: oklch(0.28 0.018 50);
   --secondary-foreground: oklch(0.96 0.008 80);
