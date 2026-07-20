@@ -336,6 +336,12 @@ export const en: Record<TranslationKey, string> = {
   "unit.manual": "manuals",
   "unit.regulasi": "regulations",
 
+  // Document status
+  "status.aktif": "Active",
+  "status.baru": "Newly Active",
+  "status.arsip": "Archived",
+
+
   // About page
   "about.badge": "About KRISNApedia",
   "about.heroTitle": "The KRISNA knowledge hub, designed for every user.",
