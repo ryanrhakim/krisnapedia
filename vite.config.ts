@@ -13,6 +13,7 @@ export default defineConfig({
     // crawl ~5 MB of Studio internals (would OOM the Worker build).
     optimizeDeps: {
       exclude: ["sanity", "@sanity/vision", "styled-components"],
+      include: ["react-is", "use-sync-external-store/shim/with-selector"],
     },
   },
 });
