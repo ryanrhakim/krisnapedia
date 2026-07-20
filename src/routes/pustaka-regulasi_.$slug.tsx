@@ -13,7 +13,6 @@ import {
   Languages,
   Loader2,
   MapPin,
-  Maximize2,
   Share2,
   ShieldCheck,
   Tag,

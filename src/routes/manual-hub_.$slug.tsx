@@ -12,7 +12,6 @@ import {
   FileText,
   Languages,
   Loader2,
-  Maximize2,
   Share2,
   Tag,
   User,
