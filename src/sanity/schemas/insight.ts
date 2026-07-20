@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { CoverImageInput } from "../components/CoverImageInput";
 
 export const insightSchema = defineType({
   name: "insight",
