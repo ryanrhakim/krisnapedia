@@ -1,44 +1,36 @@
-# Menampilkan Status Dokumen di Front-End
+## Rencana: Ubah status dokumen menjadi "Terbaru, Aktif, Arsip"
 
-## Tujuan
-Menampilkan field `status` (Aktif, Aktif Terbaru, Arsip) yang sudah ada di schema Sanity (`insight`, `manual`, `regulation`) ke UI, sehingga pengguna langsung tahu kondisi setiap dokumen.
+Saat ini field `status` di dokumen Insight, Manual, dan Regulation memiliki pilihan: **Aktif / Aktif Terbaru / Arsip**. Kamu ingin mengganti "Aktif Terbaru" menjadi **"Terbaru"**, sehingga kategori status menjadi **Terbaru, Aktif, Arsip**.
 
-## Rekomendasi visual
+### Yang akan diubah
 
-Gunakan **badge kecil berwarna semantik** — konsisten dengan bahasa desain yang sudah ada (rounded-full, uppercase tracking, warna dari design token):
+1. **Sanity schemas**
+   - `src/sanity/schemas/insight.ts`
+   - `src/sanity/schemas/manual.ts`
+   - `src/sanity/schemas/regulation.ts`
+   - Mengganti opsi list dari `["Aktif", "Aktif Terbaru", "Arsip"]` menjadi `["Terbaru", "Aktif", "Arsip"]`.
+   - `initialValue` tetap `"Aktif"` (atau diubah menjadi `"Terbaru"` jika kamu inginkan — bisa dibahas).
 
-- **Aktif Terbaru** → badge primary (oranye KRISNA) — menonjol, menandai konten baru/segar.
-- **Aktif** → badge netral hijau lembut (emerald soft) — status "sehat", tidak berteriak.
-- **Arsip** → badge muted abu-abu — meredup, memberi sinyal bahwa dokumen sudah tidak aktif.
+2. **Data migration di Sanity**
+   - Semua dokumen yang saat ini bernilai `"Aktif Terbaru"` perlu di-patch menjadi `"Terbaru"`.
+   - Dokumen dengan status `"Aktif"` atau `"Arsip"` tidak berubah.
+   - Migration dilakukan via Sanity API (patch bulk) untuk tiga tipe dokumen: `insight`, `manual`, `regulation`.
 
-Regulation punya field terpisah `regulasiStatus` (Berlaku / Dicabut / Direvisi) — biarkan itu tetap ada sebagai info hukum, sementara badge `status` universal ditampilkan sejajar dengan kategori.
+3. **Komponen UI**
+   - `src/components/site/StatusBadge.tsx`: memperbarui mapping warna, label, dan logika `hideActive` agar mengenali `"Terbaru"` sebagai status oranye, dan tetap menyembunyikan badge `"Aktif"` di content card.
 
-## Lokasi penempatan
+4. **Terjemahan i18n**
+   - `src/i18n/translations.ts`: memperbarui key `status.baru` dari `"Aktif Terbaru"` menjadi `"Terbaru"` (ID), dan EN-nya dari `"Newly Active"` menjadi `"Latest"` (atau sesuai pilihan).
 
-1. **Content card (homepage + halaman listing Insight / Manual / Pustaka Regulasi)**
-   - Tambahkan badge status di pojok kanan-atas cover, berdampingan dengan pill kategori yang sudah ada di pojok kiri-atas. Pola yang sudah dipakai `<span className="absolute left-3 top-3 ...">` tinggal dikembar di sisi kanan.
-   - Sembunyikan badge saat status = "Aktif" (opsional) supaya tidak terlalu ramai — hanya tampilkan "Aktif Terbaru" dan "Arsip". Bisa dikonfirmasi (lihat pertanyaan di bawah).
+### Catatan
 
-2. **Halaman detail konten (`insight-hub_.$slug.tsx`, `manual-hub_.$slug.tsx`, `pustaka-regulasi_.$slug.tsx`)**
-   - Tempatkan badge di header dokumen, sebaris dengan kategori / tanggal / author, agar pengguna langsung melihat status saat membuka halaman.
+- Perubahan ini **tidak** menyentuh field `regulasiStatus` di schema Regulation (Berlaku/Dicabut/Direvisi), karena itu adalah status hukum regulasi, bukan status tampilan dokumen.
+- Setelah schema diubah, dokumen lama yang masih menyimpan `"Aktif Terbaru"` akan tetap tampil di UI, tetapi badge-nya mungkin tidak ter-styling. Oleh karena itu migration data wajib dilakukan bersamaan.
 
-3. **Filter tambahan (opsional, tidak termasuk scope awal)**
-   - Nanti bisa ditambah filter "Sembunyikan arsip" di halaman listing.
+### Langkah pengerjaan
+1. Update tiga schema Sanity.
+2. Patch data existing `"Aktif Terbaru"` → `"Terbaru"`.
+3. Update `StatusBadge.tsx` dan `translations.ts`.
+4. Verifikasi build & preview badge di content card dan halaman detail.
 
-## Implementasi teknis
-
-- **Komponen baru** `src/components/site/StatusBadge.tsx`
-  - Props: `status?: "Aktif" | "Aktif Terbaru" | "Arsip"`.
-  - Peta warna via class Tailwind + design token: `bg-primary/10 text-primary` untuk "Aktif Terbaru"; `bg-emerald-500/10 text-emerald-600 dark:text-emerald-400` untuk "Aktif"; `bg-muted text-muted-foreground` untuk "Arsip".
-  - Label i18n via `useT()` (tambah key `status.aktif`, `status.baru`, `status.arsip` di `src/i18n/translations.ts`).
-- **Query**: field `status` sudah termasuk di `BASE_PROJECTION` `src/lib/sanity-queries.ts` — tidak perlu ubah query.
-- **Integrasi UI**:
-  - `src/components/site/InsightHub.tsx`, `ManualHub.tsx` (homepage) → badge di kanan-atas cover.
-  - `src/routes/insight-hub.tsx`, `manual-hub.tsx`, `pustaka-regulasi.tsx` (listing) → badge di kanan-atas cover.
-  - `src/routes/insight-hub_.$slug.tsx`, `manual-hub_.$slug.tsx`, `pustaka-regulasi_.$slug.tsx` (detail) → badge di header.
-- Tidak ada perubahan schema Sanity atau backend.
-
-## Pertanyaan sebelum lanjut
-
-1. Untuk card, apakah badge "Aktif" juga ditampilkan, atau hanya "Aktif Terbaru" dan "Arsip" (mayoritas dokumen berstatus "Aktif" — menampilkan semua bisa terasa ramai)?
-2. Setuju dengan warna: **oranye primer** untuk "Aktif Terbaru", **hijau lembut** untuk "Aktif", **abu-abu muted** untuk "Arsip"? Atau ingin skema lain?
+Apakah ingin `initialValue`-nya tetap `"Aktif"` atau diubah menjadi `"Terbaru"`?
