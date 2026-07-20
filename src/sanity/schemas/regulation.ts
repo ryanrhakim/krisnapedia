@@ -89,7 +89,7 @@ export const regulationSchema = defineType({
       name: "status",
       type: "string",
       title: "Display status",
-      options: { list: ["Aktif", "Aktif Terbaru", "Arsip"] },
+      options: { list: ["Terbaru", "Aktif", "Arsip"] },
       initialValue: "Aktif",
     }),
     defineField({ name: "published", type: "boolean", initialValue: true }),
