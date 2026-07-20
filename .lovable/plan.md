@@ -1,32 +1,18 @@
 ## Masalah
 
-Di Sanity Studio (`/studio`), list dokumen Insight / Manual / Regulation menampilkan error "Invalid preview config". Console log jelas:
+Studio Sanity gagal load: `react-is` (CJS) di-import oleh Studio sebagai default export, tapi Vite tidak pre-bundle-nya jadi ESM interop hilang → `does not provide an export named 'default'`.
 
-```
-The "subtitle" field should be a string, ... instead saw object with keys {_ref, _type}
-```
-
-Penyebab: setelah migrasi kategori dari string ke `reference`, `preview.select.subtitle` di tiga schema masih menunjuk ke field `category` — yang sekarang berupa objek reference, bukan string.
+Root cause: di `vite.config.ts` kita `optimizeDeps.exclude: ["sanity", ...]`. Karena `react-is` cuma sampai lewat `sanity`, ikut tidak di-prebundle.
 
 ## Perbaikan
 
-Ubah blok `preview` di tiga file schema agar dereference judul kategori pakai sintaks `category.title` (Sanity preview select mendukung dot-path pada reference):
+Tambahkan `react-is` (dan `use-sync-external-store` yang biasanya kena masalah interop CJS serupa di Studio) ke `optimizeDeps.include` di `vite.config.ts`:
 
-- `src/sanity/schemas/insight.ts`
-- `src/sanity/schemas/manual.ts`
-- `src/sanity/schemas/regulation.ts`
-
-Dari:
 ```ts
-preview: {
-  select: { title: "title", subtitle: "category", media: "coverImage" },
-}
-```
-Menjadi:
-```ts
-preview: {
-  select: { title: "title", subtitle: "category.title", media: "coverImage" },
-}
+optimizeDeps: {
+  exclude: ["sanity", "@sanity/vision", "styled-components"],
+  include: ["react-is", "use-sync-external-store/shim/with-selector"],
+},
 ```
 
-Tidak ada perubahan lain — hanya konfigurasi preview Studio, tidak menyentuh query frontend atau data.
+Hanya satu file yang berubah: `vite.config.ts`. Setelah restart dev server, error hilang.
