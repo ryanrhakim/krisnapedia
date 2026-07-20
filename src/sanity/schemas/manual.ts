@@ -79,7 +79,7 @@ export const manualSchema = defineType({
     defineField({
       name: "status",
       type: "string",
-      options: { list: ["Aktif", "Aktif Terbaru", "Arsip"] },
+      options: { list: ["Terbaru", "Aktif", "Arsip"] },
       initialValue: "Aktif",
     }),
     defineField({ name: "published", type: "boolean", initialValue: true }),

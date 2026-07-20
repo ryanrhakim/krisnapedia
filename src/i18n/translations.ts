@@ -127,7 +127,7 @@ export const id = {
 
   // Document status
   "status.aktif": "Aktif",
-  "status.baru": "Aktif Terbaru",
+  "status.baru": "Terbaru",
   "status.arsip": "Arsip",
 
 
@@ -338,7 +338,7 @@ export const en: Record<TranslationKey, string> = {
 
   // Document status
   "status.aktif": "Active",
-  "status.baru": "Newly Active",
+  "status.baru": "Latest",
   "status.arsip": "Archived",
 
 

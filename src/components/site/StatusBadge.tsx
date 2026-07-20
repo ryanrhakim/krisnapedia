@@ -1,7 +1,7 @@
 import { useT } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/utils";
 
-type DocStatus = "Aktif" | "Aktif Terbaru" | "Arsip" | string;
+type DocStatus = "Terbaru" | "Aktif" | "Arsip" | string;
 
 type Props = {
   status?: DocStatus;
@@ -12,9 +12,9 @@ type Props = {
 
 /**
  * Small semantic badge for document lifecycle status:
- * - Aktif Terbaru → primary (oranye KRISNA)
- * - Aktif        → emerald soft
- * - Arsip        → muted grey
+ * - Terbaru → primary (oranye KRISNA)
+ * - Aktif   → emerald soft
+ * - Arsip   → muted grey
  */
 export function StatusBadge({ status, hideActive = false, className }: Props) {
   const { t } = useT();
@@ -22,7 +22,7 @@ export function StatusBadge({ status, hideActive = false, className }: Props) {
   if (hideActive && status === "Aktif") return null;
 
   const styles: Record<string, string> = {
-    "Aktif Terbaru":
+    Terbaru:
       "bg-primary/15 text-[var(--primary-deep)] dark:text-primary ring-1 ring-inset ring-primary/25",
     Aktif:
       "bg-emerald-500/12 text-emerald-700 dark:text-emerald-300 ring-1 ring-inset ring-emerald-500/25",
@@ -31,7 +31,7 @@ export function StatusBadge({ status, hideActive = false, className }: Props) {
   };
 
   const labelMap: Record<string, string> = {
-    "Aktif Terbaru": t("status.baru"),
+    Terbaru: t("status.baru"),
     Aktif: t("status.aktif"),
     Arsip: t("status.arsip"),
   };
@@ -50,7 +50,7 @@ export function StatusBadge({ status, hideActive = false, className }: Props) {
       <span
         className={cn(
           "h-1.5 w-1.5 rounded-full",
-          status === "Aktif Terbaru" && "bg-primary",
+          status === "Terbaru" && "bg-primary",
           status === "Aktif" && "bg-emerald-500",
           status === "Arsip" && "bg-muted-foreground/60",
         )}
