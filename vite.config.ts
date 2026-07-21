@@ -17,6 +17,7 @@ export default defineConfig({
         "react-is",
         "use-sync-external-store/shim/with-selector",
         "react/compiler-runtime",
+        "react-compiler-runtime",
         "react-easy-crop",
       ],
     },
