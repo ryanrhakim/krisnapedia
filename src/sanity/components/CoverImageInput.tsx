@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 import { set, unset, type ObjectInputProps } from "sanity";
 import { Stack, Text, Card, Flex, Box } from "@sanity/ui";
@@ -59,10 +59,11 @@ function sanityCropToInitialArea(
 }
 
 export function CoverImageInput(props: ObjectInputProps<CoverImageValue>) {
-  const { value, onChange, renderDefault } = props;
+  const { value, onChange, renderDefault, readOnly } = props;
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const hasUserInteractedRef = useRef(false);
 
   const imageUrl = useMemo(() => {
     if (!value?.asset?._ref) return null;
@@ -77,17 +78,27 @@ export function CoverImageInput(props: ObjectInputProps<CoverImageValue>) {
 
   const onCropComplete = useCallback(
     (area: Area) => {
+      // Skip auto-fired completion on mount and any read-only view
+      // (e.g. published document, insufficient permissions, reference preview).
+      if (readOnly) return;
+      if (!hasUserInteractedRef.current) return;
       const { crop: nextCrop, hotspot: nextHotspot } = pctAreaToSanity(area);
       onChange([set(nextCrop, ["crop"]), set(nextHotspot, ["hotspot"])]);
     },
-    [onChange],
+    [onChange, readOnly],
   );
 
   const onReset = useCallback(() => {
+    if (readOnly) return;
     setCrop({ x: 0, y: 0 });
     setZoom(1);
+    hasUserInteractedRef.current = true;
     onChange([unset(["crop"]), unset(["hotspot"])]);
-  }, [onChange]);
+  }, [onChange, readOnly]);
+
+  const markInteracted = () => {
+    hasUserInteractedRef.current = true;
+  };
 
   return (
     <Stack space={3}>
@@ -120,13 +131,15 @@ export function CoverImageInput(props: ObjectInputProps<CoverImageValue>) {
                 crop={crop}
                 zoom={zoom}
                 aspect={ASPECT}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
+                onCropChange={(c) => {
+                  markInteracted();
+                  setCrop(c);
+                }}
+                onZoomChange={(z) => {
+                  markInteracted();
+                  setZoom(z);
+                }}
                 onCropComplete={(_pct, pixels) => {
-                  // We only need the % area; pixels also work but require the
-                  // image's natural size. Recompute from state:
-                  // react-easy-crop's onCropComplete gives (croppedArea, croppedAreaPixels)
-                  // croppedArea is in percent — use it directly.
                   onCropComplete(_pct);
                   void pixels;
                 }}
@@ -147,13 +160,18 @@ export function CoverImageInput(props: ObjectInputProps<CoverImageValue>) {
                 max={4}
                 step={0.01}
                 value={zoom}
-                onChange={(e) => setZoom(Number(e.target.value))}
+                onChange={(e) => {
+                  markInteracted();
+                  setZoom(Number(e.target.value));
+                }}
+                disabled={readOnly}
                 style={{ flex: 1 }}
                 aria-label="Zoom cover"
               />
               <button
                 type="button"
                 onClick={onReset}
+                disabled={readOnly}
                 style={{
                   padding: "6px 10px",
                   borderRadius: 4,
