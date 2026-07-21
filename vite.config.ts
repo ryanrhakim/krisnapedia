@@ -15,6 +15,7 @@ export default defineConfig({
       exclude: ["sanity", "@sanity/vision"],
       include: [
         "react-is",
+        "use-sync-external-store/shim",
         "use-sync-external-store/shim/with-selector",
         "react/compiler-runtime",
         "react-compiler-runtime",
