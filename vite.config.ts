@@ -9,10 +9,10 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   vite: {
     // Sanity Studio is mounted client-only at /studio via lazy import.
-    // We exclude it from SSR pre-bundling so the SSR build never tries to
-    // crawl ~5 MB of Studio internals (would OOM the Worker build).
+    // We let Vite pre-bundle Studio deps in dev so their CJS transitive
+    // imports (styled-components → void-elements/prop-types, lodash, debug,
+    // react-compiler-runtime, etc.) are converted to ESM correctly.
     optimizeDeps: {
-      exclude: ["sanity", "@sanity/vision"],
       include: [
         "react-is",
         "use-sync-external-store/shim",
@@ -20,12 +20,9 @@ export default defineConfig({
         "react/compiler-runtime",
         "react-compiler-runtime",
         "react-easy-crop",
-        "debug",
-        "void-elements",
-        "prop-types",
-        "shallowequal",
-        "hoist-non-react-statics",
         "styled-components",
+        "sanity",
+        "@sanity/vision",
       ],
     },
   },
