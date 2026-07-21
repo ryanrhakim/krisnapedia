@@ -19,6 +19,7 @@ export default defineConfig({
         "react/compiler-runtime",
         "react-compiler-runtime",
         "react-easy-crop",
+        "debug",
       ],
     },
   },
