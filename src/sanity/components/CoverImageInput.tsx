@@ -59,10 +59,11 @@ function sanityCropToInitialArea(
 }
 
 export function CoverImageInput(props: ObjectInputProps<CoverImageValue>) {
-  const { value, onChange, renderDefault } = props;
+  const { value, onChange, renderDefault, readOnly } = props;
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const hasUserInteractedRef = useRef(false);
 
   const imageUrl = useMemo(() => {
     if (!value?.asset?._ref) return null;
@@ -77,17 +78,27 @@ export function CoverImageInput(props: ObjectInputProps<CoverImageValue>) {
 
   const onCropComplete = useCallback(
     (area: Area) => {
+      // Skip auto-fired completion on mount and any read-only view
+      // (e.g. published document, insufficient permissions, reference preview).
+      if (readOnly) return;
+      if (!hasUserInteractedRef.current) return;
       const { crop: nextCrop, hotspot: nextHotspot } = pctAreaToSanity(area);
       onChange([set(nextCrop, ["crop"]), set(nextHotspot, ["hotspot"])]);
     },
-    [onChange],
+    [onChange, readOnly],
   );
 
   const onReset = useCallback(() => {
+    if (readOnly) return;
     setCrop({ x: 0, y: 0 });
     setZoom(1);
+    hasUserInteractedRef.current = true;
     onChange([unset(["crop"]), unset(["hotspot"])]);
-  }, [onChange]);
+  }, [onChange, readOnly]);
+
+  const markInteracted = () => {
+    hasUserInteractedRef.current = true;
+  };
 
   return (
     <Stack space={3}>
