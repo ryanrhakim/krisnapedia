@@ -12,7 +12,7 @@ export default defineConfig({
     // We exclude it from SSR pre-bundling so the SSR build never tries to
     // crawl ~5 MB of Studio internals (would OOM the Worker build).
     optimizeDeps: {
-      exclude: ["sanity", "@sanity/vision", "styled-components"],
+      exclude: ["sanity", "@sanity/vision"],
       include: [
         "react-is",
         "use-sync-external-store/shim/with-selector",
