@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 import { set, unset, type ObjectInputProps } from "sanity";
 import { Stack, Text, Card, Flex, Box } from "@sanity/ui";
