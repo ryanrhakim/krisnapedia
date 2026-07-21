@@ -131,13 +131,15 @@ export function CoverImageInput(props: ObjectInputProps<CoverImageValue>) {
                 crop={crop}
                 zoom={zoom}
                 aspect={ASPECT}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
+                onCropChange={(c) => {
+                  markInteracted();
+                  setCrop(c);
+                }}
+                onZoomChange={(z) => {
+                  markInteracted();
+                  setZoom(z);
+                }}
                 onCropComplete={(_pct, pixels) => {
-                  // We only need the % area; pixels also work but require the
-                  // image's natural size. Recompute from state:
-                  // react-easy-crop's onCropComplete gives (croppedArea, croppedAreaPixels)
-                  // croppedArea is in percent — use it directly.
                   onCropComplete(_pct);
                   void pixels;
                 }}
@@ -158,13 +160,18 @@ export function CoverImageInput(props: ObjectInputProps<CoverImageValue>) {
                 max={4}
                 step={0.01}
                 value={zoom}
-                onChange={(e) => setZoom(Number(e.target.value))}
+                onChange={(e) => {
+                  markInteracted();
+                  setZoom(Number(e.target.value));
+                }}
+                disabled={readOnly}
                 style={{ flex: 1 }}
                 aria-label="Zoom cover"
               />
               <button
                 type="button"
                 onClick={onReset}
+                disabled={readOnly}
                 style={{
                   padding: "6px 10px",
                   borderRadius: 4,
