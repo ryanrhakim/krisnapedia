@@ -20,6 +20,8 @@ export default defineConfig({
         "react-compiler-runtime",
         "react-easy-crop",
         "debug",
+        "void-elements",
+        "styled-components",
       ],
     },
   },
