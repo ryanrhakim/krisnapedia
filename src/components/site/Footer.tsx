@@ -111,9 +111,9 @@ export function Footer() {
             {t("footer.rights")}
           </p>
           <div className="flex items-center gap-6 text-xs text-muted-foreground">
-            <a href="#" className="hover:text-foreground">{t("footer.privacy")}</a>
-            <a href="#" className="hover:text-foreground">{t("footer.terms")}</a>
-            <a href="#" className="hover:text-foreground">{t("footer.cookies")}</a>
+            <Link to="/kebijakan-privasi" className="hover:text-foreground">{t("footer.privacy")}</Link>
+            <Link to="/ketentuan-penggunaan" className="hover:text-foreground">{t("footer.terms")}</Link>
+            <Link to="/kebijakan-cookie" className="hover:text-foreground">{t("footer.cookies")}</Link>
           </div>
         </div>
       </div>
