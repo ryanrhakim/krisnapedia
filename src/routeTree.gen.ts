@@ -14,6 +14,9 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PustakaRegulasiRouteImport } from './routes/pustaka-regulasi'
 import { Route as PanduanRouteImport } from './routes/panduan'
 import { Route as ManualHubRouteImport } from './routes/manual-hub'
+import { Route as KetentuanPenggunaanRouteImport } from './routes/ketentuan-penggunaan'
+import { Route as KebijakanPrivasiRouteImport } from './routes/kebijakan-privasi'
+import { Route as KebijakanCookieRouteImport } from './routes/kebijakan-cookie'
 import { Route as InsightHubRouteImport } from './routes/insight-hub'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as IndexRouteImport } from './routes/index'
@@ -46,6 +49,21 @@ const PanduanRoute = PanduanRouteImport.update({
 const ManualHubRoute = ManualHubRouteImport.update({
   id: '/manual-hub',
   path: '/manual-hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KetentuanPenggunaanRoute = KetentuanPenggunaanRouteImport.update({
+  id: '/ketentuan-penggunaan',
+  path: '/ketentuan-penggunaan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KebijakanPrivasiRoute = KebijakanPrivasiRouteImport.update({
+  id: '/kebijakan-privasi',
+  path: '/kebijakan-privasi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KebijakanCookieRoute = KebijakanCookieRouteImport.update({
+  id: '/kebijakan-cookie',
+  path: '/kebijakan-cookie',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InsightHubRoute = InsightHubRouteImport.update({
@@ -93,6 +111,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/faq': typeof FaqRoute
   '/insight-hub': typeof InsightHubRoute
+  '/kebijakan-cookie': typeof KebijakanCookieRoute
+  '/kebijakan-privasi': typeof KebijakanPrivasiRoute
+  '/ketentuan-penggunaan': typeof KetentuanPenggunaanRoute
   '/manual-hub': typeof ManualHubRoute
   '/panduan': typeof PanduanRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
@@ -108,6 +129,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/faq': typeof FaqRoute
   '/insight-hub': typeof InsightHubRoute
+  '/kebijakan-cookie': typeof KebijakanCookieRoute
+  '/kebijakan-privasi': typeof KebijakanPrivasiRoute
+  '/ketentuan-penggunaan': typeof KetentuanPenggunaanRoute
   '/manual-hub': typeof ManualHubRoute
   '/panduan': typeof PanduanRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
@@ -124,6 +148,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/faq': typeof FaqRoute
   '/insight-hub': typeof InsightHubRoute
+  '/kebijakan-cookie': typeof KebijakanCookieRoute
+  '/kebijakan-privasi': typeof KebijakanPrivasiRoute
+  '/ketentuan-penggunaan': typeof KetentuanPenggunaanRoute
   '/manual-hub': typeof ManualHubRoute
   '/panduan': typeof PanduanRoute
   '/pustaka-regulasi': typeof PustakaRegulasiRoute
@@ -141,6 +168,9 @@ export interface FileRouteTypes {
     | '/'
     | '/faq'
     | '/insight-hub'
+    | '/kebijakan-cookie'
+    | '/kebijakan-privasi'
+    | '/ketentuan-penggunaan'
     | '/manual-hub'
     | '/panduan'
     | '/pustaka-regulasi'
@@ -156,6 +186,9 @@ export interface FileRouteTypes {
     | '/'
     | '/faq'
     | '/insight-hub'
+    | '/kebijakan-cookie'
+    | '/kebijakan-privasi'
+    | '/ketentuan-penggunaan'
     | '/manual-hub'
     | '/panduan'
     | '/pustaka-regulasi'
@@ -171,6 +204,9 @@ export interface FileRouteTypes {
     | '/'
     | '/faq'
     | '/insight-hub'
+    | '/kebijakan-cookie'
+    | '/kebijakan-privasi'
+    | '/ketentuan-penggunaan'
     | '/manual-hub'
     | '/panduan'
     | '/pustaka-regulasi'
@@ -187,6 +223,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FaqRoute: typeof FaqRoute
   InsightHubRoute: typeof InsightHubRoute
+  KebijakanCookieRoute: typeof KebijakanCookieRoute
+  KebijakanPrivasiRoute: typeof KebijakanPrivasiRoute
+  KetentuanPenggunaanRoute: typeof KetentuanPenggunaanRoute
   ManualHubRoute: typeof ManualHubRoute
   PanduanRoute: typeof PanduanRoute
   PustakaRegulasiRoute: typeof PustakaRegulasiRoute
@@ -234,6 +273,27 @@ declare module '@tanstack/react-router' {
       path: '/manual-hub'
       fullPath: '/manual-hub'
       preLoaderRoute: typeof ManualHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ketentuan-penggunaan': {
+      id: '/ketentuan-penggunaan'
+      path: '/ketentuan-penggunaan'
+      fullPath: '/ketentuan-penggunaan'
+      preLoaderRoute: typeof KetentuanPenggunaanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kebijakan-privasi': {
+      id: '/kebijakan-privasi'
+      path: '/kebijakan-privasi'
+      fullPath: '/kebijakan-privasi'
+      preLoaderRoute: typeof KebijakanPrivasiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kebijakan-cookie': {
+      id: '/kebijakan-cookie'
+      path: '/kebijakan-cookie'
+      fullPath: '/kebijakan-cookie'
+      preLoaderRoute: typeof KebijakanCookieRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/insight-hub': {
@@ -299,6 +359,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FaqRoute: FaqRoute,
   InsightHubRoute: InsightHubRoute,
+  KebijakanCookieRoute: KebijakanCookieRoute,
+  KebijakanPrivasiRoute: KebijakanPrivasiRoute,
+  KetentuanPenggunaanRoute: KetentuanPenggunaanRoute,
   ManualHubRoute: ManualHubRoute,
   PanduanRoute: PanduanRoute,
   PustakaRegulasiRoute: PustakaRegulasiRoute,
@@ -313,12 +376,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

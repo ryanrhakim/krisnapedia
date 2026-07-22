@@ -11,3 +11,6 @@
 - [Klinik KRISNA (FAQ)](/faq): Pusat tanya jawab dan kanal pengajuan pertanyaan pengguna.
 - [Tentang KRISNApedia](/tentang): Latar belakang, tujuan, dan ekosistem KRISNApedia.
 - [Panduan Penggunaan](/panduan): Cara menelusuri, membaca, dan memanfaatkan KRISNApedia.
+- [Kebijakan Privasi](/kebijakan-privasi): Bagaimana data pengguna diperlakukan mengacu UU PDP dan Permen PPN/Bappenas No. 7/2025.
+- [Ketentuan Penggunaan](/ketentuan-penggunaan): Syarat dan ketentuan penggunaan portal KRISNApedia.
+- [Kebijakan Cookie](/kebijakan-cookie): Penggunaan cookie dan penyimpanan lokal di KRISNApedia.

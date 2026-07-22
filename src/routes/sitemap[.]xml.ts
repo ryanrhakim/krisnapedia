@@ -25,6 +25,9 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/faq", changefreq: "monthly", priority: "0.6" },
           { path: "/tentang", changefreq: "monthly", priority: "0.5" },
           { path: "/panduan", changefreq: "monthly", priority: "0.5" },
+          { path: "/kebijakan-privasi", changefreq: "yearly", priority: "0.3" },
+          { path: "/ketentuan-penggunaan", changefreq: "yearly", priority: "0.3" },
+          { path: "/kebijakan-cookie", changefreq: "yearly", priority: "0.3" },
         ];
 
         const projection = `{ "slug": slug.current, "date": coalesce(date, _updatedAt) }`;
